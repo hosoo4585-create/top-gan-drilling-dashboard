@@ -517,6 +517,16 @@ const totalRow = document.createElement('tr');
 totalRow.innerHTML = `<td class="amt total" style="text-align:left;">НИЙТ ДҮН</td><td class="amt total">${fmtM(DATA.selbeg)}</td><td class="amt total">100%</td>`;
 sbCatBody.appendChild(totalRow);
 
+function parkSortKey(park){
+  const m = park.match(/^([A-Z]+)-(\d+)/i);
+  if(!m) return [park, 0];
+  return [m[1].toUpperCase(), parseInt(m[2], 10)];
+}
+SB.sort((a,b)=>{
+  const [pa,na] = parkSortKey(a.park), [pb,nb] = parkSortKey(b.park);
+  return pa===pb ? na-nb : pa.localeCompare(pb);
+});
+
 const sbRow = (r,i) => `<tr><td class="idx-cell">${i+1}</td><td class="model-tag">${r.model}</td><td class="park-tag">${r.park}</td><td><span class="cat-dot" style="background:${catColors[r.cat]};"></span>${r.cat}</td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${r.note||'—'}</td></tr>`;
 function renderSbTable(data){
   document.getElementById('sb-body').innerHTML = data.map((r,i)=>sbRow(r,i)).join('');
