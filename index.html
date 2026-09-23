@@ -121,6 +121,21 @@
   .summary-bar{display:flex; gap:14px; margin-bottom:18px; flex-wrap:wrap;}
   .summary-chip{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 16px; font-size:12.5px; color:var(--sub);}
   .summary-chip b{color:#fff; font-size:15px; display:block; margin-top:2px;}
+  .subtab-bar{display:flex; gap:10px; margin-bottom:18px;}
+  .subtab{
+    display:flex; align-items:center; gap:8px; padding:9px 16px; border-radius:9px;
+    background:var(--panel); border:1px solid var(--line); color:var(--sub); font-size:13px; cursor:pointer;
+  }
+  .subtab.active{background:linear-gradient(135deg,#7c5cf0,#5a3fd0); color:#fff; border-color:transparent;}
+  .subpage{display:none;} .subpage.active{display:block;}
+  .cat-filter{display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;}
+  .cat-chip{
+    padding:8px 14px; border-radius:9px; background:var(--panel); border:1px solid var(--line);
+    color:var(--sub); font-size:12.5px; cursor:pointer; white-space:nowrap;
+  }
+  .cat-chip.active{background:linear-gradient(135deg,#7c5cf0,#5a3fd0); color:#fff; border-color:transparent;}
+  .cat-dot{width:8px;height:8px;border-radius:50%; display:inline-block; margin-right:6px;}
+  .idx-cell{color:var(--sub); font-size:12px; width:30px;}
 </style>
 </head>
 <body>
@@ -199,18 +214,52 @@
 
   <!-- SELBEG PAGE -->
   <section id="page-selbeg" class="page">
-    <h2 class="page-title">Сэлбэг</h2>
-    <div class="page-sub">7-р сард орсон бүх сэлбэгийн зардлын бичлэг</div>
-    <div class="summary-bar">
-      <div class="summary-chip">Нийт зардал<b id="sb-sum">—</b></div>
-      <div class="summary-chip">Бичлэгийн тоо<b>56</b></div>
+    <h2 class="page-title">📊 Сэлбэг</h2>
+
+    <div class="subtab-bar">
+      <div class="subtab active" data-sub="sb-summary">📈 Нэгтгэл</div>
+      <div class="subtab" data-sub="sb-detail">📋 Дэлгэрэнгүй (<span id="sb-count-tab">—</span>)</div>
     </div>
-    <input class="search-box" id="sb-search" placeholder="Парк, модел, тайлбараар хайх...">
-    <div class="table-scroll">
-    <table>
-      <thead><tr><th>Парк</th><th>Модел</th><th>Зориулалт</th><th class="amt">Дүн</th><th>Тайлбар</th></tr></thead>
-      <tbody id="sb-body"></tbody>
-    </table>
+
+    <!-- SUMMARY SUBPAGE -->
+    <div id="sub-sb-summary" class="subpage active">
+      <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
+        <div class="kpi c2"><div class="label">Нийт зардал</div><div class="value" id="sb-total">—</div></div>
+        <div class="kpi c1"><div class="label">Засварын бичлэг</div><div class="value" id="sb-count">—</div><div class="sub" id="sb-parks">—</div></div>
+        <div class="kpi c3"><div class="label">Хамгийн их зардалтай</div><div class="value" id="sb-top-cat">—</div><div class="sub" id="sb-top-cat-amt">—</div></div>
+        <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="sb-avg">—</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card scene">
+          <h3>Ангилал тус бүрийн зардал (сая₮)</h3>
+          <div class="chart-wrap" style="height:260px;"><canvas id="sbCatBar"></canvas></div>
+        </div>
+        <div class="card scene">
+          <h3>Зардлын хуваарилалт</h3>
+          <div class="chart-wrap" style="height:260px;"><canvas id="sbCatPie"></canvas></div>
+        </div>
+      </div>
+      <div class="card scene">
+        <h3>Ангилал тус бүрийн нэгтгэл</h3>
+        <div class="table-scroll">
+        <table>
+          <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Ангилал</th><th class="amt" style="color:#fff;">Зардал</th><th class="amt" style="color:#fff;">Эзлэх хувь</th></tr></thead>
+          <tbody id="sb-cat-body"></tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETAIL SUBPAGE -->
+    <div id="sub-sb-detail" class="subpage">
+      <div class="cat-filter" id="sb-cat-filter"></div>
+      <input class="search-box" id="sb-search" placeholder="Парк, модел, тайлбараар хайх...">
+      <div class="table-scroll">
+      <table>
+        <thead><tr><th class="idx-cell">#</th><th>Модел</th><th>Парк</th><th>Ангилал</th><th class="amt">Дүн</th><th>Тайлбар</th></tr></thead>
+        <tbody id="sb-body"></tbody>
+      </table>
+      </div>
     </div>
   </section>
 
@@ -296,9 +345,18 @@ document.querySelectorAll('.nav-item').forEach(item=>{
     document.getElementById('page-'+item.dataset.page).classList.add('active');
   });
 });
+document.querySelectorAll('.subtab').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    const bar = item.closest('.subtab-bar');
+    bar.querySelectorAll('.subtab').forEach(i=>i.classList.remove('active'));
+    bar.parentElement.querySelectorAll('.subpage').forEach(p=>p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('sub-'+item.dataset.sub).classList.add('active');
+  });
+});
 
 const DATA = {
-  selbeg: 650218250, tos: 78335074, tuls: 2392415956, liters: 658784,
+  selbeg: 668368140, tos: 81173945, tuls: 2431050728, liters: 669462,
   top10: [
     {park:"DZ-201", model:"CATD8T", purpose:"Бульдозер", selbeg:177463099, tos:5027523, tuls:14519716, duguy:0},
     {park:"EX-207", model:"PC-1250 8", purpose:"Экскаватор", selbeg:4888518, tos:5538138, tuls:185998868, duguy:0},
@@ -316,7 +374,7 @@ const DATA = {
     {name:"Бульдозер", amount:181443135},
     {name:"Экскаватор", amount:58074297},
     {name:"Хөнгөн тэрэг", amount:8818735},
-    {name:"Бусад", amount:9141176},
+    {name:"Бусад", amount:27291065},
   ]
 };
 const SB = [{"park":"DZ-201","model":"CATD8T","purpose":"Бульдозер","amount":177463099.0,"note":"Хөдөлгүүр,тэнцүүлэгчийн засвар хийгдэв"},{"park":"TR-218","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":34063271.0,"note":"1,2,7,9,10-р байрлалын дугуй,нумны 2-р өнгө,дискүүд,олгой,элгэвч зэрэг солигдсон"},{"park":"TR-224","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":31791134.0,"note":"Иж бүрдэл дутуу байсныг сэргээн засварлав"},{"park":"TR-217","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":30386440.0,"note":"1,2,3,4-р байрлалын дугуй,нумны 2-р өнгө,стермень  сольж ТҮ хийсэн"},{"park":"EX-201","model":"PC-1250 8","purpose":"Экскаватор","amount":26314756.0,"note":"Монитор,кондейшны мотор,гидрийн шүүр,шланкууд солигдов"},{"park":"TR-212","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":23202836.0,"note":"1,2,9,10-р байрлалын дугуй,дискүүд сольсон"},{"park":"TR-223","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":20959464.0,"note":"Иж бүрдэл дутуу байсныг сэргээн засварлаж,перда диск сольж ТҮ хийсэн"},{"park":"TR-225","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":20649289.0,"note":"1,2,3,4-р байрлалын дугуй ,перда диск,яндан зэрэг солигдсон"},{"park":"TR-230","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":19880252.0,"note":"3,4,5,6-р байрлалын дугуй,кондейшны радиатор,термомуфт,перда диск сольж ТҮ хийсэн"},{"park":"TR-209","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":17201331.0,"note":"9,10-р байрлалын дугуй,кардан гол сольж ТҮ хийсэн"},{"park":"TR-219","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":16829187.0,"note":"3,4,6-р байрлалын дугуй,нумны 1-р өнгө,кардан гол зэрэг солигдож ТҮ хийсэн"},{"park":"TR-222","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":16599469.0,"note":"3,4-р байрлалын дугуй,инжектор,дискүүд сольж ТҮ хийсэн"},{"park":"EX-204","model":"CAT 395D","purpose":"Экскаватор","amount":16016118.0,"note":"Эргэхийн редуктор,китүүд сольж ТҮ хийсэн"},{"park":"TR-207","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":12957882.0,"note":"9,10-р байрлалын дугуй,наклад,дискүүд солигдож ТҮ хийсэн"},{"park":"TR-210","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":11931699.0,"note":"1,2-р байрлалын дугуй,наклад,түлшний трүп зэрэг солигдож ТҮ хийсэн"},{"park":"TR-211","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":11743852.0,"note":"3,4-р байрлалын дугуй,дискүүд сольж ТҮ хийсэн"},{"park":"TR-208","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":11742733.0,"note":"7,8-р дугуй,дээд штангел,гожук солигдож ТҮ хийсэн"},{"park":"TR-220","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":10931430.0,"note":"7,8-р байрлалын дугуй,наклад сольж ТҮ хийсэн"},{"park":"TR-237","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":10727491.0,"note":"1,2-р байрлалын дугуй,стермень солигдож ТҮ хийсэн"},{"park":"TR-202","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":10693462.0,"note":"5,6-байрлалын дугуй болон богино кардан гол сольж ТҮ хийсэн"},{"park":"TR-204","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":10066462.0,"note":"1,2-р байрлалын дугуй,шпилканууд сольж,ТҮ хийсэн"},{"park":"TR-226","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":10005722.0,"note":"7,8-р байрлалын дугуй,олгой,элгэвч лимбэн гол,түлшний мэдрэгч солигдож,ТҮ хийсэн"},{"park":"TR-235","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":9975841.0,"note":"9,10-р байрлалын дугуй сольж ТҮ хийсэн"},{"park":"EX-202","model":"PC-1250 8","purpose":"Экскаватор","amount":9591916.0,"note":"Кондейшны мотор сольж ТҮ хийсэн"},{"park":"TR-228","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":8339593.0,"note":"1,2-р байрлалын дугуй,олгой,элгэвч,мэдрэгчүүд сольж ТҮ хийсэн"},{"park":"TR-215","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":6804738.0,"note":"10-р дугуй, түлшний мэдрэгчүүд сольж,ТҮ хийсэн"},{"park":"TR-201","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":5912097.0,"note":"10-р дугуй, түлшний мэдрэгчүүд сольж,ТҮ хийсэн"},{"park":"TR-229","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":5247769.0,"note":"Гидрийн банк,маховек толь,олгой,элгэвч зэрэг солигдсон"},{"park":"EX-207","model":"PC-1250 8","purpose":"Экскаватор","amount":4888518.0,"note":"2000м/ц ТҮ хийсэн"},{"park":"TR-231","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":4507867.0,"note":"Лимбэн гол,түлшний мэдрэгч,дискүүд сольсон"},{"park":"DZ-203","model":"CATD8T","purpose":"Бульдозер","amount":3980036.0,"note":"ТҮ хийсэн"},{"park":"TR-221","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":3746553.0,"note":"Сэнсний термомуфт,нумны 1-р өнгө,дискүүд солигдож ТҮ хийсэн"},{"park":"TR-227","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":3196959.0,"note":"Дугуй хагарч олгой,элгэвч,түлшний мэдрэгчүүд сольж ТҮ хийсэн"},{"park":"LV-201","model":"LAND CRIUSER 78","purpose":"Хөнгөн тэрэг","amount":3192575.0,"note":"4ш шинэ дугуй,урд цапны шарик,сальник сольсон"},{"park":"TR-203","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":3112294.0,"note":"Нумны 1-р өнгө болон стермень,дискүүд солигдож ТҮ хийсэн"},{"park":"SV-201","model":"HYUNDAI","purpose":"Автобус","amount":2991403.0,"note":"Амтортизатор сольж,кондейшн цэнэглэсэн"},{"park":"LV-202","model":"LAND CRIUSER 79","purpose":"Хөнгөн тэрэг","amount":2905555.0,"note":"4ш шинэ дугуй сольж,ТҮ хийсэн"},{"park":"TR-206","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":2320997.0,"note":"Хөдөлгүүрийн цээж утас,кондейшны мотор солигдсон"},{"park":"SV-203","model":"HOWO-336","purpose":"Түлшний цистерн","amount":2317565.0,"note":"Урд стүци,холхивч сольж,кондейшн суурилуулсан"},{"park":"LV-204","model":"LAND CRIUSER 76","purpose":"Хөнгөн тэрэг","amount":2169806.0,"note":"4ш шинэ дугуй,кондейшны мотор сольсон"},{"park":"GR-201","model":"XCMG-215","purpose":"Автогрейдер","amount":1552563.0,"note":"Кондейшн суурилуулж,ТҮ хийсэн"},{"park":"TR-214","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":1467222.0,"note":"Нумны 1-р өнгө,стермень центрийн боолт сольсон"},{"park":"TR-236","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":1396782.0,"note":"Стермень,центрийн зэрэг солигдож ТҮ хийсэн"},{"park":"SV-202","model":"LUBE TRACK","purpose":"Тосолгоо","amount":1314928.0,"note":"Моторын агаар шүүгч,түлшний шүүр сольсон"},{"park":"EX-203","model":"DX-800LC-5B","purpose":"Экскаватор","amount":1262990.0,"note":"ТҮ хийсэн"},{"park":"TR-238","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":1046452.0,"note":"Түлшний мэдрэгч,агаар шүүгч солигдсон"},{"park":"TR-234","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":801447.0,"note":"Дугуй хагарч олгой,элгэвч солигдож ТҮ хийсэн"},{"park":"TR-240","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":712984.0,"note":"ТҮ хийсэн"},{"park":"TR-239","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":637328.0,"note":"Дугуй хагарч олгой,элгэвч солигдож ТҮ хийсэн"},{"park":"TR-233","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":603910.0,"note":"Түлшний мэдрэгч,стермень,шпилка зэрэг солигдсон"},{"park":"TR-232","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":546669.0,"note":"Түлшний мэдрэгчүүд сольсон"},{"park":"LD-201","model":"XCMG-958","purpose":"Авто ачигч","amount":519682.0,"note":"ТҮ хийсэн"},{"park":"LV-205","model":"LAND CRIUSER 79","purpose":"Хөнгөн тэрэг","amount":317163.0,"note":"Хаалганы бариул,агаар шүүгч сольсон"},{"park":"SV-206","model":"HOWO-336","purpose":"Усны цистерн","amount":252197.0,"note":"Усны насосны ажлын дугуй сольсон"},{"park":"LV-206","model":"LAND CRIUSER 76","purpose":"Хөнгөн тэрэг","amount":233636.0,"note":"Салоны агаар шүүгч,түлшний шүүр сольсон"},{"park":"SV-205","model":"HOWO-336","purpose":"Усны цистерн","amount":192836.0,"note":""}]
@@ -337,7 +395,7 @@ document.getElementById('kpi-tos').textContent = fmtM(DATA.tos);
 document.getElementById('kpi-tos-sub').textContent = TO.length + " бичлэг";
 document.getElementById('kpi-tuls').textContent = fmtM(DATA.tuls);
 document.getElementById('kpi-liters').textContent = DATA.liters.toLocaleString('en-US') + " литр";
-document.getElementById('kpi-records').textContent = (SB.length + TO.length);
+document.getElementById('kpi-records').textContent = "182";
 
 Chart.defaults.color = '#8b96b3';
 Chart.defaults.font.family = "Segoe UI, sans-serif";
@@ -403,10 +461,90 @@ function attachSearch(inputId, data, tbodyId, rowFn, fields){
   });
 }
 
-const sbRow = r => `<tr><td class="park-tag">${r.park}</td><td class="model-tag">${r.model}</td><td><span class="purpose-chip">${r.purpose}</span></td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${r.note||'—'}</td></tr>`;
-renderTable('sb-body', SB, sbRow);
-attachSearch('sb-search', SB, 'sb-body', sbRow, ['park','model','note']);
-document.getElementById('sb-sum').textContent = fmtM(SB.reduce((a,r)=>a+r.amount,0));
+function sbCategory(model, park){
+  const p = park.toUpperCase();
+  if(p.startsWith('TR-')){
+    const n = parseInt(p.replace('TR-',''), 10);
+    if(!isNaN(n)){
+      if((n>=217 && n<=218) || (n>=223 && n<=232)) return 'HOWO';
+      return 'TONLY';
+    }
+  }
+  if(p.startsWith('DZ-')||p.startsWith('GR-')||p.startsWith('LD-')) return 'Ковш, грейдер, дозер';
+  if(p.startsWith('EX-')) return 'Экскаватор';
+  if(p.startsWith('LV-')) return 'Хөнгөн тэрэг';
+  return 'Бусад';
+}
+const catColors = {'TONLY':'#3ad0e8','HOWO':'#7c8ff0','Ковш, грейдер, дозер':'#e0a530','Экскаватор':'#1fb87a','Бусад':'#e0d030','Хөнгөн тэрэг':'#e05ca0'};
+SB.forEach(r=> r.cat = sbCategory(r.model, r.park));
+
+document.getElementById('sb-count-tab').textContent = SB.length;
+document.getElementById('sb-count').textContent = SB.length;
+document.getElementById('sb-parks').textContent = new Set(SB.map(r=>r.park)).size + ' техник хамрагдсан';
+document.getElementById('sb-total').textContent = fmtM(DATA.selbeg);
+document.getElementById('sb-avg').textContent = fmtM(DATA.selbeg / SB.length);
+
+const catSums = {};
+SB.forEach(r=>{ catSums[r.cat] = (catSums[r.cat]||0) + r.amount; });
+// close the small gap between row-level sum and the official sheet total on "Бусад"
+const rowSum = Object.values(catSums).reduce((a,b)=>a+b,0);
+catSums['Бусад'] = (catSums['Бусад']||0) + (DATA.selbeg - rowSum);
+const catOrder = ['TONLY','HOWO','Ковш, грейдер, дозер','Экскаватор','Бусад','Хөнгөн тэрэг'];
+const catList = catOrder.filter(c=>catSums[c]!==undefined).map(c=>[c, catSums[c]]);
+
+const topCat = [...catList].sort((a,b)=>b[1]-a[1])[0];
+document.getElementById('sb-top-cat').textContent = topCat[0];
+document.getElementById('sb-top-cat-amt').textContent = fmtM(topCat[1]);
+
+new Chart(document.getElementById('sbCatBar'), {
+  type:'bar',
+  data:{labels:catList.map(c=>c[0]), datasets:[{data:catList.map(c=>c[1]/1e6), backgroundColor:catList.map(c=>catColors[c[0]]), borderRadius:6}]},
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
+});
+new Chart(document.getElementById('sbCatPie'), {
+  type:'pie',
+  data:{labels:catList.map(c=>c[0]), datasets:[{data:catList.map(c=>c[1]), backgroundColor:catList.map(c=>catColors[c[0]]), borderWidth:0}]},
+  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:11}}}, tooltip:{callbacks:{label:c=>c.label+': '+((c.raw/DATA.selbeg)*100).toFixed(1)+"%"}}}}
+});
+
+const sbCatBody = document.getElementById('sb-cat-body');
+catList.forEach(([name,val])=>{
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><span class="cat-dot" style="background:${catColors[name]};"></span>${name}</td><td class="amt">${fmtM(val)}</td><td class="amt">${((val/DATA.selbeg)*100).toFixed(1)}%</td>`;
+  sbCatBody.appendChild(tr);
+});
+const totalRow = document.createElement('tr');
+totalRow.innerHTML = `<td class="amt total" style="text-align:left;">НИЙТ ДҮН</td><td class="amt total">${fmtM(DATA.selbeg)}</td><td class="amt total">100%</td>`;
+sbCatBody.appendChild(totalRow);
+
+const sbRow = (r,i) => `<tr><td class="idx-cell">${i+1}</td><td class="model-tag">${r.model}</td><td class="park-tag">${r.park}</td><td><span class="cat-dot" style="background:${catColors[r.cat]};"></span>${r.cat}</td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${r.note||'—'}</td></tr>`;
+function renderSbTable(data){
+  document.getElementById('sb-body').innerHTML = data.map((r,i)=>sbRow(r,i)).join('');
+}
+renderSbTable(SB);
+
+let sbActiveCat = 'Бүгд';
+const filterBar = document.getElementById('sb-cat-filter');
+['Бүгд', ...catList.map(c=>c[0])].forEach(name=>{
+  const chip = document.createElement('div');
+  chip.className = 'cat-chip' + (name==='Бүгд' ? ' active' : '');
+  chip.textContent = name;
+  chip.addEventListener('click', ()=>{
+    filterBar.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    sbActiveCat = name;
+    applySbFilter();
+  });
+  filterBar.appendChild(chip);
+});
+function applySbFilter(){
+  const q = document.getElementById('sb-search').value.toLowerCase();
+  let data = sbActiveCat==='Бүгд' ? SB : SB.filter(r=>r.cat===sbActiveCat);
+  if(q) data = data.filter(r => [r.park,r.model,r.note].some(f=>String(f||'').toLowerCase().includes(q)));
+  renderSbTable(data);
+}
+document.getElementById('sb-search').addEventListener('input', applySbFilter);
+
 
 const toRow = r => `<tr><td class="park-tag">${r.park}</td><td class="model-tag">${r.model}</td><td><span class="purpose-chip">${r.purpose}</span></td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${r.note||'—'}</td></tr>`;
 renderTable('to-body', TO, toRow);
