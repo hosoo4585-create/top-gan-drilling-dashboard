@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ТОП ГАН ДРИЛЛИНГ — Техникийн зардлын тайлан</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0c1220; --panel:#141b2d; --panel2:#111726;
+    --line:#232c42; --text:#eef1f8; --sub:#8b96b3;
+    --blue:#3b6fe0; --cyan:#22b8cf; --violet:#7c5cf0; --amber:#e0a530; --rose:#e0456f;
+  }
+  :root:not([data-theme="light"]){}
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 28px; border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#141b2d,#0f1524);
+    position:sticky; top:env(safe-area-inset-top,0px); z-index:5;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand .mark{
+    width:38px;height:38px;border-radius:9px;
+    background:linear-gradient(135deg,var(--amber),#b5711a);
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+  }
+  .brand h1{font-size:16px; margin:0; letter-spacing:.3px;}
+  .brand span{display:block; font-size:11.5px; color:var(--sub); margin-top:2px;}
+  .period{font-size:13px; color:var(--sub); background:var(--panel2); padding:7px 14px; border-radius:8px; border:1px solid var(--line);}
+
+  main{max-width:1240px; margin:0 auto; padding:26px 24px 60px;}
+  h2.section{font-size:15px; font-weight:600; margin:0 0 14px; display:flex; align-items:center; gap:8px;}
+
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px;}
+  @media (max-width:900px){.kpis{grid-template-columns:repeat(2,1fr);}}
+  .kpi{
+    border-radius:14px; padding:18px 20px; position:relative; overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .kpi .label{font-size:12.5px; color:rgba(255,255,255,.75); margin-bottom:8px;}
+  .kpi .value{font-size:25px; font-weight:700; line-height:1;}
+  .kpi .sub{font-size:11.5px; color:rgba(255,255,255,.6); margin-top:6px;}
+  .kpi.c1{background:linear-gradient(135deg,#2c4fc4,#1c2f7a);}
+  .kpi.c2{background:linear-gradient(135deg,#1b93a8,#0d5b6c);}
+  .kpi.c3{background:linear-gradient(135deg,#6a45d1,#3f2589);}
+  .kpi.c4{background:linear-gradient(135deg,#c23f6b,#7a2043);}
+
+  .grid2{display:grid; grid-template-columns:1.3fr 1fr; gap:18px; margin-bottom:22px;}
+  @media (max-width:900px){.grid2{grid-template-columns:1fr;}}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px;}
+  .card h3{margin:0 0 4px; font-size:14.5px;}
+  .card .hint{font-size:12px; color:var(--sub); margin-bottom:14px;}
+  .chart-wrap{position:relative; height:260px;}
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  thead th{
+    text-align:left; color:var(--sub); font-weight:600; font-size:11.5px;
+    padding:8px 10px; border-bottom:1px solid var(--line);
+  }
+  tbody td{padding:10px; border-bottom:1px solid var(--line);}
+  tbody tr:last-child td{border-bottom:none;}
+  .park-tag{font-weight:600;}
+  .model-tag{color:var(--sub); font-size:12px;}
+  .amt{text-align:right; font-variant-numeric:tabular-nums;}
+  .amt.total{font-weight:700; color:#fff;}
+  .purpose-chip{
+    font-size:11px; padding:2px 8px; border-radius:20px; background:#1c2440; color:var(--sub);
+    border:1px solid var(--line); white-space:nowrap;
+  }
+
+  .legend-list{list-style:none; padding:0; margin:14px 0 0; font-size:13px;}
+  .legend-list li{display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--line);}
+  .legend-list li:last-child{border-bottom:none;}
+  .dot{width:9px;height:9px;border-radius:50%; display:inline-block; margin-right:8px;}
+
+  footer{text-align:center; color:var(--sub); font-size:11.5px; padding:20px 0 6px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="mark">⛏️</div>
+    <div>
+      <h1>ТОП ГАН ДРИЛЛИНГ ХХК</h1>
+      <span>Техникийн зардлын тайлан</span>
+    </div>
+  </div>
+  <div class="period">2026 оны 7-р сар</div>
+</header>
+
+<main>
+
+  <div class="kpis">
+    <div class="kpi c1">
+      <div class="label">Нийт зардал</div>
+      <div class="value" id="kpi-total">—</div>
+      <div class="sub" id="kpi-total-sub">—</div>
+    </div>
+    <div class="kpi c2">
+      <div class="label">Сэлбэгийн зардал</div>
+      <div class="value" id="kpi-selbeg">—</div>
+      <div class="sub">65 бичлэг</div>
+    </div>
+    <div class="kpi c3">
+      <div class="label">Тосны зарцуулалт</div>
+      <div class="value" id="kpi-tos">—</div>
+      <div class="sub">63 бичлэг</div>
+    </div>
+    <div class="kpi c4">
+      <div class="label">Түлшний зардал</div>
+      <div class="value" id="kpi-tuls">—</div>
+      <div class="sub" id="kpi-liters">—</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Сэлбэг vs Тос vs Түлш (сая ₮)</h3>
+      <div class="hint">7-р сарын нийт зардлын харьцуулалт</div>
+      <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Зардлын бүтэц</h3>
+      <div class="hint">Нийт зардалд эзлэх хувь</div>
+      <div class="chart-wrap" style="height:200px;"><canvas id="donutChart"></canvas></div>
+      <ul class="legend-list" id="donut-legend"></ul>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="grid-column:1 / -1;">
+      <h3>Хамгийн өндөр зардалтай техник (Сэлбэг + Тос + Түлш)</h3>
+      <div class="hint">Парк тус бүрийн нийт зардлаар эрэмбэлэв — эхний 10</div>
+      <div style="overflow-x:auto;">
+      <table style="min-width:640px;">
+        <thead>
+          <tr>
+            <th>Парк</th><th>Модел</th><th>Зориулалт</th>
+            <th class="amt">Сэлбэг</th><th class="amt">Тос</th><th class="amt">Түлш</th><th class="amt">Нийт</th>
+          </tr>
+        </thead>
+        <tbody id="top10-body"></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="grid-column:1 / -1;">
+      <h3>Сэлбэгийн зардал — зориулалтаар</h3>
+      <div class="hint">Техникийн ангиллаар хуваарилсан сэлбэгийн зардал</div>
+      <div class="chart-wrap" style="height:220px;"><canvas id="purposeChart"></canvas></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>ТОП ГАН ДРИЛЛИНГ ХХК · 2026 оны 7-р сарын техникийн зардлын мэдээ</footer>
+
+<script>
+const fmtM = n => (n/1_000_000).toLocaleString('mn-MN',{maximumFractionDigits:1}) + " сая₮";
+const fmtFull = n => "₮" + Math.round(n).toLocaleString('en-US');
+
+const DATA = {
+  selbeg: 650218250,
+  tos: 78335074,
+  tuls: 2392415956,
+  liters: 658784,
+  records: 128,
+  top10: [
+    {park:"DZ-201", model:"CATD8T", purpose:"Бульдозер", selbeg:177463099, tos:5027523, tuls:14519716},
+    {park:"EX-207", model:"PC-1250 8", purpose:"Экскаватор", selbeg:4888518, tos:5538138, tuls:185998868},
+    {park:"EX-202", model:"PC-1250 8", purpose:"Экскаватор", selbeg:9591916, tos:8670861, tuls:173980540},
+    {park:"EX-204", model:"CAT 395D", purpose:"Экскаватор", selbeg:16016118, tos:5399862, tuls:86567904},
+    {park:"TR-212", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:23202836, tos:153704, tuls:64065274},
+    {park:"TR-218", model:"HOWO-105", purpose:"Өөрөө буулгагч", selbeg:34063271, tos:123913, tuls:50485982},
+    {park:"TR-235", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:9975841, tos:606834, tuls:73144822},
+    {park:"TR-220", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:10931430, tos:664828, tuls:68699135},
+    {park:"TR-207", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:12957882, tos:1449186, tuls:65169101},
+    {park:"TR-209", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:17201331, tos:593574, tuls:60527797},
+  ],
+  purpose: [
+    {name:"Өөрөө буулгагч", amount:392740908},
+    {name:"Бульдозер", amount:181443135},
+    {name:"Экскаватор", amount:58074297},
+    {name:"Хөнгөн тэрэг", amount:8818735},
+    {name:"Бусад", amount:9141176},
+  ]
+};
+
+const total = DATA.selbeg + DATA.tos + DATA.tuls;
+
+document.getElementById('kpi-total').textContent = fmtM(total);
+document.getElementById('kpi-total-sub').textContent = fmtFull(total);
+document.getElementById('kpi-selbeg').textContent = fmtM(DATA.selbeg);
+document.getElementById('kpi-tos').textContent = fmtM(DATA.tos);
+document.getElementById('kpi-tuls').textContent = fmtM(DATA.tuls);
+document.getElementById('kpi-liters').textContent = DATA.liters.toLocaleString('en-US') + " литр";
+
+Chart.defaults.color = '#8b96b3';
+Chart.defaults.font.family = "Segoe UI, sans-serif";
+
+new Chart(document.getElementById('barChart'), {
+  type:'bar',
+  data:{
+    labels:['Сэлбэг','Тос','Түлш'],
+    datasets:[{
+      data:[DATA.selbeg/1e6, DATA.tos/1e6, DATA.tuls/1e6],
+      backgroundColor:['#3b6fe0','#7c5cf0','#22b8cf'],
+      borderRadius:6, maxBarThickness:80
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
+    scales:{
+      y:{beginAtZero:true, grid:{color:'#232c42'}, ticks:{callback:v=>v.toLocaleString()}},
+      x:{grid:{display:false}}
+    }
+  }
+});
+
+const donutColors = ['#3b6fe0','#7c5cf0','#22b8cf'];
+new Chart(document.getElementById('donutChart'), {
+  type:'doughnut',
+  data:{
+    labels:['Сэлбэгийн зардал','Тосны зарцуулалт','Түлшний зардал'],
+    datasets:[{data:[DATA.selbeg, DATA.tos, DATA.tuls], backgroundColor:donutColors, borderWidth:0}]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false, cutout:'68%',
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>((c.raw/total)*100).toFixed(1)+"%  ("+fmtM(c.raw)+")"}}}
+  }
+});
+const legend = document.getElementById('donut-legend');
+[['Сэлбэгийн зардал',DATA.selbeg,donutColors[0]],['Тосны зарцуулалт',DATA.tos,donutColors[1]],['Түлшний зардал',DATA.tuls,donutColors[2]]]
+  .forEach(([name,val,color])=>{
+    const li=document.createElement('li');
+    li.innerHTML = `<span><span class="dot" style="background:${color}"></span>${name}</span><span>${((val/total)*100).toFixed(1)}%</span>`;
+    legend.appendChild(li);
+  });
+
+const tbody = document.getElementById('top10-body');
+DATA.top10.forEach(r=>{
+  const tr=document.createElement('tr');
+  const tot = r.selbeg+r.tos+r.tuls;
+  tr.innerHTML = `
+    <td class="park-tag">${r.park}</td>
+    <td class="model-tag">${r.model}</td>
+    <td><span class="purpose-chip">${r.purpose}</span></td>
+    <td class="amt">${fmtM(r.selbeg)}</td>
+    <td class="amt">${fmtM(r.tos)}</td>
+    <td class="amt">${fmtM(r.tuls)}</td>
+    <td class="amt total">${fmtM(tot)}</td>`;
+  tbody.appendChild(tr);
+});
+
+new Chart(document.getElementById('purposeChart'), {
+  type:'bar',
+  data:{
+    labels:DATA.purpose.map(p=>p.name),
+    datasets:[{
+      data:DATA.purpose.map(p=>p.amount/1e6),
+      backgroundColor:'#e0a530',
+      borderRadius:6, maxBarThickness:56
+    }]
+  },
+  options:{
+    indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
+    scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}
+  }
+});
+</script>
+</body>
+</html>
