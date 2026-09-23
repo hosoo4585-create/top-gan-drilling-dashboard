@@ -11,39 +11,42 @@
     --line:#232c42; --text:#eef1f8; --sub:#8b96b3;
     --blue:#3b6fe0; --cyan:#22b8cf; --violet:#7c5cf0; --amber:#e0a530; --rose:#e0456f;
   }
-  :root:not([data-theme="light"]){}
   *{box-sizing:border-box;}
   html{scroll-padding-top:env(safe-area-inset-top,0px);}
   body{
     margin:0; background:var(--bg); color:var(--text);
     font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
     padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+    display:flex; min-height:100vh;
   }
-  header{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:18px 28px; border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg,#141b2d,#0f1524);
-    position:sticky; top:env(safe-area-inset-top,0px); z-index:5;
+  .sidebar{
+    width:220px; flex-shrink:0; background:var(--panel2); border-right:1px solid var(--line);
+    padding:18px 12px; position:sticky; top:0; height:100vh; overflow-y:auto;
   }
-  .brand{display:flex; align-items:center; gap:12px;}
+  .brand{display:flex; align-items:center; gap:10px; padding:0 6px 18px; border-bottom:1px solid var(--line); margin-bottom:14px;}
   .brand .mark{
-    width:38px;height:38px;border-radius:9px;
+    width:34px;height:34px;border-radius:9px; flex-shrink:0;
     background:linear-gradient(135deg,var(--amber),#b5711a);
-    display:flex;align-items:center;justify-content:center;font-size:18px;
+    display:flex;align-items:center;justify-content:center;font-size:16px;
   }
-  .brand h1{font-size:16px; margin:0; letter-spacing:.3px;}
-  .brand span{display:block; font-size:11.5px; color:var(--sub); margin-top:2px;}
-  .period{font-size:13px; color:var(--sub); background:var(--panel2); padding:7px 14px; border-radius:8px; border:1px solid var(--line);}
+  .brand h1{font-size:13px; margin:0; letter-spacing:.2px; line-height:1.3;}
+  .nav-item{
+    display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:9px;
+    color:var(--sub); font-size:13.5px; cursor:pointer; margin-bottom:3px; user-select:none;
+  }
+  .nav-item:hover{background:#1b2338; color:var(--text);}
+  .nav-item.active{background:linear-gradient(135deg,#7c5cf0,#5a3fd0); color:#fff;}
+  .period{font-size:12px; color:var(--sub); padding:10px 12px 16px;}
 
-  main{max-width:1240px; margin:0 auto; padding:26px 24px 60px;}
-  h2.section{font-size:15px; font-weight:600; margin:0 0 14px; display:flex; align-items:center; gap:8px;}
+  main{flex:1; min-width:0; padding:26px 28px 60px; max-width:1240px; margin:0 auto;}
+  .page{display:none;}
+  .page.active{display:block;}
+  h2.page-title{font-size:18px; font-weight:700; margin:0 0 4px;}
+  .page-sub{font-size:12.5px; color:var(--sub); margin-bottom:20px;}
 
   .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px;}
-  @media (max-width:900px){.kpis{grid-template-columns:repeat(2,1fr);}}
-  .kpi{
-    border-radius:14px; padding:18px 20px; position:relative; overflow:hidden;
-    border:1px solid var(--line);
-  }
+  @media (max-width:900px){.kpis{grid-template-columns:repeat(2,1fr);} body{flex-direction:column;} .sidebar{width:100%; height:auto; position:relative;}}
+  .kpi{border-radius:14px; padding:18px 20px; position:relative; overflow:hidden; border:1px solid var(--line);}
   .kpi .label{font-size:12.5px; color:rgba(255,255,255,.75); margin-bottom:8px;}
   .kpi .value{font-size:25px; font-weight:700; line-height:1;}
   .kpi .sub{font-size:11.5px; color:rgba(255,255,255,.6); margin-top:6px;}
@@ -59,10 +62,15 @@
   .card .hint{font-size:12px; color:var(--sub); margin-bottom:14px;}
   .chart-wrap{position:relative; height:260px;}
 
-  table{width:100%; border-collapse:collapse; font-size:13px;}
+  .search-box{
+    width:100%; padding:10px 14px; border-radius:9px; border:1px solid var(--line);
+    background:var(--panel2); color:var(--text); font-size:13px; margin-bottom:14px;
+  }
+  .table-scroll{overflow-x:auto; max-height:520px; overflow-y:auto;}
+  table{width:100%; border-collapse:collapse; font-size:13px; min-width:640px;}
   thead th{
     text-align:left; color:var(--sub); font-weight:600; font-size:11.5px;
-    padding:8px 10px; border-bottom:1px solid var(--line);
+    padding:8px 10px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--panel);
   }
   tbody td{padding:10px; border-bottom:1px solid var(--line);}
   tbody tr:last-child td{border-bottom:none;}
@@ -74,107 +82,175 @@
     font-size:11px; padding:2px 8px; border-radius:20px; background:#1c2440; color:var(--sub);
     border:1px solid var(--line); white-space:nowrap;
   }
+  .reason-cell{color:var(--sub); font-size:12.5px; max-width:320px;}
 
   .legend-list{list-style:none; padding:0; margin:14px 0 0; font-size:13px;}
   .legend-list li{display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--line);}
   .legend-list li:last-child{border-bottom:none;}
   .dot{width:9px;height:9px;border-radius:50%; display:inline-block; margin-right:8px;}
-
-  footer{text-align:center; color:var(--sub); font-size:11.5px; padding:20px 0 6px;}
+  .summary-bar{display:flex; gap:14px; margin-bottom:18px; flex-wrap:wrap;}
+  .summary-chip{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 16px; font-size:12.5px; color:var(--sub);}
+  .summary-chip b{color:#fff; font-size:15px; display:block; margin-top:2px;}
 </style>
 </head>
 <body>
 
-<header>
+<div class="sidebar">
   <div class="brand">
     <div class="mark">⛏️</div>
-    <div>
-      <h1>ТОП ГАН ДРИЛЛИНГ ХХК</h1>
-      <span>Техникийн зардлын тайлан</span>
-    </div>
+    <h1>ТОП ГАН<br>ДРИЛЛИНГ ХХК</h1>
   </div>
   <div class="period">2026 оны 7-р сар</div>
-</header>
+  <div class="nav-item active" data-page="dashboard">🏠 Dashboard</div>
+  <div class="nav-item" data-page="selbeg">📊 Сэлбэг</div>
+  <div class="nav-item" data-page="shtm">📘 ШТМ (Тос)</div>
+  <div class="nav-item" data-page="tuls">⛽ Түлш</div>
+  <div class="nav-item" data-page="duguy">🛞 Дугуй (7-р сар)</div>
+  <div class="nav-item" data-page="compare">⚖️ Харьцуулалт</div>
+</div>
 
 <main>
+  <!-- DASHBOARD PAGE -->
+  <section id="page-dashboard" class="page active">
+    <h2 class="page-title">Dashboard</h2>
+    <div class="page-sub">Техникийн зардлын ерөнхий тойм</div>
 
-  <div class="kpis">
-    <div class="kpi c1">
-      <div class="label">Нийт зардал</div>
-      <div class="value" id="kpi-total">—</div>
-      <div class="sub" id="kpi-total-sub">—</div>
+    <div class="kpis">
+      <div class="kpi c1"><div class="label">Нийт зардал</div><div class="value" id="kpi-total">—</div><div class="sub" id="kpi-total-sub">—</div></div>
+      <div class="kpi c2"><div class="label">Сэлбэгийн зардал</div><div class="value" id="kpi-selbeg">—</div><div class="sub">56 бичлэг</div></div>
+      <div class="kpi c3"><div class="label">Тосны зарцуулалт</div><div class="value" id="kpi-tos">—</div><div class="sub">52 бичлэг</div></div>
+      <div class="kpi c4"><div class="label">Түлшний зардал</div><div class="value" id="kpi-tuls">—</div><div class="sub" id="kpi-liters">—</div></div>
     </div>
-    <div class="kpi c2">
-      <div class="label">Сэлбэгийн зардал</div>
-      <div class="value" id="kpi-selbeg">—</div>
-      <div class="sub">65 бичлэг</div>
-    </div>
-    <div class="kpi c3">
-      <div class="label">Тосны зарцуулалт</div>
-      <div class="value" id="kpi-tos">—</div>
-      <div class="sub">63 бичлэг</div>
-    </div>
-    <div class="kpi c4">
-      <div class="label">Түлшний зардал</div>
-      <div class="value" id="kpi-tuls">—</div>
-      <div class="sub" id="kpi-liters">—</div>
-    </div>
-  </div>
 
-  <div class="grid2">
-    <div class="card">
-      <h3>Сэлбэг vs Тос vs Түлш (сая ₮)</h3>
-      <div class="hint">7-р сарын нийт зардлын харьцуулалт</div>
-      <div class="chart-wrap"><canvas id="barChart"></canvas></div>
-    </div>
-    <div class="card">
-      <h3>Зардлын бүтэц</h3>
-      <div class="hint">Нийт зардалд эзлэх хувь</div>
-      <div class="chart-wrap" style="height:200px;"><canvas id="donutChart"></canvas></div>
-      <ul class="legend-list" id="donut-legend"></ul>
-    </div>
-  </div>
-
-  <div class="grid2">
-    <div class="card" style="grid-column:1 / -1;">
-      <h3>Хамгийн өндөр зардалтай техник (Сэлбэг + Тос + Түлш)</h3>
-      <div class="hint">Парк тус бүрийн нийт зардлаар эрэмбэлэв — эхний 10</div>
-      <div style="overflow-x:auto;">
-      <table style="min-width:640px;">
-        <thead>
-          <tr>
-            <th>Парк</th><th>Модел</th><th>Зориулалт</th>
-            <th class="amt">Сэлбэг</th><th class="amt">Тос</th><th class="amt">Түлш</th><th class="amt">Нийт</th>
-          </tr>
-        </thead>
-        <tbody id="top10-body"></tbody>
-      </table>
+    <div class="grid2">
+      <div class="card">
+        <h3>Сэлбэг vs Тос vs Түлш (сая ₮)</h3>
+        <div class="hint">7-р сарын нийт зардлын харьцуулалт</div>
+        <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Зардлын бүтэц</h3>
+        <div class="hint">Нийт зардалд эзлэх хувь</div>
+        <div class="chart-wrap" style="height:200px;"><canvas id="donutChart"></canvas></div>
+        <ul class="legend-list" id="donut-legend"></ul>
       </div>
     </div>
-  </div>
 
-  <div class="grid2">
-    <div class="card" style="grid-column:1 / -1;">
+    <div class="grid2">
+      <div class="card" style="grid-column:1 / -1;">
+        <h3>Хамгийн өндөр зардалтай техник (Сэлбэг + Тос + Түлш)</h3>
+        <div class="hint">Парк тус бүрийн нийт зардлаар эрэмбэлэв — эхний 10</div>
+        <div class="table-scroll">
+        <table>
+          <thead><tr><th>Парк</th><th>Модел</th><th>Зориулалт</th><th class="amt">Сэлбэг</th><th class="amt">Тос</th><th class="amt">Түлш</th><th class="amt">Нийт</th></tr></thead>
+          <tbody id="top10-body"></tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SELBEG PAGE -->
+  <section id="page-selbeg" class="page">
+    <h2 class="page-title">Сэлбэг</h2>
+    <div class="page-sub">7-р сард орсон бүх сэлбэгийн зардлын бичлэг</div>
+    <div class="summary-bar">
+      <div class="summary-chip">Нийт зардал<b id="sb-sum">—</b></div>
+      <div class="summary-chip">Бичлэгийн тоо<b>56</b></div>
+    </div>
+    <input class="search-box" id="sb-search" placeholder="Парк, модел, тайлбараар хайх...">
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Парк</th><th>Модел</th><th>Зориулалт</th><th class="amt">Дүн</th><th>Тайлбар</th></tr></thead>
+      <tbody id="sb-body"></tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- SHTM (OIL) PAGE -->
+  <section id="page-shtm" class="page">
+    <h2 class="page-title">ШТМ — Тосны зарцуулалт</h2>
+    <div class="page-sub">7-р сард хийгдсэн тос, тосолгооны материалын бичлэг</div>
+    <div class="summary-bar">
+      <div class="summary-chip">Нийт зардал<b id="to-sum">—</b></div>
+      <div class="summary-chip">Бичлэгийн тоо<b>52</b></div>
+    </div>
+    <input class="search-box" id="to-search" placeholder="Парк, модел, тайлбараар хайх...">
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Парк</th><th>Модел</th><th>Зориулалт</th><th class="amt">Дүн</th><th>Тайлбар</th></tr></thead>
+      <tbody id="to-body"></tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- TULS (FUEL) PAGE -->
+  <section id="page-tuls" class="page">
+    <h2 class="page-title">Түлш</h2>
+    <div class="page-sub">7-р сарын техник тус бүрийн түлшний зарцуулалт</div>
+    <div class="summary-bar">
+      <div class="summary-chip">Нийт зардал<b id="tu-sum">—</b></div>
+      <div class="summary-chip">Нийт литр<b id="tu-liters">—</b></div>
+      <div class="summary-chip">Бичлэгийн тоо<b>58</b></div>
+    </div>
+    <input class="search-box" id="tu-search" placeholder="Парк, модел, зориулалтаар хайх...">
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Парк</th><th>Модел</th><th>Зориулалт</th><th class="amt">Литр</th><th class="amt">Дүн</th></tr></thead>
+      <tbody id="tu-body"></tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- DUGUY (TIRE) PAGE -->
+  <section id="page-duguy" class="page">
+    <h2 class="page-title">Дугуй — 7-р сар</h2>
+    <div class="page-sub">7-р сард сольсон/засварласан дугуйн бичлэгүүд (480/95R29)</div>
+    <div class="summary-bar">
+      <div class="summary-chip">Бичлэгийн тоо<b id="dg-count">—</b></div>
+      <div class="summary-chip">Нийт сольсон дугуй<b id="dg-qty">—</b></div>
+    </div>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Огноо</th><th>Модел</th><th>Парк</th><th>Шалтгаан</th><th class="amt">Тоо ширхэг</th></tr></thead>
+      <tbody id="dg-body"></tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- COMPARE PAGE -->
+  <section id="page-compare" class="page">
+    <h2 class="page-title">Харьцуулалт</h2>
+    <div class="page-sub">Техникийн зориулалтаар зардлын харьцуулалт</div>
+    <div class="card" style="margin-bottom:18px;">
       <h3>Сэлбэгийн зардал — зориулалтаар</h3>
       <div class="hint">Техникийн ангиллаар хуваарилсан сэлбэгийн зардал</div>
-      <div class="chart-wrap" style="height:220px;"><canvas id="purposeChart"></canvas></div>
+      <div class="chart-wrap" style="height:240px;"><canvas id="purposeChart"></canvas></div>
     </div>
-  </div>
+    <div class="card">
+      <h3>Топ 10 техник — Сэлбэг/Тос/Түлш харьцуулалт</h3>
+      <div class="hint">Хамгийн өндөр зардалтай парк тус бүрийн бүтэц</div>
+      <div class="chart-wrap" style="height:320px;"><canvas id="compareChart"></canvas></div>
+    </div>
+  </section>
 
 </main>
-
-<footer>ТОП ГАН ДРИЛЛИНГ ХХК · 2026 оны 7-р сарын техникийн зардлын мэдээ</footer>
-
 <script>
 const fmtM = n => (n/1_000_000).toLocaleString('mn-MN',{maximumFractionDigits:1}) + " сая₮";
 const fmtFull = n => "₮" + Math.round(n).toLocaleString('en-US');
 
+// --- navigation ---
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('page-'+item.dataset.page).classList.add('active');
+  });
+});
+
 const DATA = {
-  selbeg: 650218250,
-  tos: 78335074,
-  tuls: 2392415956,
-  liters: 658784,
-  records: 128,
+  selbeg: 650218250, tos: 78335074, tuls: 2392415956, liters: 658784,
   top10: [
     {park:"DZ-201", model:"CATD8T", purpose:"Бульдозер", selbeg:177463099, tos:5027523, tuls:14519716},
     {park:"EX-207", model:"PC-1250 8", purpose:"Экскаватор", selbeg:4888518, tos:5538138, tuls:185998868},
@@ -195,7 +271,14 @@ const DATA = {
     {name:"Бусад", amount:9141176},
   ]
 };
-
+const SB = [{"park":"DZ-201","model":"CATD8T","purpose":"Бульдозер","amount":177463099.0,"note":"Хөдөлгүүр,тэнцүүлэгчийн засвар хийгдэв"},{"park":"TR-218","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":34063271.0,"note":"1,2,7,9,10-р байрлалын дугуй,нумны 2-р өнгө,дискүүд,олгой,элгэвч зэрэг солигдсон"},{"park":"TR-224","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":31791134.0,"note":"Иж бүрдэл дутуу байсныг сэргээн засварлав"},{"park":"TR-217","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":30386440.0,"note":"1,2,3,4-р байрлалын дугуй,нумны 2-р өнгө,стермень  сольж ТҮ хийсэн"},{"park":"EX-201","model":"PC-1250 8","purpose":"Экскаватор","amount":26314756.0,"note":"Монитор,кондейшны мотор,гидрийн шүүр,шланкууд солигдов"},{"park":"TR-212","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":23202836.0,"note":"1,2,9,10-р байрлалын дугуй,дискүүд сольсон"},{"park":"TR-223","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":20959464.0,"note":"Иж бүрдэл дутуу байсныг сэргээн засварлаж,перда диск сольж ТҮ хийсэн"},{"park":"TR-225","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":20649289.0,"note":"1,2,3,4-р байрлалын дугуй ,перда диск,яндан зэрэг солигдсон"},{"park":"TR-230","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":19880252.0,"note":"3,4,5,6-р байрлалын дугуй,кондейшны радиатор,термомуфт,перда диск сольж ТҮ хийсэн"},{"park":"TR-209","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":17201331.0,"note":"9,10-р байрлалын дугуй,кардан гол сольж ТҮ хийсэн"},{"park":"TR-219","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":16829187.0,"note":"3,4,6-р байрлалын дугуй,нумны 1-р өнгө,кардан гол зэрэг солигдож ТҮ хийсэн"},{"park":"TR-222","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":16599469.0,"note":"3,4-р байрлалын дугуй,инжектор,дискүүд сольж ТҮ хийсэн"},{"park":"EX-204","model":"CAT 395D","purpose":"Экскаватор","amount":16016118.0,"note":"Эргэхийн редуктор,китүүд сольж ТҮ хийсэн"},{"park":"TR-207","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":12957882.0,"note":"9,10-р байрлалын дугуй,наклад,дискүүд солигдож ТҮ хийсэн"},{"park":"TR-210","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":11931699.0,"note":"1,2-р байрлалын дугуй,наклад,түлшний трүп зэрэг солигдож ТҮ хийсэн"},{"park":"TR-211","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":11743852.0,"note":"3,4-р байрлалын дугуй,дискүүд сольж ТҮ хийсэн"},{"park":"TR-208","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":11742733.0,"note":"7,8-р дугуй,дээд штангел,гожук солигдож ТҮ хийсэн"},{"park":"TR-220","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":10931430.0,"note":"7,8-р байрлалын дугуй,наклад сольж ТҮ хийсэн"},{"park":"TR-237","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":10727491.0,"note":"1,2-р байрлалын дугуй,стермень солигдож ТҮ хийсэн"},{"park":"TR-202","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":10693462.0,"note":"5,6-байрлалын дугуй болон богино кардан гол сольж ТҮ хийсэн"},{"park":"TR-204","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":10066462.0,"note":"1,2-р байрлалын дугуй,шпилканууд сольж,ТҮ хийсэн"},{"park":"TR-226","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":10005722.0,"note":"7,8-р байрлалын дугуй,олгой,элгэвч лимбэн гол,түлшний мэдрэгч солигдож,ТҮ хийсэн"},{"park":"TR-235","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":9975841.0,"note":"9,10-р байрлалын дугуй сольж ТҮ хийсэн"},{"park":"EX-202","model":"PC-1250 8","purpose":"Экскаватор","amount":9591916.0,"note":"Кондейшны мотор сольж ТҮ хийсэн"},{"park":"TR-228","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":8339593.0,"note":"1,2-р байрлалын дугуй,олгой,элгэвч,мэдрэгчүүд сольж ТҮ хийсэн"},{"park":"TR-215","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":6804738.0,"note":"10-р дугуй, түлшний мэдрэгчүүд сольж,ТҮ хийсэн"},{"park":"TR-201","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":5912097.0,"note":"10-р дугуй, түлшний мэдрэгчүүд сольж,ТҮ хийсэн"},{"park":"TR-229","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":5247769.0,"note":"Гидрийн банк,маховек толь,олгой,элгэвч зэрэг солигдсон"},{"park":"EX-207","model":"PC-1250 8","purpose":"Экскаватор","amount":4888518.0,"note":"2000м/ц ТҮ хийсэн"},{"park":"TR-231","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":4507867.0,"note":"Лимбэн гол,түлшний мэдрэгч,дискүүд сольсон"},{"park":"DZ-203","model":"CATD8T","purpose":"Бульдозер","amount":3980036.0,"note":"ТҮ хийсэн"},{"park":"TR-221","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":3746553.0,"note":"Сэнсний термомуфт,нумны 1-р өнгө,дискүүд солигдож ТҮ хийсэн"},{"park":"TR-227","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":3196959.0,"note":"Дугуй хагарч олгой,элгэвч,түлшний мэдрэгчүүд сольж ТҮ хийсэн"},{"park":"LV-201","model":"LAND CRIUSER 78","purpose":"Хөнгөн тэрэг","amount":3192575.0,"note":"4ш шинэ дугуй,урд цапны шарик,сальник сольсон"},{"park":"TR-203","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":3112294.0,"note":"Нумны 1-р өнгө болон стермень,дискүүд солигдож ТҮ хийсэн"},{"park":"SV-201","model":"HYUNDAI","purpose":"Автобус","amount":2991403.0,"note":"Амтортизатор сольж,кондейшн цэнэглэсэн"},{"park":"LV-202","model":"LAND CRIUSER 79","purpose":"Хөнгөн тэрэг","amount":2905555.0,"note":"4ш шинэ дугуй сольж,ТҮ хийсэн"},{"park":"TR-206","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":2320997.0,"note":"Хөдөлгүүрийн цээж утас,кондейшны мотор солигдсон"},{"park":"SV-203","model":"HOWO-336","purpose":"Түлшний цистерн","amount":2317565.0,"note":"Урд стүци,холхивч сольж,кондейшн суурилуулсан"},{"park":"LV-204","model":"LAND CRIUSER 76","purpose":"Хөнгөн тэрэг","amount":2169806.0,"note":"4ш шинэ дугуй,кондейшны мотор сольсон"},{"park":"GR-201","model":"XCMG-215","purpose":"Автогрейдер","amount":1552563.0,"note":"Кондейшн суурилуулж,ТҮ хийсэн"},{"park":"TR-214","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":1467222.0,"note":"Нумны 1-р өнгө,стермень центрийн боолт сольсон"},{"park":"TR-236","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":1396782.0,"note":"Стермень,центрийн зэрэг солигдож ТҮ хийсэн"},{"park":"SV-202","model":"LUBE TRACK","purpose":"Тосолгоо","amount":1314928.0,"note":"Моторын агаар шүүгч,түлшний шүүр сольсон"},{"park":"EX-203","model":"DX-800LC-5B","purpose":"Экскаватор","amount":1262990.0,"note":"ТҮ хийсэн"},{"park":"TR-238","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":1046452.0,"note":"Түлшний мэдрэгч,агаар шүүгч солигдсон"},{"park":"TR-234","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":801447.0,"note":"Дугуй хагарч олгой,элгэвч солигдож ТҮ хийсэн"},{"park":"TR-240","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":712984.0,"note":"ТҮ хийсэн"},{"park":"TR-239","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":637328.0,"note":"Дугуй хагарч олгой,элгэвч солигдож ТҮ хийсэн"},{"park":"TR-233","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":603910.0,"note":"Түлшний мэдрэгч,стермень,шпилка зэрэг солигдсон"},{"park":"TR-232","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":546669.0,"note":"Түлшний мэдрэгчүүд сольсон"},{"park":"LD-201","model":"XCMG-958","purpose":"Авто ачигч","amount":519682.0,"note":"ТҮ хийсэн"},{"park":"LV-205","model":"LAND CRIUSER 79","purpose":"Хөнгөн тэрэг","amount":317163.0,"note":"Хаалганы бариул,агаар шүүгч сольсон"},{"park":"SV-206","model":"HOWO-336","purpose":"Усны цистерн","amount":252197.0,"note":"Усны насосны ажлын дугуй сольсон"},{"park":"LV-206","model":"LAND CRIUSER 76","purpose":"Хөнгөн тэрэг","amount":233636.0,"note":"Салоны агаар шүүгч,түлшний шүүр сольсон"},{"park":"SV-205","model":"HOWO-336","purpose":"Усны цистерн","amount":192836.0,"note":""}]
+;
+const TO = [{"park":"EX-201","model":"PC-1250 8","purpose":"Экскаватор","amount":19423590.0,"note":"Гидрийн систем сольж,масло,тосол нэмсэн"},{"park":"EX-202","model":"PC-1250 8","purpose":"Экскаватор","amount":8670861.0,"note":"Техник үйлчилгээ хийсэн,тосол нэмж,тосолгоо хийсэн"},{"park":"DZ-203","model":"CATD8T","purpose":"Бульдозер","amount":8220062.0,"note":"Техник үйлчилгээ,кропны тос сольж,гидро нэмсэн"},{"park":"EX-207","model":"PC-1250 8","purpose":"Экскаватор","amount":5538138.0,"note":"2000м/ц техник үйлчилгээ хийсэн,тосолгоо хийсэн"},{"park":"EX-204","model":"CAT 395D","purpose":"Экскаватор","amount":5399862.0,"note":"Техник үйлчилгээ,гидро нэмж,тосолгоо хийсэн"},{"park":"DZ-201","model":"CATD8T","purpose":"Бульдозер","amount":5027523.0,"note":"Хөдөлгүүрийн их засвар хийсэн,трансмисс болон гидро нэмсэн"},{"park":"EX-203","model":"DX-800LC-5B","purpose":"Экскаватор","amount":2437118.0,"note":"Техник үйлчилгээ,тосол нэмж,тосолгоо хийсэн"},{"park":"TR-207","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":1449186.0,"note":"Техник үйлчилгээ хийсэн,тап,тосол нэмсэн"},{"park":"TR-222","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":1387318.0,"note":"Техник үйлчилгээ хийж,Кроп,ЗД тап нэмсэн"},{"park":"TR-204","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":1319725.0,"note":"Техник үйлчилгээ хийсэн,кропонд тап нэмсэн"},{"park":"TR-203","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":937695.0,"note":"Техник үйлчилгээ хийсэн,тап,тосол нэмсэн"},{"park":"TR-215","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":913582.0,"note":"Техник үйлчилгээ хийсэн,редукторт тап нэмсэн"},{"park":"TR-208","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":846115.0,"note":"Техник үйлчилгээ хийсэн,масло нэмсэн"},{"park":"TR-219","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":781052.0,"note":"Техник үйлчилгээ хийж,кропонд тап нэмсэн"},{"park":"TR-236","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":772682.0,"note":"Техник үйлчилгээ хийсэн,редукторт тап нэмсэн"},{"park":"TR-202","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":755033.0,"note":"Техник үйлчилгээ хийсэн,ЗД тап нэмсэн"},{"park":"TR-230","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":712086.0,"note":"Техник үйлчилгээ хийсэн,кропонд тап нэмсэн"},{"park":"TR-210","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":680112.0,"note":"Техник үйлчилгээ хийсэн,масло нэмсэн"},{"park":"TR-226","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":673415.0,"note":"Техник үйлчилгээ хийсэн,кропонд тап нэмсэн"},{"park":"TR-220","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":664828.0,"note":"Техник үйлчилгээ хийсэн,масло нэмсэн"},{"park":"TR-229","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":660597.0,"note":"Кроп,редуктор,ЗД тап нэмсэн"},{"park":"TR-211","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":657466.0,"note":"Хөдөлгүүрт масло,ЗД тап нэмсэн"},{"park":"TR-221","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":650164.0,"note":"Техник үйлчилгээ хийсэн,масло нэмсэн"},{"park":"TR-214","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":631730.0,"note":"Масло болон редукторт тап нэмсэн"},{"park":"TR-231","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":624432.0,"note":"2 удаа техник үйлчилгээ хийсэн"},{"park":"TR-235","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":606834.0,"note":"Техник үйлчилгээ хийсэн,масло нэмсэн"},{"park":"TR-209","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":593574.0,"note":"Техник үйлчилгээ хийсэн,масло нэмсэн"},{"park":"TR-227","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":578336.0,"note":"Техник үйлчилгээ хийсэн"},{"park":"GR-201","model":"XCMG-215","purpose":"Автогрейдер","amount":542543.0,"note":"Техник үйлчилгээ,гидро нэмсэн"},{"park":"TR-225","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":533259.0,"note":"Масло болон тосол нэмсэн"},{"park":"TR-240","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":481539.0,"note":"Техник үйлчилгээ хийсэн"},{"park":"TR-201","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":481539.0,"note":"Техник үйлчилгээ хийсэн,масло нэмсэн"},{"park":"TR-239","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":480539.0,"note":"Техник үйлчилгээ хийсэн"},{"park":"TR-234","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":450273.0,"note":"Техник үйлчилгээ хийсэн"},{"park":"TR-237","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":446943.0,"note":"Техник үйлчилгээ хийсэн"},{"park":"LV-201","model":"LAND CRIUSER 78","purpose":"Хөнгөн тэрэг","amount":409192.0,"note":"Техник үйлчилгээ хийсэн,масло нэмсэн"},{"park":"TR-217","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":395354.0,"note":"Техник үйлчилгээ хийсэн,редукторт тап нэмсэн"},{"park":"LD-201","model":"XCMG-958","purpose":"Авто ачигч","amount":389827.0,"note":"Техник үйлчилгээ,кропны тос нэмсэн"},{"park":"LV-202","model":"LAND CRIUSER 79","purpose":"Хөнгөн тэрэг","amount":362483.0,"note":"Техник үйлчилгээ хийсэн"},{"park":"TR-223","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":261979.0,"note":"Масло нэмсэн"},{"park":"TR-228","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":259096.0,"note":"Техник үйлчилгээ хийсэн"},{"park":"SV-206","model":"HOWO-336","purpose":"Усны цистерн","amount":211104.0,"note":"Масло,редукторт тап нэмсэн"},{"park":"TR-212","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":153704.0,"note":"Масло болон гидро нэмсэн"},{"park":"SV-202","model":"LUBE TRACK","purpose":"Тосолгоо","amount":142605.0,"note":"Хөдөлгүүрт масло нэмсэн"},{"park":"TR-218","model":"HOWO-105","purpose":"Өөрөө буулгагч","amount":123913.0,"note":"Масло болон тосол нэмсэн"},{"park":"LV-206","model":"LAND CRIUSER 76","purpose":"Хөнгөн тэрэг","amount":119826.0,"note":"Техник үйлчилгээ хийсэн"},{"park":"SV-201","model":"HYUNDAI","purpose":"Автобус","amount":119826.0,"note":"Хөдөлгүүрт масло нэмсэн"},{"park":"TR-238","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":110985.0,"note":"Хөдөлгүүрт мало нэмсэн"},{"park":"SV-203","model":"HOWO-336","purpose":"Түлшний цистерн","amount":86609.0,"note":"ЗД тап нэмсэн"},{"park":"LV-205","model":"LAND CRIUSER 79","purpose":"Хөнгөн тэрэг","amount":65649.0,"note":"Хөдөлгүүрт масло нэмсэн"},{"park":"TR-233","model":"TONLY 891C","purpose":"Өөрөө буулгагч","amount":54992.0,"note":"Хөдөлгүүрт масло нэмсэн"},{"park":"SV-205","model":"HOWO-336","purpose":"Усны цистерн","amount":38182.0,"note":"Усны помпонд масло нэмсэн"}]
+;
+const TU = [{"park":"EX-207","model":"PC-1250 8","purpose":"Экскаватор","liters":51224.0,"amount":185998868.0},{"park":"EX-202","model":"PC-1250 8","purpose":"Экскаватор","liters":47954.0,"amount":173980540.0},{"park":"EX-204","model":"CAT 395D","purpose":"Экскаватор","liters":23708.0,"amount":86567904.0},{"park":"TR-235","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":20150.0,"amount":73144822.0},{"park":"TR-240","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":19735.0,"amount":71668539.0},{"park":"TR-214","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":19618.0,"amount":71234143.0},{"park":"TR-238","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":19585.0,"amount":71189400.0},{"park":"TR-220","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":18912.0,"amount":68699135.0},{"park":"TR-239","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":18284.0,"amount":66459956.0},{"park":"TR-207","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":17943.0,"amount":65169101.0},{"park":"TR-202","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":17724.0,"amount":64494068.0},{"park":"TR-212","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":17659.0,"amount":64065274.0},{"park":"TR-201","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":17624.0,"amount":63989373.0},{"park":"TR-237","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":17469.0,"amount":63492860.0},{"park":"TR-221","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":17434.0,"amount":63401690.0},{"park":"TR-234","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":17425.0,"amount":63213396.0},{"park":"TR-233","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":16935.0,"amount":61402318.0},{"park":"TR-209","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":16666.0,"amount":60527797.0},{"park":"TR-236","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":16621.0,"amount":60292013.0},{"park":"TR-210","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":16342.0,"amount":59416692.0},{"park":"TR-204","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":16133.0,"amount":58525750.0},{"park":"TR-219","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":15989.0,"amount":58150471.0},{"park":"DZ-203","model":"CATD8T","purpose":"Бульдозер","liters":15213.0,"amount":55234375.0},{"park":"TR-222","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":15121.0,"amount":54734139.0},{"park":"TR-208","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":15009.0,"amount":54482577.0},{"park":"TR-215","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":14503.0,"amount":52613103.0},{"park":"TR-218","model":"HOWO-105","purpose":"Өөрөө буулгагч","liters":13893.0,"amount":50485982.0},{"park":"TR-203","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":12090.0,"amount":43819594.0},{"park":"EX-203","model":"DX-800LC-5B","purpose":"Экскаватор","liters":10292.0,"amount":37031755.0},{"park":"TR-227","model":"HOWO-105","purpose":"Өөрөө буулгагч","liters":9810.0,"amount":35709678.0},{"park":"TR-228","model":"HOWO-105","purpose":"Өөрөө буулгагч","liters":9665.0,"amount":35048985.0},{"park":"TR-217","model":"HOWO-105","purpose":"Өөрөө буулгагч","liters":9510.0,"amount":34682297.0},{"park":"TR-211","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":8996.0,"amount":32747492.0},{"park":"TR-225","model":"HOWO-105","purpose":"Өөрөө буулгагч","liters":8964.0,"amount":32457033.0},{"park":"TR-231","model":"HOWO-105","purpose":"Өөрөө буулгагч","liters":8609.0,"amount":31178362.0},{"park":"TR-226","model":"HOWO-105","purpose":"Өөрөө буулгагч","liters":8227.0,"amount":30020411.0},{"park":"LD-201","model":"XCMG-958","purpose":"Авто ачигч","liters":6184.0,"amount":22489519.0},{"park":"EX-201","model":"PC-1250 8","purpose":"Экскаватор","liters":6110.0,"amount":22258934.0},{"park":"TR-230","model":"HOWO-105","purpose":"Өөрөө буулгагч","liters":4359.0,"amount":15851170.0},{"park":"DZ-201","model":"CATD8T","purpose":"Бульдозер","liters":3992.0,"amount":14519716.0},{"park":"GR-201","model":"XCMG-215","purpose":"Автогрейдер","liters":3454.0,"amount":12487510.0},{"park":"SV-206","model":"HOWO-336","purpose":"Усны цистерн","liters":2825.0,"amount":10286549.0},{"park":"TR-229","model":"HOWO-105","purpose":"Өөрөө буулгагч","liters":2351.0,"amount":8359574.0},{"park":"SV-201","model":"HYUNDAI","purpose":"Автобус","liters":1760.0,"amount":6405497.0},{"park":"LV-201","model":"LAND CRIUSER 78","purpose":"Хөнгөн тэрэг","liters":1131.0,"amount":4094278.0},{"park":"SV-203","model":"HOWO-336","purpose":"Түлшний цистерн","liters":1000.0,"amount":3639853.0},{"park":"LV-204","model":"LAND CRIUSER 76","purpose":"Хөнгөн тэрэг","liters":686.0,"amount":2507323.0},{"park":"LV-205","model":"LAND CRIUSER 79","purpose":"Хөнгөн тэрэг","liters":617.0,"amount":2251533.0},{"park":"SV-202","model":"LUBE TRACK","purpose":"Тосолгоо","liters":548.0,"amount":2031503.0},{"park":"LV-202","model":"LAND CRIUSER 79","purpose":"Хөнгөн тэрэг","liters":501.0,"amount":1819905.0},{"park":"TR-206","model":"TONLY 891C","purpose":"Өөрөө буулгагч","liters":482.0,"amount":1752730.0},{"park":"LV-206","model":"LAND CRIUSER 76","purpose":"Хөнгөн тэрэг","liters":368.0,"amount":1346611.0},{"park":"LV-207","model":"LAND CRIUSER 76","purpose":"Хөнгөн тэрэг","liters":337.0,"amount":1223268.0},{"park":"LV-203","model":"LAND CRIUSER 76","purpose":"Хөнгөн тэрэг","liters":290.0,"amount":1057214.0},{"park":"LT-204","model":"GLT4","purpose":"Гэрэлт цамхаг","liters":279.0,"amount":1016879.0},{"park":"SV-205","model":"HOWO-336","purpose":"Усны цистерн","liters":173.0,"amount":608801.0},{"park":"LT-201","model":"GLT4","purpose":"Гэрэлт цамхаг","liters":160.0,"amount":581831.0},{"park":"LT-202","model":"GLT4","purpose":"Гэрэлт цамхаг","liters":141.0,"amount":495861.0}]
+;
+const DG = [{"date":"2026-07-01","model":"Tonly-891","park":"TR-211","reason":"3-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-03","model":"Tonly-891","park":"TR-212","reason":"1,2-р дугуй муудсан","qty":"2.0"},{"date":"2026-07-08","model":"Tonly-891","park":"TR-210","reason":".Залуурын дугуйн хээ муудсан.","qty":"2.0"},{"date":"2026-07-10","model":"Tonly-891","park":"TR-220","reason":"8-р дугуй хагарсан.","qty":"2.0"},{"date":"2026-07-10","model":"Tonly-891","park":"TR-209","reason":"9-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-11","model":"Tonly-891","park":"TR-222","reason":"4-р дугуй буудсан","qty":"2.0"},{"date":"2026-07-12","model":"Tonly-891","park":"TR-237","reason":".Залуурын дугуйн хээ муудсан.","qty":"2.0"},{"date":"2026-07-16","model":"Tonly-891","park":"TR-215","reason":"10-р дугуй хагарсан","qty":"1.0"},{"date":"2026-07-16","model":"Tonly-891","park":"TR-208","reason":"7,8-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-17","model":"Tonly-891","park":"TR-204","reason":"1-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-17","model":"Tonly-891","park":"TR-202","reason":"5-р дугуй хагарсан.","qty":"2.0"},{"date":"2026-07-18","model":"Tonly-891","park":"TR-219","reason":"6-р дугуй буудсан","qty":"1.0"},{"date":"2026-07-22","model":"Tonly-891","park":"TR-219","reason":"4-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-22","model":"Tonly-891","park":"TR-235","reason":"9-р дугуй хагарсан.","qty":"2.0"},{"date":"2026-07-26","model":"Tonly-891","park":"TR-207","reason":"9,10-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-26","model":"Tonly-891","park":"TR-209","reason":"2-р дугуй хагарсан.","qty":"1.0"},{"date":"2026-07-26","model":"Tonly-891","park":"TR-212","reason":"9-дугуй муудсан,10-р дугуй буудсан","qty":"2.0"},{"date":"2026-07-26","model":"Tonly-891","park":"TR-201","reason":"10-р дугуй буудсан","qty":"1.0"},{"date":"2026-07-02","model":"Howo-105","park":"TR-228","reason":"Залуурын 1,2-р дугуй муудсан,9-р дугуй хагарсан тосол багассан","qty":"2.0"},{"date":"2026-07-03","model":"Howo-105","park":"TR-224","reason":"Их засвар","qty":"8.0"},{"date":"2026-07-06","model":"Howo-105","park":"TR-223","reason":"Дугуй өөр техникт шилжүүлсэн","qty":"5.0"},{"date":"2026-07-07","model":"Howo-105","park":"TR-230","reason":"5-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-07","model":"Howo-105","park":"TR-218","reason":"9-р дугуй буудсан","qty":"2.0"},{"date":"2026-07-10","model":"Howo-105","park":"TR-226","reason":"7-р дугуй буудсан.","qty":"2.0"},{"date":"2026-07-11","model":"Howo-105","park":"TR-230","reason":"3-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-13","model":"Howo-105","park":"TR-218","reason":"7,10-рдугуй буудсан.","qty":"2.0"},{"date":"2026-07-16","model":"Howo-105","park":"TR-225","reason":"2-р дугуй хагарсан","qty":"1.0"},{"date":"2026-07-23","model":"Howo-105","park":"TR-225","reason":"3,4-р байрлалд шинэ дугуй угсарсан","qty":"2.0"},{"date":"2026-07-28","model":"Howo-105","park":"TR-217","reason":"3-р дугуй буудсан,4-р дугуй муудсан","qty":"2.0"},{"date":"2026-07-29","model":"Howo-105","park":"TR-218","reason":", залуурын дугуй муудсан","qty":"2.0"},{"date":"2026-07-31","model":"Howo-105","park":"TR-217","reason":"1,2-р дугуй муудсан","qty":"2.0"}]
+;
 const total = DATA.selbeg + DATA.tos + DATA.tuls;
 
 document.getElementById('kpi-total').textContent = fmtM(total);
@@ -210,35 +293,15 @@ Chart.defaults.font.family = "Segoe UI, sans-serif";
 
 new Chart(document.getElementById('barChart'), {
   type:'bar',
-  data:{
-    labels:['Сэлбэг','Тос','Түлш'],
-    datasets:[{
-      data:[DATA.selbeg/1e6, DATA.tos/1e6, DATA.tuls/1e6],
-      backgroundColor:['#3b6fe0','#7c5cf0','#22b8cf'],
-      borderRadius:6, maxBarThickness:80
-    }]
-  },
-  options:{
-    responsive:true, maintainAspectRatio:false,
-    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
-    scales:{
-      y:{beginAtZero:true, grid:{color:'#232c42'}, ticks:{callback:v=>v.toLocaleString()}},
-      x:{grid:{display:false}}
-    }
-  }
+  data:{labels:['Сэлбэг','Тос','Түлш'], datasets:[{data:[DATA.selbeg/1e6, DATA.tos/1e6, DATA.tuls/1e6], backgroundColor:['#3b6fe0','#7c5cf0','#22b8cf'], borderRadius:6, maxBarThickness:80}]},
+  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{y:{beginAtZero:true, grid:{color:'#232c42'}}, x:{grid:{display:false}}}}
 });
 
 const donutColors = ['#3b6fe0','#7c5cf0','#22b8cf'];
 new Chart(document.getElementById('donutChart'), {
   type:'doughnut',
-  data:{
-    labels:['Сэлбэгийн зардал','Тосны зарцуулалт','Түлшний зардал'],
-    datasets:[{data:[DATA.selbeg, DATA.tos, DATA.tuls], backgroundColor:donutColors, borderWidth:0}]
-  },
-  options:{
-    responsive:true, maintainAspectRatio:false, cutout:'68%',
-    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>((c.raw/total)*100).toFixed(1)+"%  ("+fmtM(c.raw)+")"}}}
-  }
+  data:{labels:['Сэлбэгийн зардал','Тосны зарцуулалт','Түлшний зардал'], datasets:[{data:[DATA.selbeg, DATA.tos, DATA.tuls], backgroundColor:donutColors, borderWidth:0}]},
+  options:{responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>((c.raw/total)*100).toFixed(1)+"%  ("+fmtM(c.raw)+")"}}}}
 });
 const legend = document.getElementById('donut-legend');
 [['Сэлбэгийн зардал',DATA.selbeg,donutColors[0]],['Тосны зарцуулалт',DATA.tos,donutColors[1]],['Түлшний зардал',DATA.tuls,donutColors[2]]]
@@ -252,33 +315,63 @@ const tbody = document.getElementById('top10-body');
 DATA.top10.forEach(r=>{
   const tr=document.createElement('tr');
   const tot = r.selbeg+r.tos+r.tuls;
-  tr.innerHTML = `
-    <td class="park-tag">${r.park}</td>
-    <td class="model-tag">${r.model}</td>
-    <td><span class="purpose-chip">${r.purpose}</span></td>
-    <td class="amt">${fmtM(r.selbeg)}</td>
-    <td class="amt">${fmtM(r.tos)}</td>
-    <td class="amt">${fmtM(r.tuls)}</td>
-    <td class="amt total">${fmtM(tot)}</td>`;
+  tr.innerHTML = `<td class="park-tag">${r.park}</td><td class="model-tag">${r.model}</td><td><span class="purpose-chip">${r.purpose}</span></td><td class="amt">${fmtM(r.selbeg)}</td><td class="amt">${fmtM(r.tos)}</td><td class="amt">${fmtM(r.tuls)}</td><td class="amt total">${fmtM(tot)}</td>`;
   tbody.appendChild(tr);
 });
 
 new Chart(document.getElementById('purposeChart'), {
   type:'bar',
-  data:{
-    labels:DATA.purpose.map(p=>p.name),
-    datasets:[{
-      data:DATA.purpose.map(p=>p.amount/1e6),
-      backgroundColor:'#e0a530',
-      borderRadius:6, maxBarThickness:56
-    }]
-  },
-  options:{
-    indexAxis:'y', responsive:true, maintainAspectRatio:false,
-    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
-    scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}
-  }
+  data:{labels:DATA.purpose.map(p=>p.name), datasets:[{data:DATA.purpose.map(p=>p.amount/1e6), backgroundColor:'#e0a530', borderRadius:6, maxBarThickness:56}]},
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
 });
+
+new Chart(document.getElementById('compareChart'), {
+  type:'bar',
+  data:{
+    labels:DATA.top10.map(r=>r.park),
+    datasets:[
+      {label:'Сэлбэг', data:DATA.top10.map(r=>r.selbeg/1e6), backgroundColor:'#3b6fe0'},
+      {label:'Тос', data:DATA.top10.map(r=>r.tos/1e6), backgroundColor:'#7c5cf0'},
+      {label:'Түлш', data:DATA.top10.map(r=>r.tuls/1e6), backgroundColor:'#22b8cf'},
+    ]
+  },
+  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:10}}}, scales:{x:{stacked:true, grid:{display:false}}, y:{stacked:true, beginAtZero:true, grid:{color:'#232c42'}}}}
+});
+
+// --- generic table renderer + search ---
+function renderTable(tbodyId, data, rowFn){
+  const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = data.map(rowFn).join('');
+}
+function attachSearch(inputId, data, tbodyId, rowFn, fields){
+  const input = document.getElementById(inputId);
+  input.addEventListener('input', ()=>{
+    const q = input.value.toLowerCase();
+    const filtered = data.filter(r => fields.some(f => String(r[f]||'').toLowerCase().includes(q)));
+    renderTable(tbodyId, filtered, rowFn);
+  });
+}
+
+const sbRow = r => `<tr><td class="park-tag">${r.park}</td><td class="model-tag">${r.model}</td><td><span class="purpose-chip">${r.purpose}</span></td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${r.note||'—'}</td></tr>`;
+renderTable('sb-body', SB, sbRow);
+attachSearch('sb-search', SB, 'sb-body', sbRow, ['park','model','note']);
+document.getElementById('sb-sum').textContent = fmtM(SB.reduce((a,r)=>a+r.amount,0));
+
+const toRow = r => `<tr><td class="park-tag">${r.park}</td><td class="model-tag">${r.model}</td><td><span class="purpose-chip">${r.purpose}</span></td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${r.note||'—'}</td></tr>`;
+renderTable('to-body', TO, toRow);
+attachSearch('to-search', TO, 'to-body', toRow, ['park','model','note']);
+document.getElementById('to-sum').textContent = fmtM(TO.reduce((a,r)=>a+r.amount,0));
+
+const tuRow = r => `<tr><td class="park-tag">${r.park}</td><td class="model-tag">${r.model}</td><td><span class="purpose-chip">${r.purpose}</span></td><td class="amt">${r.liters.toLocaleString('en-US')} л</td><td class="amt">${fmtM(r.amount)}</td></tr>`;
+renderTable('tu-body', TU, tuRow);
+attachSearch('tu-search', TU, 'tu-body', tuRow, ['park','model','purpose']);
+document.getElementById('tu-sum').textContent = fmtM(TU.reduce((a,r)=>a+r.amount,0));
+document.getElementById('tu-liters').textContent = TU.reduce((a,r)=>a+r.liters,0).toLocaleString('en-US') + ' л';
+
+const dgRow = r => `<tr><td>${r.date}</td><td class="model-tag">${r.model}</td><td class="park-tag">${r.park}</td><td class="reason-cell">${r.reason||'—'}</td><td class="amt">${r.qty||'—'}</td></tr>`;
+renderTable('dg-body', DG, dgRow);
+document.getElementById('dg-count').textContent = DG.length;
+document.getElementById('dg-qty').textContent = DG.reduce((a,r)=>a+(parseFloat(r.qty)||0),0) + ' ш';
 </script>
 </body>
 </html>
