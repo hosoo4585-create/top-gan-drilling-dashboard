@@ -17,11 +17,36 @@
     margin:0; background:var(--bg); color:var(--text);
     font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
     padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
-    display:flex; min-height:100vh;
+    min-height:100vh;
+  }
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 24px; border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#141b2d,#0f1524);
+    position:sticky; top:env(safe-area-inset-top,0px); z-index:10;
+  }
+  .topbar .brand{border:none; padding:0; margin:0; display:flex; align-items:center; gap:12px;}
+  .topbar .brand h1{font-size:15px; white-space:nowrap;}
+  .swatches{display:flex; align-items:center; gap:9px;}
+  .swatches span{width:16px;height:16px;border-radius:50%; display:inline-block; border:2px solid rgba(255,255,255,.15);}
+  .topbar-right{display:flex; align-items:center; gap:18px;}
+  .logout-btn{background:#1b2338; border:1px solid var(--line); color:var(--text); padding:8px 16px; border-radius:8px; font-size:13px; cursor:default;}
+  .layout{display:flex;}
+  .scene{
+    position:relative; overflow:hidden; border-radius:14px;
+    background:
+      radial-gradient(circle at 15% 30%, rgba(255,210,120,.22), transparent 35%),
+      radial-gradient(circle at 85% 70%, rgba(255,210,120,.16), transparent 30%),
+      radial-gradient(circle at 60% 15%, rgba(255,255,255,.08), transparent 40%),
+      linear-gradient(160deg,#161f36 0%, #0c1120 60%, #05070d 100%);
+  }
+  .scene::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:repeating-linear-gradient(115deg, rgba(255,255,255,.02) 0 2px, transparent 2px 40px);
   }
   .sidebar{
     width:220px; flex-shrink:0; background:var(--panel2); border-right:1px solid var(--line);
-    padding:18px 12px; position:sticky; top:0; height:100vh; overflow-y:auto;
+    padding:18px 12px; position:sticky; top:60px; height:calc(100vh - 60px); overflow-y:auto;
   }
   .brand{display:flex; align-items:center; gap:10px; padding:0 6px 18px; border-bottom:1px solid var(--line); margin-bottom:14px;}
   .brand .mark{
@@ -44,16 +69,21 @@
   h2.page-title{font-size:18px; font-weight:700; margin:0 0 4px;}
   .page-sub{font-size:12.5px; color:var(--sub); margin-bottom:20px;}
 
-  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px;}
-  @media (max-width:900px){.kpis{grid-template-columns:repeat(2,1fr);} body{flex-direction:column;} .sidebar{width:100%; height:auto; position:relative;}}
+  .kpis{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:28px;}
+  @media (max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr);} .layout{flex-direction:column;} .sidebar{width:100%; height:auto; position:relative; top:0;}}
+  .search-panel{display:flex; align-items:center; justify-content:space-between; padding:18px 20px; margin-bottom:20px;}
+  .search-panel h3{margin:0; font-size:14.5px;}
+  .park-select{background:var(--panel2); border:1px solid var(--line); color:var(--text); padding:9px 14px; border-radius:9px; font-size:13px;}
+  footer{text-align:center; color:var(--sub); font-size:11.5px; padding:22px 0 4px;}
   .kpi{border-radius:14px; padding:18px 20px; position:relative; overflow:hidden; border:1px solid var(--line);}
   .kpi .label{font-size:12.5px; color:rgba(255,255,255,.75); margin-bottom:8px;}
   .kpi .value{font-size:25px; font-weight:700; line-height:1;}
   .kpi .sub{font-size:11.5px; color:rgba(255,255,255,.6); margin-top:6px;}
   .kpi.c1{background:linear-gradient(135deg,#2c4fc4,#1c2f7a);}
-  .kpi.c2{background:linear-gradient(135deg,#1b93a8,#0d5b6c);}
+  .kpi.c2{background:linear-gradient(135deg,#3b6fe0,#1f3f9e);}
   .kpi.c3{background:linear-gradient(135deg,#6a45d1,#3f2589);}
-  .kpi.c4{background:linear-gradient(135deg,#c23f6b,#7a2043);}
+  .kpi.c4{background:linear-gradient(135deg,#1b93a8,#0d5b6c);}
+  .kpi.c5{background:linear-gradient(135deg,#c23f6b,#7a2043);}
 
   .grid2{display:grid; grid-template-columns:1.3fr 1fr; gap:18px; margin-bottom:22px;}
   @media (max-width:900px){.grid2{grid-template-columns:1fr;}}
@@ -95,11 +125,22 @@
 </head>
 <body>
 
-<div class="sidebar">
+<div class="topbar">
   <div class="brand">
     <div class="mark">⛏️</div>
-    <h1>ТОП ГАН<br>ДРИЛЛИНГ ХХК</h1>
+    <h1>ТОП ГАН ДРИЛЛИНГ ХХК</h1>
   </div>
+  <div class="topbar-right">
+    <div class="swatches">
+      <span style="background:#7c5cf0;"></span><span style="background:#3b6fe0;"></span><span style="background:#1fb87a;"></span>
+      <span style="background:#e0a530;"></span><span style="background:#e0456f;"></span><span style="background:#e05ca0;"></span><span style="background:#a08560;"></span>
+    </div>
+    <div class="logout-btn">Гарах</div>
+  </div>
+</div>
+
+<div class="layout">
+<div class="sidebar">
   <div class="period">2026 оны 7-р сар</div>
   <div class="nav-item active" data-page="dashboard">🏠 Dashboard</div>
   <div class="nav-item" data-page="selbeg">📊 Сэлбэг</div>
@@ -112,23 +153,28 @@
 <main>
   <!-- DASHBOARD PAGE -->
   <section id="page-dashboard" class="page active">
-    <h2 class="page-title">Dashboard</h2>
-    <div class="page-sub">Техникийн зардлын ерөнхий тойм</div>
+    <h2 class="page-title">🏠 Dashboard</h2>
+
+    <div class="card scene search-panel">
+      <h3>Техник хайх</h3>
+      <select class="park-select"><option>Бүгд парк</option></select>
+    </div>
 
     <div class="kpis">
       <div class="kpi c1"><div class="label">Нийт зардал</div><div class="value" id="kpi-total">—</div><div class="sub" id="kpi-total-sub">—</div></div>
-      <div class="kpi c2"><div class="label">Сэлбэгийн зардал</div><div class="value" id="kpi-selbeg">—</div><div class="sub">56 бичлэг</div></div>
-      <div class="kpi c3"><div class="label">Тосны зарцуулалт</div><div class="value" id="kpi-tos">—</div><div class="sub">52 бичлэг</div></div>
+      <div class="kpi c2"><div class="label">Сэлбэгийн зардал</div><div class="value" id="kpi-selbeg">—</div><div class="sub" id="kpi-selbeg-sub">—</div></div>
+      <div class="kpi c3"><div class="label">Тосны зарцуулалт</div><div class="value" id="kpi-tos">—</div><div class="sub" id="kpi-tos-sub">—</div></div>
       <div class="kpi c4"><div class="label">Түлшний зардал</div><div class="value" id="kpi-tuls">—</div><div class="sub" id="kpi-liters">—</div></div>
+      <div class="kpi c5"><div class="label">Нийт бичлэг</div><div class="value" id="kpi-records">—</div></div>
     </div>
 
     <div class="grid2">
-      <div class="card">
+      <div class="card scene">
         <h3>Сэлбэг vs Тос vs Түлш (сая ₮)</h3>
         <div class="hint">7-р сарын нийт зардлын харьцуулалт</div>
         <div class="chart-wrap"><canvas id="barChart"></canvas></div>
       </div>
-      <div class="card">
+      <div class="card scene">
         <h3>Зардлын бүтэц</h3>
         <div class="hint">Нийт зардалд эзлэх хувь</div>
         <div class="chart-wrap" style="height:200px;"><canvas id="donutChart"></canvas></div>
@@ -137,17 +183,18 @@
     </div>
 
     <div class="grid2">
-      <div class="card" style="grid-column:1 / -1;">
+      <div class="card scene" style="grid-column:1 / -1;">
         <h3>Хамгийн өндөр зардалтай техник (Сэлбэг + Тос + Түлш)</h3>
         <div class="hint">Парк тус бүрийн нийт зардлаар эрэмбэлэв — эхний 10</div>
         <div class="table-scroll">
         <table>
-          <thead><tr><th>Парк</th><th>Модел</th><th>Зориулалт</th><th class="amt">Сэлбэг</th><th class="amt">Тос</th><th class="amt">Түлш</th><th class="amt">Нийт</th></tr></thead>
+          <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Парк</th><th style="color:#fff;">Модел</th><th class="amt" style="color:#fff;">Сэлбэг</th><th class="amt" style="color:#fff;">Тос</th><th class="amt" style="color:#fff;">Түлш</th><th class="amt" style="color:#fff;">Дугуй</th><th class="amt" style="color:#fff;">Нийт</th></tr></thead>
           <tbody id="top10-body"></tbody>
         </table>
         </div>
       </div>
     </div>
+    <footer>ТОП ГАН ДРИЛЛИНГ ХХК — Мэдээллийн дашборд 2026.07</footer>
   </section>
 
   <!-- SELBEG PAGE -->
@@ -235,6 +282,7 @@
   </section>
 
 </main>
+</div>
 <script>
 const fmtM = n => (n/1_000_000).toLocaleString('mn-MN',{maximumFractionDigits:1}) + " сая₮";
 const fmtFull = n => "₮" + Math.round(n).toLocaleString('en-US');
@@ -252,16 +300,16 @@ document.querySelectorAll('.nav-item').forEach(item=>{
 const DATA = {
   selbeg: 650218250, tos: 78335074, tuls: 2392415956, liters: 658784,
   top10: [
-    {park:"DZ-201", model:"CATD8T", purpose:"Бульдозер", selbeg:177463099, tos:5027523, tuls:14519716},
-    {park:"EX-207", model:"PC-1250 8", purpose:"Экскаватор", selbeg:4888518, tos:5538138, tuls:185998868},
-    {park:"EX-202", model:"PC-1250 8", purpose:"Экскаватор", selbeg:9591916, tos:8670861, tuls:173980540},
-    {park:"EX-204", model:"CAT 395D", purpose:"Экскаватор", selbeg:16016118, tos:5399862, tuls:86567904},
-    {park:"TR-212", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:23202836, tos:153704, tuls:64065274},
-    {park:"TR-218", model:"HOWO-105", purpose:"Өөрөө буулгагч", selbeg:34063271, tos:123913, tuls:50485982},
-    {park:"TR-235", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:9975841, tos:606834, tuls:73144822},
-    {park:"TR-220", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:10931430, tos:664828, tuls:68699135},
-    {park:"TR-207", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:12957882, tos:1449186, tuls:65169101},
-    {park:"TR-209", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:17201331, tos:593574, tuls:60527797},
+    {park:"DZ-201", model:"CATD8T", purpose:"Бульдозер", selbeg:177463099, tos:5027523, tuls:14519716, duguy:0},
+    {park:"EX-207", model:"PC-1250 8", purpose:"Экскаватор", selbeg:4888518, tos:5538138, tuls:185998868, duguy:0},
+    {park:"EX-202", model:"PC-1250 8", purpose:"Экскаватор", selbeg:9591916, tos:8670861, tuls:173980540, duguy:0},
+    {park:"EX-204", model:"CAT 395D", purpose:"Экскаватор", selbeg:16016118, tos:5399862, tuls:86567904, duguy:0},
+    {park:"TR-212", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:23202836, tos:153704, tuls:64065274, duguy:4},
+    {park:"TR-218", model:"HOWO-105", purpose:"Өөрөө буулгагч", selbeg:34063271, tos:123913, tuls:50485982, duguy:6},
+    {park:"TR-235", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:9975841, tos:606834, tuls:73144822, duguy:2},
+    {park:"TR-220", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:10931430, tos:664828, tuls:68699135, duguy:2},
+    {park:"TR-207", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:12957882, tos:1449186, tuls:65169101, duguy:2},
+    {park:"TR-209", model:"TONLY 891C", purpose:"Өөрөө буулгагч", selbeg:17201331, tos:593574, tuls:60527797, duguy:3},
   ],
   purpose: [
     {name:"Өөрөө буулгагч", amount:392740908},
@@ -284,9 +332,12 @@ const total = DATA.selbeg + DATA.tos + DATA.tuls;
 document.getElementById('kpi-total').textContent = fmtM(total);
 document.getElementById('kpi-total-sub').textContent = fmtFull(total);
 document.getElementById('kpi-selbeg').textContent = fmtM(DATA.selbeg);
+document.getElementById('kpi-selbeg-sub').textContent = SB.length + " бичлэг";
 document.getElementById('kpi-tos').textContent = fmtM(DATA.tos);
+document.getElementById('kpi-tos-sub').textContent = TO.length + " бичлэг";
 document.getElementById('kpi-tuls').textContent = fmtM(DATA.tuls);
 document.getElementById('kpi-liters').textContent = DATA.liters.toLocaleString('en-US') + " литр";
+document.getElementById('kpi-records').textContent = (SB.length + TO.length);
 
 Chart.defaults.color = '#8b96b3';
 Chart.defaults.font.family = "Segoe UI, sans-serif";
@@ -315,7 +366,7 @@ const tbody = document.getElementById('top10-body');
 DATA.top10.forEach(r=>{
   const tr=document.createElement('tr');
   const tot = r.selbeg+r.tos+r.tuls;
-  tr.innerHTML = `<td class="park-tag">${r.park}</td><td class="model-tag">${r.model}</td><td><span class="purpose-chip">${r.purpose}</span></td><td class="amt">${fmtM(r.selbeg)}</td><td class="amt">${fmtM(r.tos)}</td><td class="amt">${fmtM(r.tuls)}</td><td class="amt total">${fmtM(tot)}</td>`;
+  tr.innerHTML = `<td class="park-tag">${r.park}</td><td class="model-tag">${r.model}</td><td class="amt" style="color:#5b8dff;">${fmtM(r.selbeg)}</td><td class="amt" style="color:#e0a530;">${fmtM(r.tos)}</td><td class="amt" style="color:#3ad0e8;">${fmtM(r.tuls)}</td><td class="amt" style="color:var(--sub);">${r.duguy ? r.duguy+' ш' : '—'}</td><td class="amt total">${fmtM(tot)}</td>`;
   tbody.appendChild(tr);
 });
 
