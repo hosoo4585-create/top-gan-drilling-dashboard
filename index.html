@@ -136,6 +136,13 @@
   .cat-chip.active{background:linear-gradient(135deg,#7c5cf0,#5a3fd0); color:#fff; border-color:transparent;}
   .cat-dot{width:8px;height:8px;border-radius:50%; display:inline-block; margin-right:6px;}
   .idx-cell{color:var(--sub); font-size:12px; width:30px;}
+  .serial-badge{
+    display:inline-flex; align-items:center; gap:4px; font-size:11px; padding:3px 8px; border-radius:8px;
+    background:#1c2440; border:1px solid var(--line); color:var(--sub); margin:2px 3px 2px 0; white-space:nowrap;
+  }
+  .serial-badge b{color:#fff; font-weight:600;}
+  .filter-row{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:18px;}
+  .tire-search{max-width:280px;}
   .rank-list{display:flex; flex-direction:column; gap:10px;}
   .rank-item{
     display:flex; align-items:center; gap:16px; padding:14px 18px; border-radius:10px;
@@ -393,17 +400,90 @@
 
   <!-- DUGUY (TIRE) PAGE -->
   <section id="page-duguy" class="page">
-    <h2 class="page-title">Дугуй — 7-р сар</h2>
-    <div class="page-sub">7-р сард сольсон/засварласан дугуйн бичлэгүүд (480/95R29)</div>
-    <div class="summary-bar">
-      <div class="summary-chip">Бичлэгийн тоо<b id="dg-count">—</b></div>
-      <div class="summary-chip">Нийт сольсон дугуй<b id="dg-qty">—</b></div>
+    <h2 class="page-title">🛞 Дугуй (7-р сар)</h2>
+
+    <div class="filter-row">
+      <div class="cat-filter" id="dg-brand-filter" style="margin-bottom:0;"></div>
+      <input class="search-box tire-search" id="dg-search" placeholder="Парк эсвэл сериал хайх...">
     </div>
-    <div class="table-scroll">
-    <table>
-      <thead><tr><th>Огноо</th><th>Модел</th><th>Парк</th><th>Шалтгаан</th><th class="amt">Тоо ширхэг</th></tr></thead>
-      <tbody id="dg-body"></tbody>
-    </table>
+
+    <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
+      <div class="kpi c3"><div class="label">Нийт авсан дугуй</div><div class="value" id="dg-total-qty">—</div></div>
+      <div class="kpi c5"><div class="label">Дугуйны нийт зардал</div><div class="value" id="dg-total-amt">—</div><div class="sub">Сэлбэгийн зардалд орсон</div></div>
+      <div class="kpi c1"><div class="label">HOWO-105 16R25</div><div class="value" id="dg-howo-qty">—</div><div class="sub" id="dg-howo-pct">—</div></div>
+      <div class="kpi c4"><div class="label">TONLY-891C 480/95R29</div><div class="value" id="dg-tonly-qty">—</div><div class="sub" id="dg-tonly-pct">—</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card scene">
+        <h3>Загвар тус бүрийн авсан дугуйн тоо</h3>
+        <div class="chart-wrap" style="height:200px;"><canvas id="dgBrandCountChart"></canvas></div>
+      </div>
+      <div class="card scene">
+        <h3>Загвар тус бүрийн нэгтгэл</h3>
+        <table>
+          <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Дугуйн загвар</th><th class="amt" style="color:#fff;">Авсан тоо</th><th class="amt" style="color:#fff;">Эзлэх хувь</th></tr></thead>
+          <tbody id="dg-brand-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card scene">
+        <h3>Загвар тус бүрийн дугуйны зардал (сая₮)</h3>
+        <div class="chart-wrap" style="height:200px;"><canvas id="dgBrandCostChart"></canvas></div>
+      </div>
+      <div class="card scene">
+        <h3>Зардлын эзлэх хувь</h3>
+        <div class="chart-wrap" style="height:200px;"><canvas id="dgBrandPie"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card scene" style="margin-bottom:18px;">
+      <h3>Техник тус бүрийн авсан дугуй — TONLY / HOWO</h3>
+      <div class="chart-wrap" style="height:420px;"><canvas id="dgParkBar"></canvas></div>
+    </div>
+
+    <div class="card scene" style="margin-bottom:18px;">
+      <h3>Техник тус бүрийн дугуйны тоо ба зардал</h3>
+      <div class="chart-wrap" style="height:340px;"><canvas id="dgComboChart"></canvas></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card scene">
+        <h3>🚛 TONLY — техник тус бүрээр (<span id="dg-tonly-count">—</span>ш)</h3>
+        <table>
+          <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Парк</th><th class="amt" style="color:#fff;">Авсан дугуй</th><th class="amt" style="color:#fff;">Дүн</th></tr></thead>
+          <tbody id="dg-tonly-park-table"></tbody>
+        </table>
+      </div>
+      <div class="card scene">
+        <h3>🚚 HOWO — техник тус бүрээр (<span id="dg-howo-count">—</span>ш)</h3>
+        <table>
+          <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Парк</th><th class="amt" style="color:#fff;">Авсан дугуй</th><th class="amt" style="color:#fff;">Дүн</th></tr></thead>
+          <tbody id="dg-howo-park-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card scene" style="margin-bottom:18px; margin-top:18px;">
+      <h3>📄 Дэлгэрэнгүй лог — сериал дугаартай (TONLY)</h3>
+      <div class="table-scroll">
+      <table>
+        <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Огноо</th><th style="color:#fff;">Парк</th><th style="color:#fff;">Мото цаг / км</th><th class="amt" style="color:#fff;">Тоо</th><th class="amt" style="color:#fff;">Дүн</th><th style="color:#fff;">Шалтгаан</th><th style="color:#fff;">Сериал дугаар</th></tr></thead>
+        <tbody id="dg-tonly-log"></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="card scene">
+      <h3>📄 Дэлгэрэнгүй лог — сериал дугаартай (HOWO)</h3>
+      <div class="table-scroll">
+      <table>
+        <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Огноо</th><th style="color:#fff;">Парк</th><th style="color:#fff;">Мото цаг / км</th><th class="amt" style="color:#fff;">Тоо</th><th class="amt" style="color:#fff;">Дүн</th><th style="color:#fff;">Шалтгаан</th><th style="color:#fff;">Сериал дугаар</th></tr></thead>
+        <tbody id="dg-howo-log"></tbody>
+      </table>
+      </div>
     </div>
   </section>
 
@@ -490,6 +570,21 @@ document.getElementById('kpi-records').textContent = "182";
 
 Chart.defaults.color = '#8b96b3';
 Chart.defaults.font.family = "Segoe UI, sans-serif";
+
+// Global hover "3D" interaction effects — applies to every chart in the dashboard
+Chart.defaults.animation.duration = 450;
+Chart.defaults.animation.easing = 'easeOutQuart';
+Chart.defaults.elements.arc.hoverOffset = 14;
+Chart.defaults.elements.arc.hoverBorderWidth = 2;
+Chart.defaults.elements.arc.hoverBorderColor = '#ffffff';
+Chart.defaults.elements.bar.hoverBorderWidth = 2;
+Chart.defaults.elements.bar.hoverBorderColor = 'rgba(255,255,255,.85)';
+Chart.defaults.elements.point.radius = 3;
+Chart.defaults.elements.point.hoverRadius = 8;
+Chart.defaults.elements.point.hoverBorderWidth = 3;
+Chart.defaults.elements.point.hoverBorderColor = '#ffffff';
+Chart.defaults.elements.line.borderWidth = 2.5;
+Chart.defaults.interaction = { mode: 'nearest', intersect: true };
 
 const donutColors = ['#3b6fe0','#7c5cf0','#22b8cf'];
 
@@ -840,11 +935,157 @@ const tuPerhourBody = document.getElementById('tu-perhour-body');
   tuPerhourBody.appendChild(tr);
 });
 
-const DG = [{"date":"2026-07-01","model":"Tonly-891","park":"TR-211","reason":"3-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-03","model":"Tonly-891","park":"TR-212","reason":"1,2-р дугуй муудсан","qty":"2.0"},{"date":"2026-07-08","model":"Tonly-891","park":"TR-210","reason":".Залуурын дугуйн хээ муудсан.","qty":"2.0"},{"date":"2026-07-10","model":"Tonly-891","park":"TR-220","reason":"8-р дугуй хагарсан.","qty":"2.0"},{"date":"2026-07-10","model":"Tonly-891","park":"TR-209","reason":"9-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-11","model":"Tonly-891","park":"TR-222","reason":"4-р дугуй буудсан","qty":"2.0"},{"date":"2026-07-12","model":"Tonly-891","park":"TR-237","reason":".Залуурын дугуйн хээ муудсан.","qty":"2.0"},{"date":"2026-07-16","model":"Tonly-891","park":"TR-215","reason":"10-р дугуй хагарсан","qty":"1.0"},{"date":"2026-07-16","model":"Tonly-891","park":"TR-208","reason":"7,8-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-17","model":"Tonly-891","park":"TR-204","reason":"1-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-17","model":"Tonly-891","park":"TR-202","reason":"5-р дугуй хагарсан.","qty":"2.0"},{"date":"2026-07-18","model":"Tonly-891","park":"TR-219","reason":"6-р дугуй буудсан","qty":"1.0"},{"date":"2026-07-22","model":"Tonly-891","park":"TR-219","reason":"4-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-22","model":"Tonly-891","park":"TR-235","reason":"9-р дугуй хагарсан.","qty":"2.0"},{"date":"2026-07-26","model":"Tonly-891","park":"TR-207","reason":"9,10-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-26","model":"Tonly-891","park":"TR-209","reason":"2-р дугуй хагарсан.","qty":"1.0"},{"date":"2026-07-26","model":"Tonly-891","park":"TR-212","reason":"9-дугуй муудсан,10-р дугуй буудсан","qty":"2.0"},{"date":"2026-07-26","model":"Tonly-891","park":"TR-201","reason":"10-р дугуй буудсан","qty":"1.0"},{"date":"2026-07-02","model":"Howo-105","park":"TR-228","reason":"Залуурын 1,2-р дугуй муудсан,9-р дугуй хагарсан тосол багассан","qty":"2.0"},{"date":"2026-07-03","model":"Howo-105","park":"TR-224","reason":"Их засвар","qty":"8.0"},{"date":"2026-07-06","model":"Howo-105","park":"TR-223","reason":"Дугуй өөр техникт шилжүүлсэн","qty":"5.0"},{"date":"2026-07-07","model":"Howo-105","park":"TR-230","reason":"5-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-07","model":"Howo-105","park":"TR-218","reason":"9-р дугуй буудсан","qty":"2.0"},{"date":"2026-07-10","model":"Howo-105","park":"TR-226","reason":"7-р дугуй буудсан.","qty":"2.0"},{"date":"2026-07-11","model":"Howo-105","park":"TR-230","reason":"3-р дугуй хагарсан","qty":"2.0"},{"date":"2026-07-13","model":"Howo-105","park":"TR-218","reason":"7,10-рдугуй буудсан.","qty":"2.0"},{"date":"2026-07-16","model":"Howo-105","park":"TR-225","reason":"2-р дугуй хагарсан","qty":"1.0"},{"date":"2026-07-23","model":"Howo-105","park":"TR-225","reason":"3,4-р байрлалд шинэ дугуй угсарсан","qty":"2.0"},{"date":"2026-07-28","model":"Howo-105","park":"TR-217","reason":"3-р дугуй буудсан,4-р дугуй муудсан","qty":"2.0"},{"date":"2026-07-29","model":"Howo-105","park":"TR-218","reason":", залуурын дугуй муудсан","qty":"2.0"},{"date":"2026-07-31","model":"Howo-105","park":"TR-217","reason":"1,2-р дугуй муудсан","qty":"2.0"}];
-const dgRow = r => `<tr><td>${r.date}</td><td class="model-tag">${r.model}</td><td class="park-tag">${r.park}</td><td class="reason-cell">${r.reason||'—'}</td><td class="amt">${r.qty||'—'}</td></tr>`;
-renderTable('dg-body', DG, dgRow);
-document.getElementById('dg-count').textContent = DG.length;
-document.getElementById('dg-qty').textContent = DG.reduce((a,r)=>a+(parseFloat(r.qty)||0),0) + ' ш';
+const DG = [{"date":"2026-07-01","brand":"TONLY","park":"TR-211","moto":"5756","reason":"3-р дугуй хагарсан","serials":"1.HNUB0000164 2.HNUA0001150","qty":2.0,"amount":9886364,"serial_pairs":[{"pos":"1","serial":"HNUB0000164"},{"pos":"2","serial":"HNUA0001150"}],"serial_note":""},{"date":"2026-07-03","brand":"TONLY","park":"TR-212","moto":"5702","reason":"1,2-р дугуй муудсан","serials":"1.HNUB0004159 2.HNUA0000077","qty":2.0,"amount":9886364,"serial_pairs":[{"pos":"1","serial":"HNUB0004159"},{"pos":"2","serial":"HNUA0000077"}],"serial_note":""},{"date":"2026-07-08","brand":"TONLY","park":"TR-210","moto":"5735м/ц 99272км","reason":".Залуурын дугуйн хээ муудсан.","serials":"1.HNUA0002429 2.HNUC0002042","qty":2.0,"amount":9302597,"serial_pairs":[{"pos":"1","serial":"HNUA0002429"},{"pos":"2","serial":"HNUC0002042"}],"serial_note":""},{"date":"2026-07-10","brand":"TONLY","park":"TR-220","moto":"4422","reason":"8-р дугуй хагарсан.","serials":"7-HNUC0002114                        8-HNUC0000272","qty":2.0,"amount":9886364,"serial_pairs":[{"pos":"7","serial":"HNUC0002114"},{"pos":"8","serial":"HNUC0000272"}],"serial_note":""},{"date":"2026-07-10","brand":"TONLY","park":"TR-209","moto":"6151м/ц 106020км","reason":"9-р дугуй хагарсан","serials":"9.B260328031801 10.C260330031802","qty":2.0,"amount":9886364,"serial_pairs":[{"pos":"9","serial":"B260328031801"},{"pos":"10","serial":"C260330031802"}],"serial_note":""},{"date":"2026-07-11","brand":"TONLY","park":"TR-222","moto":"5627","reason":"4-р дугуй буудсан","serials":"1.C260328031833 2.A260326031863","qty":2.0,"amount":10022727,"serial_pairs":[{"pos":"1","serial":"C260328031833"},{"pos":"2","serial":"A260326031863"}],"serial_note":""},{"date":"2026-07-12","brand":"TONLY","park":"TR-237","moto":"1425","reason":".Залуурын дугуйн хээ муудсан.","serials":"1.С260331031802 2.А260401031831","qty":2.0,"amount":10022727,"serial_pairs":[{"pos":"1","serial":"С260331031802"},{"pos":"2","serial":"А260401031831"}],"serial_note":""},{"date":"2026-07-16","brand":"TONLY","park":"TR-215","moto":"2368","reason":"10-р дугуй хагарсан","serials":"9.HNUB0000552","qty":1.0,"amount":4505357,"serial_pairs":[{"pos":"9","serial":"HNUB0000552"}],"serial_note":""},{"date":"2026-07-16","brand":"TONLY","park":"TR-208","moto":"5796","reason":"7,8-р дугуй хагарсан","serials":"7.HNUC0002162 8.C260330031801","qty":2.0,"amount":9010714,"serial_pairs":[{"pos":"7","serial":"HNUC0002162"},{"pos":"8","serial":"C260330031801"}],"serial_note":""},{"date":"2026-07-17","brand":"TONLY","park":"TR-204","moto":"5555м/ц 92799км","reason":"1-р дугуй хагарсан","serials":"1.HNUB0000514 2.HNUA0000093","qty":2.0,"amount":9010714,"serial_pairs":[{"pos":"1","serial":"HNUB0000514"},{"pos":"2","serial":"HNUA0000093"}],"serial_note":""},{"date":"2026-07-17","brand":"TONLY","park":"TR-202","moto":"6182м/ц 112397км","reason":"5-р дугуй хагарсан.","serials":"5.А26041031832 6.В260327031803","qty":2.0,"amount":9010714,"serial_pairs":[{"pos":"5","serial":"А26041031832"},{"pos":"6","serial":"В260327031803"}],"serial_note":""},{"date":"2026-07-18","brand":"TONLY","park":"TR-219","moto":"5544","reason":"6-р дугуй буудсан","serials":"6.B260329031802","qty":1.0,"amount":4505357,"serial_pairs":[{"pos":"6","serial":"B260329031802"}],"serial_note":""},{"date":"2026-07-22","brand":"TONLY","park":"TR-219","moto":"5614","reason":"4-р дугуй хагарсан","serials":"3.С260328031631                 4.С260329031832","qty":2.0,"amount":9069091,"serial_pairs":[{"pos":"3","serial":"С260328031631"},{"pos":"4","serial":"С260329031832"}],"serial_note":""},{"date":"2026-07-22","brand":"TONLY","park":"TR-235","moto":"1688","reason":"9-р дугуй хагарсан.","serials":"9.B260330031861 10.C260329031834","qty":2.0,"amount":9069091,"serial_pairs":[{"pos":"9","serial":"B260330031861"},{"pos":"10","serial":"C260329031834"}],"serial_note":""},{"date":"2026-07-26","brand":"TONLY","park":"TR-207","moto":"5888м/ц 102612км","reason":"9,10-р дугуй хагарсан","serials":"9.C260329031833 10.C260323030332","qty":2.0,"amount":9069091,"serial_pairs":[{"pos":"9","serial":"C260329031833"},{"pos":"10","serial":"C260323030332"}],"serial_note":""},{"date":"2026-07-26","brand":"TONLY","park":"TR-209","moto":"6337","reason":"2-р дугуй хагарсан.","serials":"2-р байрлалд шинэ дугуй угсарсан .","qty":1.0,"amount":4534545,"serial_pairs":[],"serial_note":"2-р байрлалд шинэ дугуй угсарсан ."},{"date":"2026-07-26","brand":"TONLY","park":"TR-212","moto":"6057","reason":"9-дугуй муудсан,10-р дугуй буудсан","serials":"9.A260328031862         10.C260331031801","qty":2.0,"amount":9069091,"serial_pairs":[{"pos":"9","serial":"A260328031862"},{"pos":"10","serial":"C260331031801"}],"serial_note":""},{"date":"2026-07-26","brand":"TONLY","park":"TR-201","moto":"6484","reason":"10-р дугуй буудсан","serials":"10.A260330031832","qty":1.0,"amount":4534545,"serial_pairs":[{"pos":"10","serial":"A260330031832"}],"serial_note":""},{"date":"2026-07-02","brand":"HOWO","park":"TR-228","moto":"4406м/ц   74806км","reason":"Залуурын 1,2-р дугуй муудсан,9-р дугуй хагарсан тосол багассан","serials":"1.5A82071247       2.5A82071010","qty":2.0,"amount":7036364,"serial_pairs":[{"pos":"1","serial":"5A82071247"},{"pos":"2","serial":"5A82071010"}],"serial_note":""},{"date":"2026-07-03","brand":"HOWO","park":"TR-224","moto":"***","reason":"Их засвар","serials":"3.6A72007931 4.5N72006404 5.5A82071233 6.6A72007931 7.5N72009342 8.6A72011695 9.6A72011706 10.6A72009383","qty":8.0,"amount":28145455,"serial_pairs":[{"pos":"3","serial":"6A72007931"},{"pos":"4","serial":"5N72006404"},{"pos":"5","serial":"5A82071233"},{"pos":"6","serial":"6A72007931"},{"pos":"7","serial":"5N72009342"},{"pos":"8","serial":"6A72011695"},{"pos":"9","serial":"6A72011706"},{"pos":"10","serial":"6A72009383"}],"serial_note":""},{"date":"2026-07-06","brand":"HOWO","park":"TR-223","moto":"***","reason":"Дугуй өөр техникт шилжүүлсэн","serials":"2.6А72011629 3.6А72007981 4.6А72009017 7.6А72007881 8.6А72009370","qty":5.0,"amount":17590909,"serial_pairs":[{"pos":"2","serial":"6А72011629"},{"pos":"3","serial":"6А72007981"},{"pos":"4","serial":"6А72009017"},{"pos":"7","serial":"6А72007881"},{"pos":"8","serial":"6А72009370"}],"serial_note":""},{"date":"2026-07-07","brand":"HOWO","park":"TR-230","moto":"5091","reason":"5-р дугуй хагарсан","serials":"5.6А72011248         6.5N72009460","qty":2.0,"amount":7036364,"serial_pairs":[{"pos":"5","serial":"6А72011248"},{"pos":"6","serial":"5N72009460"}],"serial_note":""},{"date":"2026-07-07","brand":"HOWO","park":"TR-218","moto":"2225м/ц 36530км","reason":"9-р дугуй буудсан","serials":"9.6А72007823 10.6А72007810","qty":2.0,"amount":7036364,"serial_pairs":[{"pos":"9","serial":"6А72007823"},{"pos":"10","serial":"6А72007810"}],"serial_note":""},{"date":"2026-07-10","brand":"HOWO","park":"TR-226","moto":"5451","reason":"7-р дугуй буудсан.","serials":"7.6А72007984 8.6А720024446","qty":2.0,"amount":7036364,"serial_pairs":[{"pos":"7","serial":"6А72007984"},{"pos":"8","serial":"6А720024446"}],"serial_note":""},{"date":"2026-07-11","brand":"HOWO","park":"TR-230","moto":"5140","reason":"3-р дугуй хагарсан","serials":"1.B260201030766 2.A260202030702","qty":2.0,"amount":7000000,"serial_pairs":[{"pos":"1","serial":"B260201030766"},{"pos":"2","serial":"A260202030702"}],"serial_note":""},{"date":"2026-07-13","brand":"HOWO","park":"TR-218","moto":"22596","reason":"7,10-рдугуй буудсан.","serials":"9.В260203030731       10.А260204030701","qty":2.0,"amount":7000000,"serial_pairs":[{"pos":"9","serial":"В260203030731"},{"pos":"10","serial":"А260204030701"}],"serial_note":""},{"date":"2026-07-16","brand":"HOWO","park":"TR-225","moto":"4508","reason":"2-р дугуй хагарсан","serials":"2.А260203030701","qty":1.0,"amount":3500000,"serial_pairs":[{"pos":"2","serial":"А260203030701"}],"serial_note":""},{"date":"2026-07-23","brand":"HOWO","park":"TR-225","moto":"4578","reason":"3,4-р байрлалд шинэ дугуй угсарсан","serials":"3.А260208030703 4.А260206030701","qty":2.0,"amount":14028205,"serial_pairs":[{"pos":"3","serial":"А260208030703"},{"pos":"4","serial":"А260206030701"}],"serial_note":""},{"date":"2026-07-28","brand":"HOWO","park":"TR-217","moto":"2359","reason":"3-р дугуй буудсан,4-р дугуй муудсан","serials":"3.B260208030734      4.C260206030865","qty":2.0,"amount":14028205,"serial_pairs":[{"pos":"3","serial":"B260208030734"},{"pos":"4","serial":"C260206030865"}],"serial_note":""},{"date":"2026-07-29","brand":"HOWO","park":"TR-218","moto":"2537","reason":", залуурын дугуй муудсан","serials":"1.B260202030732 2.A260207030701","qty":2.0,"amount":14028205,"serial_pairs":[{"pos":"1","serial":"B260202030732"},{"pos":"2","serial":"A260207030701"}],"serial_note":""},{"date":"2026-07-31","brand":"HOWO","park":"TR-217","moto":"2408м/ц 38665км","reason":"1,2-р дугуй муудсан","serials":"1.B260207030731 2.C260203030762","qty":2.0,"amount":14028215,"serial_pairs":[{"pos":"1","serial":"B260207030731"},{"pos":"2","serial":"C260203030762"}],"serial_note":""}];
+
+const dgColors = {'TONLY':'#e0a530','HOWO':'#e0456f'};
+const dgTonly = DG.filter(r=>r.brand==='TONLY');
+const dgHowo = DG.filter(r=>r.brand==='HOWO');
+const dgTotalQty = DG.reduce((a,r)=>a+r.qty,0);
+const dgTotalAmt = DG.reduce((a,r)=>a+r.amount,0);
+const dgTonlyQty = dgTonly.reduce((a,r)=>a+r.qty,0);
+const dgHowoQty = dgHowo.reduce((a,r)=>a+r.qty,0);
+const dgTonlyAmt = dgTonly.reduce((a,r)=>a+r.amount,0);
+const dgHowoAmt = dgHowo.reduce((a,r)=>a+r.amount,0);
+
+document.getElementById('dg-total-qty').textContent = dgTotalQty + ' ш';
+document.getElementById('dg-total-amt').textContent = fmtM(dgTotalAmt);
+document.getElementById('dg-howo-qty').textContent = dgHowoQty + ' ш';
+document.getElementById('dg-howo-pct').textContent = ((dgHowoQty/dgTotalQty)*100).toFixed(1) + '%';
+document.getElementById('dg-tonly-qty').textContent = dgTonlyQty + ' ш';
+document.getElementById('dg-tonly-pct').textContent = ((dgTonlyQty/dgTotalQty)*100).toFixed(1) + '%';
+document.getElementById('dg-tonly-count').textContent = dgTonlyQty;
+document.getElementById('dg-howo-count').textContent = dgHowoQty;
+
+new Chart(document.getElementById('dgBrandCountChart'), {
+  type:'bar',
+  data:{labels:['HOWO-105 16R25','TONLY-891C 480/95R29'], datasets:[{data:[dgHowoQty,dgTonlyQty], backgroundColor:[dgColors.HOWO,dgColors.TONLY], borderRadius:6}]},
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
+});
+
+const dgBrandTableBody = document.getElementById('dg-brand-table');
+[['HOWO-105 16R25',dgHowoQty,dgColors.HOWO],['TONLY-891C 480/95R29',dgTonlyQty,dgColors.TONLY]].forEach(([name,qty,color])=>{
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><span class="cat-dot" style="background:${color};"></span>${name}</td><td class="amt">${qty} ш</td><td class="amt">${((qty/dgTotalQty)*100).toFixed(1)}%</td>`;
+  dgBrandTableBody.appendChild(tr);
+});
+const dgBrandTotalRow = document.createElement('tr');
+dgBrandTotalRow.innerHTML = `<td class="amt total" style="text-align:left;">НИЙТ ДҮН</td><td class="amt total">${dgTotalQty} ш</td><td class="amt total">100%</td>`;
+dgBrandTableBody.appendChild(dgBrandTotalRow);
+
+new Chart(document.getElementById('dgBrandCostChart'), {
+  type:'bar',
+  data:{labels:['HOWO-105 16R25','TONLY-891C 480/95R29'], datasets:[{data:[dgHowoAmt/1e6,dgTonlyAmt/1e6], backgroundColor:[dgColors.HOWO,dgColors.TONLY], borderRadius:6}]},
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('dgBrandPie'), {
+  type:'doughnut',
+  data:{labels:['HOWO-105 16R25','TONLY-891C 480/95R29'], datasets:[{data:[dgHowoAmt,dgTonlyAmt], backgroundColor:[dgColors.HOWO,dgColors.TONLY], borderWidth:0}]},
+  options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:c=>((c.raw/dgTotalAmt)*100).toFixed(1)+"%  ("+fmtM(c.raw)+")"}}}}
+});
+
+function dgParkAgg(rows){
+  const m = {};
+  rows.forEach(r=>{ if(!m[r.park]) m[r.park]={qty:0,amount:0}; m[r.park].qty+=r.qty; m[r.park].amount+=r.amount; });
+  return m;
+}
+const dgTonlyByPark = dgParkAgg(dgTonly);
+const dgHowoByPark = dgParkAgg(dgHowo);
+const dgAllParks = [...new Set(DG.map(r=>r.park))].sort((a,b)=>{
+  const [pa,na]=parkSortKey(a), [pb,nb]=parkSortKey(b);
+  return pa===pb ? na-nb : pa.localeCompare(pb);
+});
+
+new Chart(document.getElementById('dgParkBar'), {
+  type:'bar',
+  data:{
+    labels:dgAllParks,
+    datasets:[
+      {label:'TONLY', data:dgAllParks.map(p=>dgTonlyByPark[p]?dgTonlyByPark[p].qty:0), backgroundColor:dgColors.TONLY},
+      {label:'HOWO', data:dgAllParks.map(p=>dgHowoByPark[p]?dgHowoByPark[p].qty:0), backgroundColor:dgColors.HOWO},
+    ]
+  },
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('dgComboChart'), {
+  data:{
+    labels:dgAllParks,
+    datasets:[
+      {type:'bar', label:'TONLY тоо (ш)', data:dgAllParks.map(p=>dgTonlyByPark[p]?dgTonlyByPark[p].qty:0), backgroundColor:dgColors.TONLY, yAxisID:'y'},
+      {type:'bar', label:'HOWO тоо (ш)', data:dgAllParks.map(p=>dgHowoByPark[p]?dgHowoByPark[p].qty:0), backgroundColor:dgColors.HOWO, yAxisID:'y'},
+      {type:'line', label:'Зардал (сая₮)', data:dgAllParks.map(p=>((dgTonlyByPark[p]?dgTonlyByPark[p].amount:0)+(dgHowoByPark[p]?dgHowoByPark[p].amount:0))/1e6), borderColor:'#22d38a', backgroundColor:'#22d38a', yAxisID:'y1', tension:0.3},
+    ]
+  },
+  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top', labels:{boxWidth:10}}}, scales:{
+    x:{grid:{display:false}, ticks:{maxRotation:90, minRotation:90}},
+    y:{position:'left', beginAtZero:true, title:{display:true,text:'ш'}, grid:{color:'#232c42'}},
+    y1:{position:'right', beginAtZero:true, title:{display:true,text:'сая₮'}, grid:{display:false}}
+  }}
+});
+
+function renderParkTable(tbodyId, byPark){
+  const tbody = document.getElementById(tbodyId);
+  const parks = Object.keys(byPark).sort((a,b)=>{
+    const [pa,na]=parkSortKey(a), [pb,nb]=parkSortKey(b);
+    return pa===pb ? na-nb : pa.localeCompare(pb);
+  });
+  let totQty=0, totAmt=0;
+  parks.forEach(p=>{
+    const d = byPark[p];
+    totQty+=d.qty; totAmt+=d.amount;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="park-tag">${p}</td><td class="amt">${d.qty} ш</td><td class="amt">${fmtM(d.amount)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const totRow = document.createElement('tr');
+  totRow.innerHTML = `<td class="amt total" style="text-align:left;">НИЙТ ДҮН</td><td class="amt total">${totQty} ш</td><td class="amt total">${fmtM(totAmt)}</td>`;
+  tbody.appendChild(totRow);
+}
+renderParkTable('dg-tonly-park-table', dgTonlyByPark);
+renderParkTable('dg-howo-park-table', dgHowoByPark);
+
+function serialBadges(r){
+  if(r.serial_pairs && r.serial_pairs.length){
+    return r.serial_pairs.map(sp=>`<span class="serial-badge"><b>${sp.pos}</b> → ${sp.serial}</span>`).join('');
+  }
+  return `<span class="reason-cell">${r.serial_note || '—'}</span>`;
+}
+function renderLog(tbodyId, rows){
+  document.getElementById(tbodyId).innerHTML = rows.map(r => `<tr>
+    <td>${r.date}</td><td class="park-tag">${r.park}</td><td class="model-tag">${r.moto||'—'}</td>
+    <td class="amt">${r.qty} ш</td><td class="amt">${fmtM(r.amount)}</td>
+    <td class="reason-cell">${r.reason||'—'}</td><td>${serialBadges(r)}</td>
+  </tr>`).join('');
+}
+renderLog('dg-tonly-log', dgTonly);
+renderLog('dg-howo-log', dgHowo);
+
+let dgActiveBrand = 'Бүгд';
+const dgBrandFilterBar = document.getElementById('dg-brand-filter');
+['Бүгд','TONLY','HOWO'].forEach(name=>{
+  const chip = document.createElement('div');
+  chip.className = 'cat-chip' + (name==='Бүгд' ? ' active' : '');
+  chip.textContent = name;
+  chip.addEventListener('click', ()=>{
+    dgBrandFilterBar.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    dgActiveBrand = name;
+    applyDgFilter();
+  });
+  dgBrandFilterBar.appendChild(chip);
+});
+function applyDgFilter(){
+  const q = document.getElementById('dg-search').value.toLowerCase();
+  const filterFn = r => {
+    const brandOk = dgActiveBrand==='Бүгд' || r.brand===dgActiveBrand;
+    const qOk = !q || r.park.toLowerCase().includes(q) || r.serials.toLowerCase().includes(q);
+    return brandOk && qOk;
+  };
+  renderLog('dg-tonly-log', dgTonly.filter(filterFn));
+  renderLog('dg-howo-log', dgHowo.filter(filterFn));
+}
+document.getElementById('dg-search').addEventListener('input', applyDgFilter);
 </script>
 </body>
 </html>
