@@ -85,11 +85,10 @@
   .park-dd.open .park-dd-btn{border-color:#7c5cf0;}
   .park-dd.open .chev{transform:rotate(180deg);}
   .park-dd-panel{
-    display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:30;
+    z-index:1000;
     width:300px; background:#161c30; border:1px solid #3a2f6b; border-radius:12px;
     box-shadow:0 12px 32px rgba(0,0,0,.5); padding:12px;
   }
-  .park-dd.open .park-dd-panel{display:block;}
   .park-dd-search{
     width:100%; padding:9px 12px; border-radius:9px; border:1px solid #7c5cf0;
     background:var(--panel2); color:var(--text); font-size:13px; margin-bottom:10px;
@@ -1254,27 +1253,32 @@ function initParkDropdown(containerId){
   if(!container) return;
   const selected = new Set(ALL_PARK_LIST);
 
-  container.innerHTML = `
-    <div class="park-dd-btn"><span class="park-dd-label">Бүгд парк</span><span class="chev">▼</span></div>
-    <div class="park-dd-panel">
-      <input class="park-dd-search" placeholder="Хайх...">
-      <div class="park-dd-list">
-        <div class="park-dd-all"><input type="checkbox" checked><span>(Бүгд)</span></div>
-        <div class="park-dd-groups"></div>
-      </div>
-      <div class="park-dd-footer">
-        <button class="park-dd-clear">Цэвэрлэх</button>
-        <button class="park-dd-close">Хаах</button>
-      </div>
-    </div>
-  `;
+  container.innerHTML = `<div class="park-dd-btn"><span class="park-dd-label">Бүгд парк</span><span class="chev">▼</span></div>`;
   const btn = container.querySelector('.park-dd-btn');
   const label = container.querySelector('.park-dd-label');
-  const search = container.querySelector('.park-dd-search');
-  const groupsWrap = container.querySelector('.park-dd-groups');
-  const allCb = container.querySelector('.park-dd-all input');
-  const clearBtn = container.querySelector('.park-dd-clear');
-  const closeBtn = container.querySelector('.park-dd-close');
+
+  const panel = document.createElement('div');
+  panel.className = 'park-dd-panel';
+  panel.innerHTML = `
+    <input class="park-dd-search" placeholder="Хайх...">
+    <div class="park-dd-list">
+      <div class="park-dd-all"><input type="checkbox" checked><span>(Бүгд)</span></div>
+      <div class="park-dd-groups"></div>
+    </div>
+    <div class="park-dd-footer">
+      <button class="park-dd-clear">Цэвэрлэх</button>
+      <button class="park-dd-close">Хаах</button>
+    </div>
+  `;
+  panel.style.position = 'fixed';
+  panel.style.display = 'none';
+  document.body.appendChild(panel);
+
+  const search = panel.querySelector('.park-dd-search');
+  const groupsWrap = panel.querySelector('.park-dd-groups');
+  const allCb = panel.querySelector('.park-dd-all input');
+  const clearBtn = panel.querySelector('.park-dd-clear');
+  const closeBtn = panel.querySelector('.park-dd-close');
 
   function updateLabel(){
     if(selected.size===0) label.textContent = 'Сонгоогүй';
@@ -1308,9 +1312,21 @@ function initParkDropdown(containerId){
   renderList('');
   updateLabel();
 
+  function openPanel(){
+    const rect = btn.getBoundingClientRect();
+    panel.style.top = (rect.bottom + 6) + 'px';
+    panel.style.left = rect.left + 'px';
+    panel.style.width = Math.max(rect.width, 300) + 'px';
+    panel.style.display = 'block';
+    container.classList.add('open');
+  }
+  function closePanel(){
+    panel.style.display = 'none';
+    container.classList.remove('open');
+  }
   btn.addEventListener('click', (e)=>{
     e.stopPropagation();
-    container.classList.toggle('open');
+    if(panel.style.display === 'block') closePanel(); else openPanel();
   });
   search.addEventListener('input', ()=> renderList(search.value));
   allCb.addEventListener('change', ()=>{
@@ -1325,10 +1341,11 @@ function initParkDropdown(containerId){
     renderList(search.value);
     updateLabel();
   });
-  closeBtn.addEventListener('click', ()=> container.classList.remove('open'));
-  document.addEventListener('click', (e)=>{
-    if(!container.contains(e.target)) container.classList.remove('open');
-  });
+  closeBtn.addEventListener('click', closePanel);
+  panel.addEventListener('click', (e)=> e.stopPropagation());
+  document.addEventListener('click', closePanel);
+  window.addEventListener('resize', ()=>{ if(panel.style.display==='block') openPanel(); });
+  window.addEventListener('scroll', ()=>{ if(panel.style.display==='block') closePanel(); }, true);
 }
 initParkDropdown('dashParkDd');
 </script>
