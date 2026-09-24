@@ -248,6 +248,26 @@
       </div>
     </div>
 
+    <div id="parkDetailSection" style="display:none;">
+      <div class="grid2">
+        <div class="card scene" style="grid-column:1 / -1;">
+          <h3 id="parkDetailTitle">Техникийн бүх зардал</h3>
+          <div class="table-scroll">
+          <table>
+            <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Парк</th><th style="color:#fff;">Модел</th><th class="amt" style="color:#fff;">Сэлбэг</th><th class="amt" style="color:#fff;">Тос</th><th class="amt" style="color:#fff;">Түлш</th><th class="amt" style="color:#fff;">Дугуй</th><th class="amt" style="color:#fff;">Нийт</th></tr></thead>
+            <tbody id="parkDetailRow"></tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card scene" style="grid-column:1 / -1;">
+          <h3 id="parkCompareTitle">Бүх техникийн дундажтай харьцуулалт (сая₮)</h3>
+          <div class="chart-wrap" style="height:300px;"><canvas id="parkCompareChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
     <div class="grid2">
       <div class="card scene" style="grid-column:1 / -1;">
         <h3>Хамгийн өндөр зардалтай техник (Сэлбэг + Тос + Түлш)</h3>
@@ -1248,7 +1268,7 @@ function buildParkGroups(){
 const ALL_PARK_GROUPS = buildParkGroups();
 const ALL_PARK_LIST = Object.values(ALL_PARK_GROUPS).flat();
 
-function initParkDropdown(containerId){
+function initParkDropdown(containerId, onChange){
   const container = document.getElementById(containerId);
   if(!container) return;
   const selected = new Set(ALL_PARK_LIST);
@@ -1285,6 +1305,7 @@ function initParkDropdown(containerId){
     else if(selected.size===ALL_PARK_LIST.length) label.textContent = 'Бүгд парк';
     else if(selected.size===1) label.textContent = [...selected][0];
     else label.textContent = selected.size + ' парк сонгосон';
+    if(onChange) onChange([...selected]);
   }
   function renderList(filterText){
     const q = (filterText||'').toLowerCase();
@@ -1329,6 +1350,7 @@ function initParkDropdown(containerId){
     if(panel.style.display === 'block') closePanel(); else openPanel();
   });
   search.addEventListener('input', ()=> renderList(search.value));
+  search.addEventListener('click', e=> e.stopPropagation());
   allCb.addEventListener('change', ()=>{
     if(allCb.checked){ ALL_PARK_LIST.forEach(p=>selected.add(p)); }
     else { selected.clear(); }
@@ -1343,11 +1365,66 @@ function initParkDropdown(containerId){
   });
   closeBtn.addEventListener('click', closePanel);
   panel.addEventListener('click', (e)=> e.stopPropagation());
-  document.addEventListener('click', closePanel);
+  panel.addEventListener('mousedown', (e)=> e.stopPropagation());
+  document.addEventListener('click', (e)=>{
+    if(!panel.contains(e.target) && !container.contains(e.target)) closePanel();
+  });
   window.addEventListener('resize', ()=>{ if(panel.style.display==='block') openPanel(); });
-  window.addEventListener('scroll', ()=>{ if(panel.style.display==='block') closePanel(); }, true);
+  window.addEventListener('scroll', ()=>{ if(panel.style.display==='block') openPanel(); }, true);
 }
-initParkDropdown('dashParkDd');
+
+function buildParkTotals(){
+  const m = {};
+  function ensure(p){ if(!m[p]) m[p] = {selbeg:0, tos:0, tuls:0, duguy:0, model:''}; return m[p]; }
+  SB.forEach(r=>{ const e=ensure(r.park); e.selbeg+=r.amount; if(!e.model) e.model=r.model; });
+  TO.forEach(r=>{ const e=ensure(r.park); e.tos+=r.amount; if(!e.model) e.model=r.model; });
+  TU.forEach(r=>{ const e=ensure(r.park); e.tuls+=r.amount; if(!e.model) e.model=r.model; });
+  DG.forEach(r=>{ const e=ensure(r.park); e.duguy+=r.qty; });
+  return m;
+}
+const PARK_TOTALS = buildParkTotals();
+const PARK_KEYS = Object.keys(PARK_TOTALS);
+const AVG_SELBEG = PARK_KEYS.reduce((a,p)=>a+PARK_TOTALS[p].selbeg,0) / PARK_KEYS.length;
+const AVG_TOS = PARK_KEYS.reduce((a,p)=>a+PARK_TOTALS[p].tos,0) / PARK_KEYS.length;
+const AVG_TULS = PARK_KEYS.reduce((a,p)=>a+PARK_TOTALS[p].tuls,0) / PARK_KEYS.length;
+
+let parkCompareChartInstance = null;
+function showParkDetail(park){
+  const d = PARK_TOTALS[park];
+  if(!d) return;
+  const total = d.selbeg + d.tos + d.tuls;
+  document.getElementById('parkDetailSection').style.display = '';
+  document.getElementById('parkDetailTitle').textContent = `"${park}" техникийн бүх зардал`;
+  document.getElementById('parkDetailRow').innerHTML = `<tr>
+    <td class="park-tag">${park}</td><td class="model-tag">${d.model||'—'}</td>
+    <td class="amt" style="color:#5b8dff;">${fmtM(d.selbeg)}</td>
+    <td class="amt" style="color:#e0a530;">${fmtM(d.tos)}</td>
+    <td class="amt" style="color:#3ad0e8;">${fmtM(d.tuls)}</td>
+    <td class="amt" style="color:var(--sub);">${d.duguy ? d.duguy+' ш' : '—'}</td>
+    <td class="amt total">${fmtM(total)}</td>
+  </tr>`;
+  document.getElementById('parkCompareTitle').textContent = `${park} — бүх техникийн дундажтай харьцуулалт (сая₮)`;
+
+  if(parkCompareChartInstance) parkCompareChartInstance.destroy();
+  parkCompareChartInstance = new Chart(document.getElementById('parkCompareChart'), {
+    type:'bar',
+    data:{
+      labels:['Сэлбэг','Тос','Түлш'],
+      datasets:[
+        {label:park, data:[d.selbeg/1e6, d.tos/1e6, d.tuls/1e6], backgroundColor:'#e0384a', borderRadius:6},
+        {label:'Бүх техникийн дундаж', data:[AVG_SELBEG/1e6, AVG_TOS/1e6, AVG_TULS/1e6], backgroundColor:'#8a93ad', borderRadius:6},
+      ]
+    },
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:true, grid:{color:'#232c42'}}, x:{grid:{display:false}}}}
+  });
+}
+function hideParkDetail(){
+  document.getElementById('parkDetailSection').style.display = 'none';
+}
+initParkDropdown('dashParkDd', (selectedParks)=>{
+  if(selectedParks.length === 1) showParkDetail(selectedParks[0]);
+  else hideParkDetail();
+});
 </script>
 </body>
 </html>
