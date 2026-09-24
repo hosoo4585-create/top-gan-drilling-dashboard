@@ -658,24 +658,45 @@ Chart.defaults.interaction = { mode: 'nearest', intersect: true };
 
 const donutColors = ['#3b6fe0','#7c5cf0','#22b8cf'];
 
-new Chart(document.getElementById('barChart'), {
+let mainBarChart = new Chart(document.getElementById('barChart'), {
   type:'bar',
   data:{labels:['Сэлбэг','Тос','Түлш'], datasets:[{data:[DATA.selbeg/1e6, DATA.tos/1e6, DATA.tuls/1e6], backgroundColor:donutColors, borderRadius:6, maxBarThickness:80}]},
   options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{y:{beginAtZero:true, grid:{color:'#232c42'}}, x:{grid:{display:false}}}}
 });
 
-new Chart(document.getElementById('donutChart'), {
+let mainDonutChart = new Chart(document.getElementById('donutChart'), {
   type:'doughnut',
   data:{labels:['Сэлбэгийн зардал','Тосны зарцуулалт','Түлшний зардал'], datasets:[{data:[DATA.selbeg, DATA.tos, DATA.tuls], backgroundColor:donutColors, borderWidth:0}]},
   options:{responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>((c.raw/total)*100).toFixed(1)+"%  ("+fmtM(c.raw)+")"}}}}
 });
 const legend = document.getElementById('donut-legend');
-[['Сэлбэгийн зардал',DATA.selbeg,donutColors[0]],['Тосны зарцуулалт',DATA.tos,donutColors[1]],['Түлшний зардал',DATA.tuls,donutColors[2]]]
-  .forEach(([name,val,color])=>{
-    const li=document.createElement('li');
-    li.innerHTML = `<span><span class="dot" style="background:${color}"></span>${name}</span><span>${((val/total)*100).toFixed(1)}%</span>`;
-    legend.appendChild(li);
-  });
+function renderMainLegend(sel, tos, tul){
+  const sum = sel+tos+tul || 1;
+  legend.innerHTML = '';
+  [['Сэлбэгийн зардал',sel,donutColors[0]],['Тосны зарцуулалт',tos,donutColors[1]],['Түлшний зардал',tul,donutColors[2]]]
+    .forEach(([name,val,color])=>{
+      const li=document.createElement('li');
+      li.innerHTML = `<span><span class="dot" style="background:${color}"></span>${name}</span><span>${((val/sum)*100).toFixed(1)}%</span>`;
+      legend.appendChild(li);
+    });
+}
+renderMainLegend(DATA.selbeg, DATA.tos, DATA.tuls);
+
+function updateMainDashboard(sel, tos, tul, recordsLabel, titleSuffix){
+  document.getElementById('kpi-total').textContent = fmtM(sel+tos+tul);
+  document.getElementById('kpi-total-sub').textContent = fmtFull(sel+tos+tul);
+  document.getElementById('kpi-selbeg').textContent = fmtM(sel);
+  document.getElementById('kpi-tos').textContent = fmtM(tos);
+  document.getElementById('kpi-tuls').textContent = fmtM(tul);
+  document.getElementById('kpi-records').textContent = recordsLabel;
+  mainBarChart.data.datasets[0].data = [sel/1e6, tos/1e6, tul/1e6];
+  mainBarChart.update();
+  mainDonutChart.data.datasets[0].data = [sel, tos, tul];
+  mainDonutChart.update();
+  renderMainLegend(sel, tos, tul);
+  const barTitle = document.querySelector('#page-dashboard .grid2 .card h3');
+  if(barTitle) barTitle.textContent = titleSuffix ? `Сэлбэг vs Тос vs Түлш — ${titleSuffix} (сая₮)` : 'Сэлбэг vs Тос vs Түлш (сая₮)';
+}
 
 const tbody = document.getElementById('top10-body');
 DATA.top10.forEach(r=>{
@@ -1349,7 +1370,20 @@ function initParkDropdown(containerId, onChange){
     e.stopPropagation();
     if(panel.style.display === 'block') closePanel(); else openPanel();
   });
-  search.addEventListener('input', ()=> renderList(search.value));
+  search.addEventListener('input', ()=>{
+    const q = search.value.toLowerCase().trim();
+    renderList(search.value);
+    if(q){
+      const matches = ALL_PARK_LIST.filter(p=>p.toLowerCase().includes(q));
+      if(matches.length===1){
+        selected.clear();
+        selected.add(matches[0]);
+        allCb.checked = false;
+        renderList(search.value);
+        updateLabel();
+      }
+    }
+  });
   search.addEventListener('click', e=> e.stopPropagation());
   allCb.addEventListener('change', ()=>{
     if(allCb.checked){ ALL_PARK_LIST.forEach(p=>selected.add(p)); }
@@ -1417,9 +1451,12 @@ function showParkDetail(park){
     },
     options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:true, grid:{color:'#232c42'}}, x:{grid:{display:false}}}}
   });
+
+  updateMainDashboard(d.selbeg, d.tos, d.tuls, (d.duguy||0), park);
 }
 function hideParkDetail(){
   document.getElementById('parkDetailSection').style.display = 'none';
+  updateMainDashboard(DATA.selbeg, DATA.tos, DATA.tuls, "182", null);
 }
 initParkDropdown('dashParkDd', (selectedParks)=>{
   if(selectedParks.length === 1) showParkDetail(selectedParks[0]);
