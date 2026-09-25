@@ -574,7 +574,7 @@
       <div class="card scene">
         <h3>Загвар тус бүрийн нэгтгэл</h3>
         <table>
-          <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Дугуйн загвар</th><th class="amt" style="color:#fff;">Авсан тоо</th><th class="amt" style="color:#fff;">Эзлэх хувь</th></tr></thead>
+          <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Дугуйн загвар</th><th class="amt" style="color:#fff;">Авсан тоо</th><th class="amt" style="color:#fff;">Эзлэх хувь</th><th class="amt" style="color:#fff;">Үнийн дүн</th></tr></thead>
           <tbody id="dg-brand-table"></tbody>
         </table>
       </div>
@@ -1230,13 +1230,13 @@ mkChart('dgBrandCountChart', {
 
 const dgBrandTableBody = document.getElementById('dg-brand-table');
 dgBrandTableBody.innerHTML = '';
-[['HOWO-105 16R25',dgHowoQty,dgColors.HOWO],['TONLY-891C 480/95R29',dgTonlyQty,dgColors.TONLY]].forEach(([name,qty,color])=>{
+[['HOWO-105 16R25',dgHowoQty,dgHowoAmt,dgColors.HOWO],['TONLY-891C 480/95R29',dgTonlyQty,dgTonlyAmt,dgColors.TONLY]].forEach(([name,qty,amt,color])=>{
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td><span class="cat-dot" style="background:${color};"></span>${name}</td><td class="amt">${qty} ш</td><td class="amt">${((qty/dgTotalQty)*100).toFixed(1)}%</td>`;
+  tr.innerHTML = `<td><span class="cat-dot" style="background:${color};"></span>${name}</td><td class="amt">${qty} ш</td><td class="amt">${((qty/dgTotalQty)*100).toFixed(1)}%</td><td class="amt">${fmtM(amt)}</td>`;
   dgBrandTableBody.appendChild(tr);
 });
 const dgBrandTotalRow = document.createElement('tr');
-dgBrandTotalRow.innerHTML = `<td class="amt total" style="text-align:left;">НИЙТ ДҮН</td><td class="amt total">${dgTotalQty} ш</td><td class="amt total">100%</td>`;
+dgBrandTotalRow.innerHTML = `<td class="amt total" style="text-align:left;">НИЙТ ДҮН</td><td class="amt total">${dgTotalQty} ш</td><td class="amt total">100%</td><td class="amt total">${fmtM(dgTotalAmt)}</td>`;
 dgBrandTableBody.appendChild(dgBrandTotalRow);
 
 mkChart('dgBrandCostChart', {
