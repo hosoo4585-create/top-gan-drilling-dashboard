@@ -643,16 +643,27 @@
   <!-- COMPARE PAGE -->
   <section id="page-compare" class="page">
     <h2 class="page-title">Харьцуулалт</h2>
-    <div class="page-sub">Техникийн зориулалтаар зардлын харьцуулалт</div>
+    <div class="page-sub">2026 оны 7 ба 8-р сарын нийт зардлын харьцуулалт</div>
     <div class="card scene" style="margin-bottom:18px;">
-      <h3>Сэлбэгийн зардал — зориулалтаар</h3>
-      <div class="hint">Техникийн ангиллаар хуваарилсан сэлбэгийн зардал</div>
-      <div class="chart-wrap" style="height:240px;"><canvas id="purposeChart"></canvas></div>
+      <h3>Нийт зардал — 7-р сар vs 8-р сар</h3>
+      <div class="hint">Сэлбэг + Тос + Түлшний нийлбэр дүнгийн харьцуулалт</div>
+      <div class="chart-wrap" style="height:280px;"><canvas id="cmpTotalChart"></canvas></div>
+    </div>
+    <div class="card scene" style="margin-bottom:18px;">
+      <h3>Сэлбэгийн зардал</h3>
+      <div class="chart-wrap" style="height:240px;"><canvas id="cmpSbChart"></canvas></div>
+    </div>
+    <div class="card scene" style="margin-bottom:18px;">
+      <h3>ШТМ (Тос)-ны зардал</h3>
+      <div class="chart-wrap" style="height:240px;"><canvas id="cmpToChart"></canvas></div>
+    </div>
+    <div class="card scene" style="margin-bottom:18px;">
+      <h3>Түлшний зардал</h3>
+      <div class="chart-wrap" style="height:240px;"><canvas id="cmpTuChart"></canvas></div>
     </div>
     <div class="card scene">
-      <h3>Топ 10 техник — Сэлбэг/Тос/Түлш харьцуулалт</h3>
-      <div class="hint">Хамгийн өндөр зардалтай парк тус бүрийн бүтэц</div>
-      <div class="chart-wrap" style="height:320px;"><canvas id="compareChart"></canvas></div>
+      <h3>Дугуйны зардал</h3>
+      <div class="chart-wrap" style="height:240px;"><canvas id="cmpDgChart"></canvas></div>
     </div>
   </section>
 
@@ -831,28 +842,6 @@ top10.forEach(r=>{
   tbody.appendChild(tr);
 });
 
-const purposeSums = {};
-SB.forEach(r=>{ const key = r.purpose || 'Бусад'; purposeSums[key] = (purposeSums[key]||0) + r.amount; });
-const purposeList = Object.entries(purposeSums).sort((a,b)=>b[1]-a[1]);
-
-mkChart('purposeChart', {
-  type:'bar',
-  data:{labels:purposeList.map(p=>p[0]), datasets:[{data:purposeList.map(p=>p[1]/1e6), backgroundColor:'#e0a530', borderRadius:6, maxBarThickness:56}]},
-  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
-});
-
-mkChart('compareChart', {
-  type:'bar',
-  data:{
-    labels:top10.map(r=>r.park),
-    datasets:[
-      {label:'Сэлбэг', data:top10.map(r=>r.selbeg/1e6), backgroundColor:'#3b6fe0'},
-      {label:'Тос', data:top10.map(r=>r.tos/1e6), backgroundColor:'#7c5cf0'},
-      {label:'Түлш', data:top10.map(r=>r.tuls/1e6), backgroundColor:'#22b8cf'},
-    ]
-  },
-  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:10}}}, scales:{x:{stacked:true, grid:{display:false}}, y:{stacked:true, beginAtZero:true, grid:{color:'#232c42'}}}}
-});
 
 // --- generic table renderer + search ---
 function renderTable(tbodyId, data, rowFn){
@@ -1681,6 +1670,37 @@ function initMonthDropdown(){
 }
 initMonthDropdown();
 renderReport('2026-07');
+
+// ===== Харьцуулалт (7-р сар vs 8-р сар) — 2 сарын нийт зардлын харьцуулалт =====
+function renderCompareTab(){
+  const jul = REPORT_DATA['2026-07'];
+  const aug = REPORT_DATA['2026-08'];
+  const julDgTotal = jul.DG.reduce((a,r)=>a+r.amount,0);
+  const augDgTotal = aug.DG.reduce((a,r)=>a+r.amount,0);
+  const julTotal = jul.selbeg + jul.tos + jul.tuls;
+  const augTotal = aug.selbeg + aug.tos + aug.tuls;
+  const cmpColors = ['#3b6fe0','#e0a530'];
+  const labels = ['7-р сар','8-р сар'];
+
+  function cmpChart(id, data, title){
+    mkChart(id, {
+      type:'bar',
+      data:{labels, datasets:[{data:data.map(v=>v/1e6), backgroundColor:cmpColors, borderRadius:8, maxBarThickness:90}]},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
+        scales:{y:{beginAtZero:true, grid:{color:'#232c42'}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
+      }
+    });
+  }
+
+  cmpChart('cmpTotalChart', [julTotal, augTotal]);
+  cmpChart('cmpSbChart', [jul.selbeg, aug.selbeg]);
+  cmpChart('cmpToChart', [jul.tos, aug.tos]);
+  cmpChart('cmpTuChart', [jul.tuls, aug.tuls]);
+  cmpChart('cmpDgChart', [julDgTotal, augDgTotal]);
+}
+renderCompareTab();
 </script>
 </body>
 </html>
