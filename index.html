@@ -492,6 +492,7 @@
       <div class="subtab active" data-sub="tu-summary">📈 Нэгтгэл</div>
       <div class="subtab" data-sub="tu-detail">📋 Дэлгэрэнгүй (<span id="tu-count-tab">—</span>)</div>
       <div class="subtab" data-sub="tu-perhour">⚡ 1 мото цагт хэрэглээ</div>
+      <div class="subtab" data-sub="tu-efficiency">💧 Дундаж зардлын өөрчлөлт</div>
     </div>
 
     <div id="sub-tu-summary" class="subpage active">
@@ -551,6 +552,27 @@
       <div class="card scene">
         <h3>Техник тус бүрийн 1 мото цагт ноогдох түлшний хэрэглээ (1м/ц)</h3>
         <div class="chart-wrap" id="tuPerhourChartWrap" style="height:400px;"><canvas id="tuPerhourChart"></canvas></div>
+      </div>
+    </div>
+
+    <div id="sub-tu-efficiency" class="subpage">
+      <div class="kpis" style="grid-template-columns:repeat(3,1fr); margin-bottom:22px;">
+        <div class="kpi c1"><div class="label">Энэ сарын 1 литрийн дундаж үнэ</div><div class="value" id="tueff-cur">—</div></div>
+        <div class="kpi c4"><div class="label">Өмнөх сарын 1 литрийн дундаж үнэ</div><div class="value" id="tueff-prev">—</div></div>
+        <div class="kpi c3"><div class="label">Өөрчлөлт</div><div class="value" id="tueff-pct">—</div><div class="kpi-delta" id="tueff-delta"></div></div>
+      </div>
+      <div class="card scene" style="margin-bottom:18px;">
+        <h3>Сар бүрийн 1 литр түлшний дундаж үнэ (₮/л)</h3>
+        <div class="chart-wrap" style="height:280px;"><canvas id="tuEffTrendChart"></canvas></div>
+      </div>
+      <div class="card scene">
+        <h3>Ангилал тус бүрийн 1 литрийн үнэ (өмнөх сартай харьцуулсан)</h3>
+        <div class="table-scroll">
+        <table>
+          <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Ангилал</th><th class="amt" style="color:#fff;">Энэ сар (₮/л)</th><th class="amt" style="color:#fff;">Өмнөх сар (₮/л)</th><th class="amt" style="color:#fff;">Өөрчлөлт</th></tr></thead>
+          <tbody id="tueff-cat-body"></tbody>
+        </table>
+        </div>
       </div>
     </div>
   </section>
@@ -1208,6 +1230,72 @@ FILTERS.tu = applyTuFilter;
 if(typeof renderPerhourChart === 'function'){
   renderPerhourChart(typeof tuphActiveCat !== 'undefined' ? tuphActiveCat : 'Бүгд');
 }
+
+function renderTuEfficiency(){
+  const histMonths = REPORT_MONTHS.filter(m=>REPORT_DATA[m.key]);
+  const mIdx = histMonths.findIndex(m=>m.key===monthKey);
+  const prevMonth = mIdx > 0 ? histMonths[mIdx-1] : null;
+  const prevData = prevMonth ? REPORT_DATA[prevMonth.key] : null;
+
+  const curPerLiter = DATA.liters ? (DATA.tuls/DATA.liters) : 0;
+  const prevPerLiter = (prevData && prevData.liters) ? (prevData.tuls/prevData.liters) : null;
+
+  document.getElementById('tueff-cur').textContent = fmtFull(curPerLiter) + '/л';
+  document.getElementById('tueff-prev').textContent = prevPerLiter!==null ? (fmtFull(prevPerLiter) + '/л') : '—';
+
+  if(prevPerLiter){
+    const pct = ((curPerLiter-prevPerLiter)/prevPerLiter)*100;
+    const sign = pct>0 ? '+' : '';
+    document.getElementById('tueff-pct').textContent = sign + pct.toFixed(1) + '%';
+  } else {
+    document.getElementById('tueff-pct').textContent = '—';
+  }
+  setKpiDelta('tueff-delta', curPerLiter, prevPerLiter);
+
+  const trendLabels = histMonths.map(m=>m.label.replace('2026 оны ',''));
+  const trendData = histMonths.map(m=>{
+    const md = REPORT_DATA[m.key];
+    return md.liters ? Math.round(md.tuls/md.liters) : 0;
+  });
+  mkChart('tuEffTrendChart', {
+    type:'line',
+    data:{labels:trendLabels, datasets:[{label:'1 литрийн үнэ (₮)', data:trendData, borderColor:'#3ad0e8', backgroundColor:'rgba(58,208,232,.15)', fill:true, tension:.3, pointRadius:4, pointBackgroundColor:'#3ad0e8'}]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('en-US')+' ₮/л'}}}, scales:{y:{beginAtZero:false, grid:{color:'#232c42'}, ticks:{callback:v=>v.toLocaleString('en-US')}}, x:{grid:{display:false}}}}
+  });
+
+  function catLitersAmount(monthData){
+    const res = {};
+    (monthData.TU||[]).forEach(r=>{
+      const cat = tuCategory(r.park);
+      if(!res[cat]) res[cat] = {liters:0, amount:0};
+      res[cat].liters += (r.liters||0);
+      res[cat].amount += (r.amount||0);
+    });
+    return res;
+  }
+  const curCat = catLitersAmount(DATA);
+  const prevCat = prevData ? catLitersAmount(prevData) : {};
+  const catBody = document.getElementById('tueff-cat-body');
+  catBody.innerHTML = '';
+  const catOrderEff = ['TONLY','HOWO','Экскаватор','Ковш, грейдер, дозер','Хөнгөн тэрэг','Бусад'];
+  catOrderEff.filter(c=>curCat[c] && curCat[c].liters>0).forEach(cat=>{
+    const curVal = curCat[cat].amount / curCat[cat].liters;
+    const prevEntry = prevCat[cat];
+    const prevVal = (prevEntry && prevEntry.liters>0) ? (prevEntry.amount/prevEntry.liters) : null;
+    let changeHtml = '<span style="color:var(--sub);">—</span>';
+    if(prevVal){
+      const pct = ((curVal-prevVal)/prevVal)*100;
+      const cls = pct>0.5 ? 'up' : (pct<-0.5 ? 'down' : 'flat');
+      const arrow = pct>0.5 ? '▲' : (pct<-0.5 ? '▼' : '▬');
+      const sign = pct>0 ? '+' : '';
+      changeHtml = `<span class="kpi-delta ${cls}" style="margin-top:0;">${arrow} ${sign}${pct.toFixed(1)}%</span>`;
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><span class="cat-dot" style="background:${tuCatColors[cat]||'#888'};"></span>${cat}</td><td class="amt">${fmtFull(curVal)}</td><td class="amt">${prevVal!==null ? fmtFull(prevVal) : '—'}</td><td class="amt">${changeHtml}</td>`;
+    catBody.appendChild(tr);
+  });
+}
+renderTuEfficiency();
 
 renderDgTab();
 
