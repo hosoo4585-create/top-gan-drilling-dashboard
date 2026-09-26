@@ -11,6 +11,25 @@
     --line:#232c42; --text:#eef1f8; --sub:#8b96b3;
     --blue:#3b6fe0; --cyan:#22b8cf; --violet:#7c5cf0; --amber:#e0a530; --rose:#e0456f;
   }
+  :root[data-theme="light"]{
+    --bg:#f5f6fa; --panel:#ffffff; --panel2:#eef0f6;
+    --line:#dde1ec; --text:#1a2033; --sub:#5a6478;
+  }
+  :root[data-theme="light"] body{
+    background: linear-gradient(160deg, rgba(255,255,255,.88) 0%, rgba(247,248,252,.92) 55%, rgba(240,242,248,.96) 100%);
+  }
+  :root[data-theme="light"] body::before{ opacity:.12; filter:grayscale(.4) brightness(1.3); }
+  :root[data-theme="light"] .logout-btn,
+  :root[data-theme="light"] .nav-item:hover,
+  :root[data-theme="light"] .month-dd-btn{ background:var(--panel2); }
+  :root[data-theme="light"] .purpose-chip,
+  :root[data-theme="light"] .serial-badge{ background:var(--panel2); }
+  :root[data-theme="light"] .month-dd-btn:hover{ background:#e2e6f0; }
+  :root[data-theme="light"] .park-dd-panel{ background:var(--panel); }
+  :root[data-theme="light"] .park-dd-item:hover{ background:var(--panel2); }
+  :root[data-theme="light"] .topbar{ background:linear-gradient(180deg,#ffffff,#f5f6fa); }
+  :root[data-theme="light"] .login-box{ background:var(--panel); }
+  :root[data-theme="light"] .login-box input{ background:var(--panel2); }
   *{box-sizing:border-box;}
   html{scroll-padding-top:env(safe-area-inset-top,0px);}
   body{
@@ -285,6 +304,7 @@
       <span style="background:#7c5cf0;"></span><span style="background:#3b6fe0;"></span><span style="background:#1fb87a;"></span>
       <span style="background:#e0a530;"></span><span style="background:#e0456f;"></span><span style="background:#e05ca0;"></span><span style="background:#a08560;"></span>
     </div>
+    <div class="logout-btn" id="themeToggleBtn" style="cursor:pointer;">☀️ Цайвар горим</div>
     <div class="logout-btn" id="logoutBtn" style="cursor:pointer;">Гарах</div>
   </div>
 </div>
@@ -416,6 +436,15 @@
         </table>
         </div>
       </div>
+      <div class="card scene" style="margin-top:18px; border:1px solid rgba(124,92,240,.35);">
+        <h3>🔮 <span id="sbfc-label">Дараа сарын таамаглал</span></h3>
+        <div class="kpis" style="grid-template-columns:repeat(2,1fr);">
+          <div class="kpi c1"><div class="label">Таамаг нийт зардал</div><div class="value" id="sbfc-value">—</div></div>
+          <div class="kpi c4"><div class="label">Өмнөх сартай харьцуулсан</div><div class="value" id="sbfc-trend">—</div></div>
+        </div>
+        <div class="chart-wrap" style="height:220px; margin-top:14px;"><canvas id="sbFcChart"></canvas></div>
+        <div class="sub" style="margin-top:10px; color:var(--sub); font-size:12px;">* Боломжтой саруудын чиг хандлага дээр үндэслэсэн ойролцоо тооцоолол.</div>
+      </div>
     </div>
 
     <!-- DETAIL SUBPAGE -->
@@ -469,6 +498,15 @@
           <tbody id="to-cat-body"></tbody>
         </table>
         </div>
+      </div>
+      <div class="card scene" style="margin-top:18px; border:1px solid rgba(124,92,240,.35);">
+        <h3>🔮 <span id="tofc-label">Дараа сарын таамаглал</span></h3>
+        <div class="kpis" style="grid-template-columns:repeat(2,1fr);">
+          <div class="kpi c1"><div class="label">Таамаг нийт зардал</div><div class="value" id="tofc-value">—</div></div>
+          <div class="kpi c4"><div class="label">Өмнөх сартай харьцуулсан</div><div class="value" id="tofc-trend">—</div></div>
+        </div>
+        <div class="chart-wrap" style="height:220px; margin-top:14px;"><canvas id="toFcChart"></canvas></div>
+        <div class="sub" style="margin-top:10px; color:var(--sub); font-size:12px;">* Боломжтой саруудын чиг хандлага дээр үндэслэсэн ойролцоо тооцоолол.</div>
       </div>
     </div>
 
@@ -572,6 +610,27 @@
           <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Ангилал</th><th class="amt" style="color:#fff;">Энэ сар (₮/л)</th><th class="amt" style="color:#fff;">Өмнөх сар (₮/л)</th><th class="amt" style="color:#fff;">Өөрчлөлт</th></tr></thead>
           <tbody id="tueff-cat-body"></tbody>
         </table>
+        </div>
+      </div>
+      <div class="card scene" style="margin-top:18px; border:1px solid rgba(124,92,240,.35);">
+        <h3>🔮 Дараа сарын таамаглал (чиг хандлага дээр үндэслэсэн)</h3>
+        <div class="kpis" style="grid-template-columns:repeat(2,1fr);">
+          <div class="kpi c1"><div class="label" id="tufc-liter-label">Таамаг: 1 литрийн үнэ</div><div class="value" id="tufc-liter">—</div></div>
+          <div class="kpi c4"><div class="label" id="tufc-perhour-label">Таамаг: 1 мото цагийн хэрэглээ</div><div class="value" id="tufc-perhour">—</div></div>
+        </div>
+        <div class="sub" style="margin-top:10px; color:var(--sub); font-size:12px;">* Зөвхөн боломжтой саруудын чиг хандлага дээр үндэслэсэн ойролцоо тооцоолол — цаг агаар, ажлын хэмжээ зэрэг бусад хүчин зүйлийг тооцоогүй.</div>
+      </div>
+      <div class="card scene" style="margin-top:18px;">
+        <h3>📉 Түлшний үнийн мэдрэмжийн шинжилгээ</h3>
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px; flex-wrap:wrap;">
+          <span style="color:var(--sub); font-size:13px;">Түлшний үнэ хэрхэн өөрчлөгдвөл:</span>
+          <input type="range" id="tuSensSlider" min="-30" max="30" value="10" step="1" style="flex:1; min-width:180px; accent-color:#7c5cf0;">
+          <span id="tuSensPctLabel" style="font-weight:700; font-size:16px; min-width:55px; text-align:right;">+10%</span>
+        </div>
+        <div class="kpis" style="grid-template-columns:repeat(3,1fr);">
+          <div class="kpi c4"><div class="label">Шинэ түлшний зардал</div><div class="value" id="tuSensNewFuel">—</div><div class="sub" id="tuSensFuelDelta">—</div></div>
+          <div class="kpi c3"><div class="label">Нийт зардалд нэмэгдэх/хасагдах дүн</div><div class="value" id="tuSensTotalDelta">—</div></div>
+          <div class="kpi c5"><div class="label">Шинэ нийт зардал</div><div class="value" id="tuSensNewTotal">—</div><div class="sub" id="tuSensTotalPct">—</div></div>
         </div>
       </div>
     </div>
@@ -833,6 +892,87 @@ function mkChart(id, cfg){
   return new Chart(document.getElementById(id), cfg);
 }
 
+function gridColor(){
+  return document.documentElement.getAttribute('data-theme')==='light' ? '#dde1ec' : '#232c42';
+}
+
+// --- Trend-based forecast helpers (шинжилгээ Сэлбэг/Тос/Түлш бүх табанд ашиглагдана) ---
+function forecastNext(seriesValues){
+  if(seriesValues.length < 2) return null;
+  const growthRates = [];
+  for(let i=1;i<seriesValues.length;i++){
+    if(seriesValues[i-1] > 0){
+      growthRates.push((seriesValues[i]-seriesValues[i-1])/seriesValues[i-1]);
+    }
+  }
+  if(!growthRates.length) return null;
+  const avgGrowth = growthRates.reduce((a,b)=>a+b,0)/growthRates.length;
+  const last = seriesValues[seriesValues.length-1];
+  return last * (1+avgGrowth);
+}
+function nextMonthLabel(lastKey){
+  const parts = lastKey.split('-').map(Number);
+  let ny = parts[0], nm = parts[1]+1;
+  if(nm > 12){ nm = 1; ny += 1; }
+  return nm + '-р сар';
+}
+function renderCostForecast(seriesField, labelElId, valueElId, trendElId, chartId){
+  const histMonths = REPORT_MONTHS.filter(m=>REPORT_DATA[m.key]);
+  const labels = histMonths.map(m=>m.label.replace('2026 оны ',''));
+  const series = histMonths.map(m=>REPORT_DATA[m.key][seriesField]);
+  const fc = forecastNext(series);
+  const lastKey = histMonths.length ? histMonths[histMonths.length-1].key : null;
+  const fcLabel = lastKey ? nextMonthLabel(lastKey) : '';
+
+  const labelEl = document.getElementById(labelElId);
+  if(labelEl) labelEl.textContent = fcLabel ? `Дараа сарын таамаглал (${fcLabel})` : 'Дараа сарын таамаглал';
+  document.getElementById(valueElId).textContent = fc!==null ? fmtM(fc) : 'Дата хүрэлцэхгүй';
+  if(fc!==null && series.length>=2 && series[series.length-1]){
+    const lastVal = series[series.length-1];
+    const pct = ((fc-lastVal)/lastVal)*100;
+    const sign = pct>=0 ? '+' : '';
+    document.getElementById(trendElId).textContent = sign + pct.toFixed(1) + '%';
+  } else {
+    document.getElementById(trendElId).textContent = '—';
+  }
+
+  const chartLabels = fc!==null ? [...labels, fcLabel] : labels;
+  const actualSeries = fc!==null ? [...series.map(v=>v/1e6), null] : series.map(v=>v/1e6);
+  let forecastSeries = null;
+  if(fc!==null){
+    forecastSeries = series.map(()=>null);
+    forecastSeries[forecastSeries.length-1] = series[series.length-1]/1e6;
+    forecastSeries.push(fc/1e6);
+  }
+  const datasets = [{label:'Бодит', data:actualSeries, borderColor:'#3ad0e8', backgroundColor:'rgba(58,208,232,.15)', fill:true, tension:.3, pointRadius:4, pointBackgroundColor:'#3ad0e8'}];
+  if(forecastSeries){
+    datasets.push({label:'Таамаглал', data:forecastSeries, borderColor:'#e0a530', backgroundColor:'rgba(224,165,48,.1)', borderDash:[6,5], fill:false, tension:.3, pointRadius:4, pointBackgroundColor:'#e0a530'});
+  }
+  mkChart(chartId, {
+    type:'line',
+    data:{labels:chartLabels, datasets},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:!!forecastSeries, position:'bottom', labels:{boxWidth:10, font:{size:11}}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.raw!==null ? c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+' сая₮' : '—')}}}, scales:{y:{beginAtZero:false, grid:{color:gridColor()}}, x:{grid:{display:false}}}}
+  });
+}
+
+// --- Theme toggle (dark / light) ---
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  try{ localStorage.setItem('tgd_theme', theme); }catch(e){}
+  Chart.defaults.color = theme==='light' ? '#5a6478' : '#8b96b3';
+  const btn = document.getElementById('themeToggleBtn');
+  if(btn) btn.textContent = theme==='light' ? '🌙 Харанхуй горим' : '☀️ Цайвар горим';
+}
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = cur === 'light' ? 'dark' : 'light';
+  applyTheme(next);
+  if(typeof currentReportMonth !== 'undefined' && typeof REPORT_DATA !== 'undefined' && REPORT_DATA[currentReportMonth]){
+    renderReport(currentReportMonth);
+  }
+  if(typeof renderCompareTab === 'function') renderCompareTab();
+}
+
 Chart.defaults.color = '#8b96b3';
 Chart.defaults.font.family = "Segoe UI, sans-serif";
 
@@ -856,7 +996,7 @@ const donutColors = ['#3b6fe0','#7c5cf0','#22b8cf'];
 let mainBarChart = new Chart(document.getElementById('barChart'), {
   type:'bar',
   data:{labels:['Сэлбэг','Тос','Түлш'], datasets:[{data:[0,0,0], backgroundColor:donutColors, borderRadius:6, maxBarThickness:80}]},
-  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{y:{beginAtZero:true, grid:{color:'#232c42'}}, x:{grid:{display:false}}}}
+  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{y:{beginAtZero:true, grid:{color:gridColor()}}, x:{grid:{display:false}}}}
 });
 
 let mainDonutChart = new Chart(document.getElementById('donutChart'), {
@@ -991,7 +1131,7 @@ document.getElementById('sb-top-cat-amt').textContent = fmtM(topCat[1]);
 mkChart('sbCatBar', {
   type:'bar',
   data:{labels:catList.map(c=>c[0]), datasets:[{data:catList.map(c=>c[1]/1e6), backgroundColor:catList.map(c=>catColors[c[0]]), borderRadius:6}]},
-  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:gridColor()}}, y:{grid:{display:false}}}}
 });
 mkChart('sbCatPie', {
   type:'pie',
@@ -1040,6 +1180,7 @@ function applySbFilter(){
   renderSbTable(data);
 }
 FILTERS.sb = applySbFilter;
+renderCostForecast('selbeg', 'sbfc-label', 'sbfc-value', 'sbfc-trend', 'sbFcChart');
 
 
 function toCategory(park){
@@ -1078,7 +1219,7 @@ document.getElementById('to-top-cat-amt').textContent = fmtM(toTopCat[1]);
 mkChart('toCatBar', {
   type:'bar',
   data:{labels:toCatList.map(c=>c[0]), datasets:[{data:toCatList.map(c=>c[1]/1e6), backgroundColor:toCatList.map(c=>toCatColors[c[0]]), borderRadius:6}]},
-  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:gridColor()}}, y:{grid:{display:false}}}}
 });
 mkChart('toCatPie', {
   type:'pie',
@@ -1134,6 +1275,7 @@ function applyToFilter(){
   renderToTable(data);
 }
 FILTERS.to = applyToFilter;
+renderCostForecast('tos', 'tofc-label', 'tofc-value', 'tofc-trend', 'toFcChart');
 
 function tuCategory(park){
   const p = (park||'').toUpperCase();
@@ -1170,7 +1312,7 @@ document.getElementById('tu-top-cat-amt').textContent = fmtM(tuTopCat[1]);
 mkChart('tuCatBar', {
   type:'bar',
   data:{labels:tuCatList.map(c=>c[0]), datasets:[{data:tuCatList.map(c=>c[1]/1e6), backgroundColor:tuCatList.map(c=>tuCatColors[c[0]]), borderRadius:6}]},
-  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:gridColor()}}, y:{grid:{display:false}}}}
 });
 mkChart('tuCatPie', {
   type:'pie',
@@ -1257,10 +1399,39 @@ function renderTuEfficiency(){
     const md = REPORT_DATA[m.key];
     return md.liters ? Math.round(md.tuls/md.liters) : 0;
   });
+
+  function computeMonthAvgPerhour(monthData){
+    const rows = (monthData.TU||[]).filter(r=>r.perhour>0);
+    if(!rows.length) return 0;
+    return rows.reduce((a,r)=>a+r.perhour,0)/rows.length;
+  }
+  const perhourSeries = histMonths.map(m=>computeMonthAvgPerhour(REPORT_DATA[m.key]));
+  const fcLiter = forecastNext(trendData);
+  const fcPerhour = forecastNext(perhourSeries);
+  const lastMonthKey = histMonths.length ? histMonths[histMonths.length-1].key : null;
+  const fcLabel = lastMonthKey ? nextMonthLabel(lastMonthKey) : '';
+
+  document.getElementById('tufc-liter-label').textContent = fcLabel ? `Таамаг (${fcLabel}): 1 литрийн үнэ` : 'Таамаг: 1 литрийн үнэ';
+  document.getElementById('tufc-perhour-label').textContent = fcLabel ? `Таамаг (${fcLabel}): 1 мото цагийн хэрэглээ` : 'Таамаг: 1 мото цагийн хэрэглээ';
+  document.getElementById('tufc-liter').textContent = fcLiter!==null ? (fmtFull(fcLiter)+'/л') : 'Дата хүрэлцэхгүй';
+  document.getElementById('tufc-perhour').textContent = fcPerhour!==null ? (fcPerhour.toFixed(1)+' л/1м.ц') : 'Дата хүрэлцэхгүй';
+
+  const chartLabels = fcLiter!==null ? [...trendLabels, fcLabel] : trendLabels;
+  const actualSeries = fcLiter!==null ? [...trendData, null] : trendData;
+  let forecastSeries = null;
+  if(fcLiter!==null){
+    forecastSeries = trendData.map(()=>null);
+    forecastSeries[forecastSeries.length-1] = trendData[trendData.length-1];
+    forecastSeries.push(Math.round(fcLiter));
+  }
+  const tuEffDatasets = [{label:'1 литрийн үнэ (₮)', data:actualSeries, borderColor:'#3ad0e8', backgroundColor:'rgba(58,208,232,.15)', fill:true, tension:.3, pointRadius:4, pointBackgroundColor:'#3ad0e8'}];
+  if(forecastSeries){
+    tuEffDatasets.push({label:'Таамаглал', data:forecastSeries, borderColor:'#e0a530', backgroundColor:'rgba(224,165,48,.1)', borderDash:[6,5], fill:false, tension:.3, pointRadius:4, pointBackgroundColor:'#e0a530'});
+  }
   mkChart('tuEffTrendChart', {
     type:'line',
-    data:{labels:trendLabels, datasets:[{label:'1 литрийн үнэ (₮)', data:trendData, borderColor:'#3ad0e8', backgroundColor:'rgba(58,208,232,.15)', fill:true, tension:.3, pointRadius:4, pointBackgroundColor:'#3ad0e8'}]},
-    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('en-US')+' ₮/л'}}}, scales:{y:{beginAtZero:false, grid:{color:'#232c42'}, ticks:{callback:v=>v.toLocaleString('en-US')}}, x:{grid:{display:false}}}}
+    data:{labels:chartLabels, datasets:tuEffDatasets},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:!!forecastSeries, position:'bottom', labels:{boxWidth:10, font:{size:11}}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.raw!==null ? c.raw.toLocaleString('en-US')+' ₮/л' : '—')}}}, scales:{y:{beginAtZero:false, grid:{color:gridColor()}, ticks:{callback:v=>v.toLocaleString('en-US')}}, x:{grid:{display:false}}}}
   });
 
   function catLitersAmount(monthData){
@@ -1294,6 +1465,25 @@ function renderTuEfficiency(){
     tr.innerHTML = `<td><span class="cat-dot" style="background:${tuCatColors[cat]||'#888'};"></span>${cat}</td><td class="amt">${fmtFull(curVal)}</td><td class="amt">${prevVal!==null ? fmtFull(prevVal) : '—'}</td><td class="amt">${changeHtml}</td>`;
     catBody.appendChild(tr);
   });
+
+  // --- Fuel price sensitivity analysis ---
+  function renderTuSensitivity(pct){
+    const baseFuel = DATA.tuls;
+    const baseTotal = DATA.selbeg + DATA.tos + DATA.tuls;
+    const newFuel = baseFuel * (1 + pct/100);
+    const fuelDelta = newFuel - baseFuel;
+    const newTotal = baseTotal + fuelDelta;
+    const totalPctChange = baseTotal ? (fuelDelta/baseTotal)*100 : 0;
+    const sign = fuelDelta >= 0 ? '+' : '';
+    document.getElementById('tuSensNewFuel').textContent = fmtM(newFuel);
+    document.getElementById('tuSensFuelDelta').textContent = sign + fmtM(fuelDelta) + ' (түлшинд)';
+    document.getElementById('tuSensTotalDelta').textContent = sign + fmtM(fuelDelta);
+    document.getElementById('tuSensNewTotal').textContent = fmtM(newTotal);
+    document.getElementById('tuSensTotalPct').textContent = 'Нийт зардал ' + sign + totalPctChange.toFixed(2) + '% өөрчлөгдөнө';
+  }
+  FILTERS.sens = renderTuSensitivity;
+  const sensSliderEl = document.getElementById('tuSensSlider');
+  renderTuSensitivity(parseInt(sensSliderEl.value, 10));
 }
 renderTuEfficiency();
 
@@ -1304,6 +1494,17 @@ renderDgTab();
 document.getElementById('sb-search').addEventListener('input', ()=>FILTERS.sb && FILTERS.sb());
 document.getElementById('to-search').addEventListener('input', ()=>FILTERS.to && FILTERS.to());
 document.getElementById('tu-search').addEventListener('input', ()=>FILTERS.tu && FILTERS.tu());
+document.getElementById('tuSensSlider').addEventListener('input', function(){
+  const pct = parseInt(this.value, 10);
+  document.getElementById('tuSensPctLabel').textContent = (pct>0?'+':'') + pct + '%';
+  FILTERS.sens && FILTERS.sens(pct);
+});
+document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+(function initTheme(){
+  let saved = 'dark';
+  try{ saved = localStorage.getItem('tgd_theme') || 'dark'; }catch(e){}
+  applyTheme(saved);
+})();
 
 const allCatColor = '#7c5cf0';
 let tuPerhourChartInstance = null;
@@ -1336,7 +1537,7 @@ function renderPerhourChart(cat){
       indexAxis:'y', responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw+' л/1м/ц'}}},
       scales:{
-        x:{beginAtZero:true, grid:{color:'#232c42'}, ticks:{callback:v=>v+' 1м/ц'}},
+        x:{beginAtZero:true, grid:{color:gridColor()}, ticks:{callback:v=>v+' 1м/ц'}},
         y:{grid:{display:false}}
       }
     }
@@ -1387,7 +1588,7 @@ document.getElementById('dg-howo-count').textContent = dgHowoQty;
 mkChart('dgBrandCountChart', {
   type:'bar',
   data:{labels:['HOWO-105 16R25','TONLY-891C 480/95R29'], datasets:[{data:[dgHowoQty,dgTonlyQty], backgroundColor:[dgColors.HOWO,dgColors.TONLY], borderRadius:6}]},
-  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, grid:{color:gridColor()}}, y:{grid:{display:false}}}}
 });
 
 const dgBrandTableBody = document.getElementById('dg-brand-table');
@@ -1404,7 +1605,7 @@ dgBrandTableBody.appendChild(dgBrandTotalRow);
 mkChart('dgBrandCostChart', {
   type:'bar',
   data:{labels:['HOWO-105 16R25','TONLY-891C 480/95R29'], datasets:[{data:[dgHowoAmt/1e6,dgTonlyAmt/1e6], backgroundColor:[dgColors.HOWO,dgColors.TONLY], borderRadius:6}]},
-  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{x:{beginAtZero:true, grid:{color:gridColor()}}, y:{grid:{display:false}}}}
 });
 
 mkChart('dgBrandPie', {
@@ -1434,7 +1635,7 @@ mkChart('dgParkBar', {
       {label:'HOWO', data:dgAllParks.map(p=>dgHowoByPark[p]?dgHowoByPark[p].qty:0), backgroundColor:dgColors.HOWO},
     ]
   },
-  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{x:{beginAtZero:true, grid:{color:'#232c42'}}, y:{grid:{display:false}}}}
+  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{x:{beginAtZero:true, grid:{color:gridColor()}}, y:{grid:{display:false}}}}
 });
 
 mkChart('dgComboChart', {
@@ -1448,7 +1649,7 @@ mkChart('dgComboChart', {
   },
   options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top', labels:{boxWidth:10}}}, scales:{
     x:{grid:{display:false}, ticks:{maxRotation:90, minRotation:90}},
-    y:{position:'left', beginAtZero:true, title:{display:true,text:'ш'}, grid:{color:'#232c42'}},
+    y:{position:'left', beginAtZero:true, title:{display:true,text:'ш'}, grid:{color:gridColor()}},
     y1:{position:'right', beginAtZero:true, title:{display:true,text:'сая₮'}, grid:{display:false}}
   }}
 });
@@ -1739,7 +1940,7 @@ function showParkDetail(park){
         {label:'Бүх техникийн дундаж', data:[AVG_SELBEG/1e6, AVG_TOS/1e6, AVG_TULS/1e6], backgroundColor:'#8a93ad', borderRadius:6},
       ]
     },
-    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:true, grid:{color:'#232c42'}}, x:{grid:{display:false}}}}
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:true, grid:{color:gridColor()}}, x:{grid:{display:false}}}}
   });
 
   // Тухайн техникийн олон сарын түүх — REPORT_MONTHS-д байгаа бүх сараар (шинэ сар нэмэгдэх тусам автоматаар өргөжинө)
@@ -1760,7 +1961,7 @@ function showParkDetail(park){
     options:{
       responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
-      scales:{y:{beginAtZero:true, grid:{color:'#232c42'}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
+      scales:{y:{beginAtZero:true, grid:{color:gridColor()}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
     }
   });
 
@@ -1903,7 +2104,7 @@ function renderCompareTab(){
     options:{
       responsive:true, maintainAspectRatio:false,
       plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+'%'}}},
-      scales:{y:{beginAtZero:true, grid:{color:'#232c42'}, title:{display:true, text:'%'}}, x:{grid:{display:false}}}
+      scales:{y:{beginAtZero:true, grid:{color:gridColor()}, title:{display:true, text:'%'}}, x:{grid:{display:false}}}
     }
   });
 
@@ -1914,7 +2115,7 @@ function renderCompareTab(){
       options:{
         responsive:true, maintainAspectRatio:false,
         plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
-        scales:{y:{beginAtZero:true, grid:{color:'#232c42'}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
+        scales:{y:{beginAtZero:true, grid:{color:gridColor()}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
       }
     });
   }
@@ -1940,7 +2141,7 @@ function renderCompareTab(){
     options:{
       responsive:true, maintainAspectRatio:false,
       plugins:{legend:{position:'bottom', labels:{boxWidth:10}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
-      scales:{y:{beginAtZero:true, grid:{color:'#232c42'}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
+      scales:{y:{beginAtZero:true, grid:{color:gridColor()}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
     }
   });
 }
