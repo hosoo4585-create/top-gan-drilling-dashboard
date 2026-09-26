@@ -356,6 +356,13 @@
           <div class="chart-wrap" style="height:300px;"><canvas id="parkCompareChart"></canvas></div>
         </div>
       </div>
+      <div class="grid2">
+        <div class="card scene" style="grid-column:1 / -1;">
+          <h3 id="parkHistoryTitle">Сар сарын түүх</h3>
+          <div class="hint">Тухайн техникийн зардлын өөрчлөлт сараар — шинэ сар нэмэгдэх тусам автоматаар өргөжинө</div>
+          <div class="chart-wrap" style="height:260px;"><canvas id="parkHistoryChart"></canvas></div>
+        </div>
+      </div>
     </div>
 
     <div class="grid2">
@@ -657,6 +664,11 @@
       <div class="chart-wrap" style="height:280px;"><canvas id="cmpTrendChart"></canvas></div>
     </div>
     <div class="card scene" style="margin-bottom:18px;">
+      <h3>Ангиллын эзлэх хувийн шилжилт</h3>
+      <div class="hint">TONLY, HOWO зэрэг ангилал бүрийн нийт зардалд эзлэх хувь хэрхэн шилжсэн</div>
+      <div class="chart-wrap" style="height:280px;"><canvas id="cmpCategoryShiftChart"></canvas></div>
+    </div>
+    <div class="card scene" style="margin-bottom:18px;">
       <h3>Нийт зардал — 7-р сар vs 8-р сар</h3>
       <div class="hint">Сэлбэг + Тос + Түлшний нийлбэр дүнгийн харьцуулалт</div>
       <div class="chart-wrap" style="height:280px;"><canvas id="cmpTotalChart"></canvas></div>
@@ -772,6 +784,20 @@ let DATA, SB, TO, TU, DG;
 let PARK_TOTALS = {}, PARK_KEYS = [], AVG_SELBEG = 0, AVG_TOS = 0, AVG_TULS = 0;
 const FILTERS = {};
 const CAT_COLORS = {'TONLY':'#3ad0e8','HOWO':'#7c8ff0','Ковш, грейдер, дозер':'#e0a530','Экскаватор':'#1fb87a','Бусад':'#e0d030','Хөнгөн тэрэг':'#e05ca0'};
+function categorizePark(park){
+  const p = (park||'').toUpperCase();
+  if(p.startsWith('TR-')){
+    const n = parseInt(p.replace('TR-',''), 10);
+    if(!isNaN(n)){
+      if((n>=217 && n<=218) || (n>=223 && n<=232)) return 'HOWO';
+      return 'TONLY';
+    }
+  }
+  if(p.startsWith('DZ-')||p.startsWith('GR-')||p.startsWith('LD-')) return 'Ковш, грейдер, дозер';
+  if(p.startsWith('EX-')) return 'Экскаватор';
+  if(p.startsWith('LV-')) return 'Хөнгөн тэрэг';
+  return 'Бусад';
+}
 function parkSortKey(park){
   const p = park || '';
   const m = p.match(/^([A-Z]+)-(\d+)/i);
@@ -1628,6 +1654,28 @@ function showParkDetail(park){
     options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:true, grid:{color:'#232c42'}}, x:{grid:{display:false}}}}
   });
 
+  // Тухайн техникийн олон сарын түүх — REPORT_MONTHS-д байгаа бүх сараар (шинэ сар нэмэгдэх тусам автоматаар өргөжинө)
+  const histMonths = REPORT_MONTHS.filter(m=>REPORT_DATA[m.key]);
+  const histLabels = histMonths.map(m=>m.label.replace('2026 оны ',''));
+  const histData = histMonths.map(m=>{
+    const md = REPORT_DATA[m.key];
+    let sb=0, to=0, tu=0;
+    md.SB.forEach(r=>{ if(r.park===park) sb+=r.amount; });
+    md.TO.forEach(r=>{ if(r.park===park) to+=r.amount; });
+    md.TU.forEach(r=>{ if(r.park===park) tu+=r.amount; });
+    return sb+to+tu;
+  });
+  document.getElementById('parkHistoryTitle').textContent = `"${park}" — сар сарын нийт зардлын түүх`;
+  mkChart('parkHistoryChart', {
+    type:'line',
+    data:{labels:histLabels, datasets:[{label:park, data:histData.map(v=>v/1e6), borderColor:'#e0384a', backgroundColor:'#e0384a', tension:0.3, borderWidth:3, pointRadius:5}]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
+      scales:{y:{beginAtZero:true, grid:{color:'#232c42'}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
+    }
+  });
+
   updateMainDashboard(d.selbeg, d.tos, d.tuls, (d.duguy||0), park);
 }
 function hideParkDetail(){
@@ -1738,6 +1786,38 @@ function renderCompareTab(){
   const augTotal = aug.selbeg + aug.tos + aug.tuls;
   const cmpColors = ['#3b6fe0','#e0a530'];
   const labels = ['7-р сар','8-р сар'];
+
+  // Ангиллын (TONLY/HOWO гэх мэт) эзлэх хувийн шилжилт — Сэлбэг+Тос+Түлшний нийт дүнгээр
+  function categoryShareForMonth(monthData){
+    const sums = {};
+    let total = 0;
+    [...monthData.SB, ...monthData.TO, ...monthData.TU].forEach(r=>{
+      const cat = categorizePark(r.park);
+      sums[cat] = (sums[cat]||0) + r.amount;
+      total += r.amount;
+    });
+    return {sums, total};
+  }
+  const catOrderCmp = ['TONLY','HOWO','Ковш, грейдер, дозер','Экскаватор','Хөнгөн тэрэг','Бусад'];
+  const julCat = categoryShareForMonth(jul);
+  const augCat = categoryShareForMonth(aug);
+  const julCatPct = catOrderCmp.map(c => julCat.total ? +((julCat.sums[c]||0)/julCat.total*100).toFixed(1) : 0);
+  const augCatPct = catOrderCmp.map(c => augCat.total ? +((augCat.sums[c]||0)/augCat.total*100).toFixed(1) : 0);
+  mkChart('cmpCategoryShiftChart', {
+    type:'bar',
+    data:{
+      labels: catOrderCmp,
+      datasets:[
+        {label:'7-р сар', data: julCatPct, backgroundColor: cmpColors[0], borderRadius:6},
+        {label:'8-р сар', data: augCatPct, backgroundColor: cmpColors[1], borderRadius:6},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+'%'}}},
+      scales:{y:{beginAtZero:true, grid:{color:'#232c42'}, title:{display:true, text:'%'}}, x:{grid:{display:false}}}
+    }
+  });
 
   function cmpChart(id, data, title){
     mkChart(id, {
