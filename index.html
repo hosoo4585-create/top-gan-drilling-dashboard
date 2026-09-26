@@ -142,6 +142,13 @@
   .kpi .label{font-size:12.5px; color:rgba(255,255,255,.75); margin-bottom:8px;}
   .kpi .value{font-size:25px; font-weight:700; line-height:1;}
   .kpi .sub{font-size:11.5px; color:rgba(255,255,255,.6); margin-top:6px;}
+  .kpi-delta{display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; margin-top:8px; padding:3px 9px; border-radius:20px; width:fit-content;}
+  .kpi-delta:empty{display:none;}
+  .kpi-delta.up{background:rgba(224,56,74,.28); color:#ffb3bb;}
+  .kpi-delta.down{background:rgba(34,211,138,.25); color:#8ff0c4;}
+  .kpi-delta.flat{background:rgba(255,255,255,.18); color:rgba(255,255,255,.85);}
+  .warn-badge{display:inline-block; font-size:12px; margin-left:5px; cursor:default;}
+  tr.high-cost-row{background:rgba(224,56,74,.08);}
   .kpi.c1{background:linear-gradient(135deg,#2c4fc4,#1c2f7a);}
   .kpi.c2{background:linear-gradient(135deg,#3b6fe0,#1f3f9e);}
   .kpi.c3{background:linear-gradient(135deg,#6a45d1,#3f2589);}
@@ -310,10 +317,10 @@
     </div>
 
     <div class="kpis">
-      <div class="kpi c1"><div class="label">Нийт зардал</div><div class="value" id="kpi-total">—</div><div class="sub" id="kpi-total-sub">—</div></div>
-      <div class="kpi c2"><div class="label">Сэлбэгийн зардал</div><div class="value" id="kpi-selbeg">—</div><div class="sub" id="kpi-selbeg-sub">—</div></div>
-      <div class="kpi c3"><div class="label">Тосны зарцуулалт</div><div class="value" id="kpi-tos">—</div><div class="sub" id="kpi-tos-sub">—</div></div>
-      <div class="kpi c4"><div class="label">Түлшний зардал</div><div class="value" id="kpi-tuls">—</div><div class="sub" id="kpi-liters">—</div></div>
+      <div class="kpi c1"><div class="label">Нийт зардал</div><div class="value" id="kpi-total">—</div><div class="sub" id="kpi-total-sub">—</div><div class="kpi-delta" id="kpi-total-delta"></div></div>
+      <div class="kpi c2"><div class="label">Сэлбэгийн зардал</div><div class="value" id="kpi-selbeg">—</div><div class="sub" id="kpi-selbeg-sub">—</div><div class="kpi-delta" id="kpi-selbeg-delta"></div></div>
+      <div class="kpi c3"><div class="label">Тосны зарцуулалт</div><div class="value" id="kpi-tos">—</div><div class="sub" id="kpi-tos-sub">—</div><div class="kpi-delta" id="kpi-tos-delta"></div></div>
+      <div class="kpi c4"><div class="label">Түлшний зардал</div><div class="value" id="kpi-tuls">—</div><div class="sub" id="kpi-liters">—</div><div class="kpi-delta" id="kpi-tuls-delta"></div></div>
       <div class="kpi c5"><div class="label">Нийт бичлэг</div><div class="value" id="kpi-records">—</div></div>
     </div>
 
@@ -354,7 +361,7 @@
     <div class="grid2">
       <div class="card scene" style="grid-column:1 / -1;">
         <h3>Хамгийн өндөр зардалтай техник (Сэлбэг + Тос + Түлш)</h3>
-        <div class="hint">Парк тус бүрийн нийт зардлаар эрэмбэлэв — эхний 10</div>
+        <div class="hint">Парк тус бүрийн нийт зардлаар эрэмбэлэв — эхний 10. ⚠️ тэмдэг нь дундаж техникийн зардлаас 1.5 дахин өндөр гарсныг илтгэнэ</div>
         <div class="table-scroll">
         <table>
           <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Парк</th><th style="color:#fff;">Модел</th><th class="amt" style="color:#fff;">Сэлбэг</th><th class="amt" style="color:#fff;">Тос</th><th class="amt" style="color:#fff;">Түлш</th><th class="amt" style="color:#fff;">Дугуй</th><th class="amt" style="color:#fff;">Нийт</th></tr></thead>
@@ -645,6 +652,11 @@
     <h2 class="page-title">Харьцуулалт</h2>
     <div class="page-sub">2026 оны 7 ба 8-р сарын нийт зардлын харьцуулалт</div>
     <div class="card scene" style="margin-bottom:18px;">
+      <h3>Зардлын чиг хандлага (сар сараар)</h3>
+      <div class="hint">Сар нэмэгдэх бүрд шинэ цэг автоматаар нэмэгдэнэ</div>
+      <div class="chart-wrap" style="height:280px;"><canvas id="cmpTrendChart"></canvas></div>
+    </div>
+    <div class="card scene" style="margin-bottom:18px;">
       <h3>Нийт зардал — 7-р сар vs 8-р сар</h3>
       <div class="hint">Сэлбэг + Тос + Түлшний нийлбэр дүнгийн харьцуулалт</div>
       <div class="chart-wrap" style="height:280px;"><canvas id="cmpTotalChart"></canvas></div>
@@ -702,6 +714,22 @@ document.addEventListener('DOMContentLoaded', function(){
 
 const fmtM = n => (n/1_000_000).toLocaleString('mn-MN',{maximumFractionDigits:1}) + " сая₮";
 const fmtFull = n => "₮" + Math.round(n).toLocaleString('en-US');
+
+function setKpiDelta(elId, cur, prev){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  if(prev === null || prev === undefined || !isFinite(prev) || prev === 0){
+    el.className = 'kpi-delta';
+    el.textContent = '';
+    return;
+  }
+  const pct = ((cur-prev)/prev)*100;
+  const cls = pct > 0.05 ? 'up' : (pct < -0.05 ? 'down' : 'flat');
+  const arrow = pct > 0.05 ? '▲' : (pct < -0.05 ? '▼' : '▬');
+  const sign = pct > 0 ? '+' : '';
+  el.className = 'kpi-delta ' + cls;
+  el.textContent = `${arrow} ${sign}${pct.toFixed(1)}% өмнөх сараас`;
+}
 
 // --- navigation ---
 document.querySelectorAll('.nav-item').forEach(item=>{
@@ -831,14 +859,34 @@ document.getElementById('kpi-tos-sub').textContent = TO.length + " бичлэг"
 document.getElementById('kpi-liters').textContent = DATA.liters.toLocaleString('en-US') + " литр";
 updateMainDashboard(DATA.selbeg, DATA.tos, DATA.tuls, (SB.length+TO.length+TU.length), null);
 
+// Сар хоорондын өөрчлөлт (% өмнөх сараас) — REPORT_MONTHS жагсаалт дахь өмнөх боломжит сартай харьцуулна
+if(typeof REPORT_MONTHS !== 'undefined'){
+  const mIdx = REPORT_MONTHS.findIndex(m=>m.key===monthKey);
+  const prevMonth = mIdx > 0 ? REPORT_MONTHS[mIdx-1] : null;
+  const prevData = (prevMonth && REPORT_DATA[prevMonth.key]) ? REPORT_DATA[prevMonth.key] : null;
+  if(prevData){
+    setKpiDelta('kpi-total-delta', DATA.selbeg+DATA.tos+DATA.tuls, prevData.selbeg+prevData.tos+prevData.tuls);
+    setKpiDelta('kpi-selbeg-delta', DATA.selbeg, prevData.selbeg);
+    setKpiDelta('kpi-tos-delta', DATA.tos, prevData.tos);
+    setKpiDelta('kpi-tuls-delta', DATA.tuls, prevData.tuls);
+  } else {
+    ['kpi-total-delta','kpi-selbeg-delta','kpi-tos-delta','kpi-tuls-delta'].forEach(id=>setKpiDelta(id, 0, null));
+  }
+}
+
 const tbody = document.getElementById('top10-body');
 tbody.innerHTML = '';
 const top10 = Object.entries(PARK_TOTALS).map(([park,d])=>({park, model:d.model, selbeg:d.selbeg, tos:d.tos, tuls:d.tuls, duguy:d.duguy}))
   .sort((a,b)=>(b.selbeg+b.tos+b.tuls)-(a.selbeg+a.tos+a.tuls)).slice(0,10);
+const top10AvgTotal = top10.reduce((a,r)=>a+r.selbeg+r.tos+r.tuls,0) / (top10.length || 1);
+const highCostThreshold = top10AvgTotal * 1.5;
 top10.forEach(r=>{
   const tr=document.createElement('tr');
   const tot = r.selbeg+r.tos+r.tuls;
-  tr.innerHTML = `<td class="park-tag">${r.park}</td><td class="model-tag">${r.model}</td><td class="amt" style="color:#5b8dff;">${fmtM(r.selbeg)}</td><td class="amt" style="color:#e0a530;">${fmtM(r.tos)}</td><td class="amt" style="color:#3ad0e8;">${fmtM(r.tuls)}</td><td class="amt" style="color:var(--sub);">${r.duguy ? r.duguy+' ш' : '—'}</td><td class="amt total">${fmtM(tot)}</td>`;
+  const isHigh = tot > highCostThreshold;
+  if(isHigh) tr.classList.add('high-cost-row');
+  const warnBadge = isHigh ? `<span class="warn-badge" title="Дундаж техникээс 1.5 дахин өндөр зардалтай">⚠️</span>` : '';
+  tr.innerHTML = `<td class="park-tag">${r.park}${warnBadge}</td><td class="model-tag">${r.model}</td><td class="amt" style="color:#5b8dff;">${fmtM(r.selbeg)}</td><td class="amt" style="color:#e0a530;">${fmtM(r.tos)}</td><td class="amt" style="color:#3ad0e8;">${fmtM(r.tuls)}</td><td class="amt" style="color:var(--sub);">${r.duguy ? r.duguy+' ш' : '—'}</td><td class="amt total">${fmtM(tot)}</td>`;
   tbody.appendChild(tr);
 });
 
@@ -1673,6 +1721,15 @@ renderReport('2026-07');
 
 // ===== Харьцуулалт (7-р сар vs 8-р сар) — 2 сарын нийт зардлын харьцуулалт =====
 function renderCompareTab(){
+  // Бэлэн байгаа бүх сарыг REPORT_MONTHS-ийн дарааллаар цуглуулна — шинэ сар нэмэгдэх бүрд автоматаар өргөжинө
+  const months = REPORT_MONTHS.filter(m=>REPORT_DATA[m.key]);
+  const monthLabels = months.map(m=>m.label.replace('2026 оны ',''));
+  const seriesData = months.map(m=>{
+    const d = REPORT_DATA[m.key];
+    const dg = d.DG.reduce((a,r)=>a+r.amount,0);
+    return { total: d.selbeg+d.tos+d.tuls, selbeg: d.selbeg, tos: d.tos, tuls: d.tuls, dg };
+  });
+
   const jul = REPORT_DATA['2026-07'];
   const aug = REPORT_DATA['2026-08'];
   const julDgTotal = jul.DG.reduce((a,r)=>a+r.amount,0);
@@ -1699,6 +1756,25 @@ function renderCompareTab(){
   cmpChart('cmpToChart', [jul.tos, aug.tos]);
   cmpChart('cmpTuChart', [jul.tuls, aug.tuls]);
   cmpChart('cmpDgChart', [julDgTotal, augDgTotal]);
+
+  mkChart('cmpTrendChart', {
+    type:'line',
+    data:{
+      labels: monthLabels,
+      datasets:[
+        {label:'Нийт', data:seriesData.map(s=>s.total/1e6), borderColor:'#e0384a', backgroundColor:'#e0384a', tension:0.3, borderWidth:3},
+        {label:'Сэлбэг', data:seriesData.map(s=>s.selbeg/1e6), borderColor:'#3b6fe0', backgroundColor:'#3b6fe0', tension:0.3},
+        {label:'Тос', data:seriesData.map(s=>s.tos/1e6), borderColor:'#7c5cf0', backgroundColor:'#7c5cf0', tension:0.3},
+        {label:'Түлш', data:seriesData.map(s=>s.tuls/1e6), borderColor:'#22b8cf', backgroundColor:'#22b8cf', tension:0.3},
+        {label:'Дугуй', data:seriesData.map(s=>s.dg/1e6), borderColor:'#e0a530', backgroundColor:'#e0a530', tension:0.3},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{boxWidth:10}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
+      scales:{y:{beginAtZero:true, grid:{color:'#232c42'}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
+    }
+  });
 }
 renderCompareTab();
 </script>
