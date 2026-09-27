@@ -366,6 +366,24 @@
     border:1px solid var(--line); white-space:nowrap;
   }
   .reason-cell{color:var(--sub); font-size:12.5px; max-width:320px;}
+  .empty-dash{color:var(--sub); opacity:.5; font-style:italic;}
+  .row-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--panel2);
+    font-size:10.5px; color:var(--sub);
+  }
+  .cat-badge{
+    display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600;
+    border:1px solid; white-space:nowrap;
+  }
+  .detail-table{ min-width:640px; }
+  .detail-table tbody tr{ position:relative; transition:background .15s ease; }
+  .detail-table tbody tr:nth-child(even){ background:rgba(255,255,255,.025); }
+  .detail-table tbody tr:hover{
+    background:rgba(124,92,240,.09);
+    box-shadow:inset 4px 0 0 0 var(--row-accent, #7c5cf0);
+  }
+  :root[data-theme="light"] .detail-table tbody tr:nth-child(even){ background:rgba(0,0,0,.02); }
 
   .legend-list{list-style:none; padding:0; margin:14px 0 0; font-size:13px;}
   .legend-list li{display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--line);}
@@ -620,11 +638,13 @@
     <div id="sub-sb-detail" class="subpage">
       <div class="cat-filter" id="sb-cat-filter"></div>
       <input class="search-box" id="sb-search" placeholder="Парк, модел, тайлбараар хайх...">
+      <div class="card scene" style="padding:0; overflow:hidden;">
       <div class="table-scroll">
-      <table>
-        <thead><tr><th class="idx-cell">#</th><th>Модел</th><th>Парк</th><th>Ангилал</th><th class="amt">Дүн</th><th>Тайлбар</th></tr></thead>
+      <table class="detail-table">
+        <thead><tr><th class="idx-cell" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">#</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Модел</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Ангилал</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тайлбар</th></tr></thead>
         <tbody id="sb-body"></tbody>
       </table>
+      </div>
       </div>
     </div>
   </section>
@@ -682,11 +702,13 @@
     <div id="sub-to-detail" class="subpage">
       <div class="cat-filter" id="to-cat-filter"></div>
       <input class="search-box" id="to-search" placeholder="Парк, модел, тайлбараар хайх...">
+      <div class="card scene" style="padding:0; overflow:hidden;">
       <div class="table-scroll">
-      <table>
-        <thead><tr><th class="idx-cell">#</th><th>Модел</th><th>Парк</th><th>Ангилал</th><th class="amt">Дүн</th><th>Тайлбар</th></tr></thead>
+      <table class="detail-table">
+        <thead><tr><th class="idx-cell" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">#</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Модел</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Ангилал</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тайлбар</th></tr></thead>
         <tbody id="to-body"></tbody>
       </table>
+      </div>
       </div>
     </div>
   </section>
@@ -737,11 +759,13 @@
     <div id="sub-tu-detail" class="subpage">
       <div class="cat-filter" id="tu-cat-filter"></div>
       <input class="search-box" id="tu-search" placeholder="Парк, модел, ангилалаар хайх...">
+      <div class="card scene" style="padding:0; overflow:hidden;">
       <div class="table-scroll">
-      <table>
-        <thead><tr><th class="idx-cell">#</th><th>Модел</th><th>Парк</th><th>Ангилал</th><th class="amt">Литр</th><th class="amt">Дүн</th></tr></thead>
+      <table class="detail-table">
+        <thead><tr><th class="idx-cell" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">#</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Модел</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Ангилал</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Литр</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th></tr></thead>
         <tbody id="tu-body"></tbody>
       </table>
+      </div>
       </div>
     </div>
 
@@ -887,21 +911,21 @@
       </div>
     </div>
 
-    <div class="card scene" id="dg-tonly-log-card" style="margin-bottom:18px; margin-top:18px;">
-      <h3>📄 Дэлгэрэнгүй лог — сериал дугаартай (TONLY)</h3>
+    <div class="card scene" id="dg-tonly-log-card" style="margin-bottom:18px; margin-top:18px; padding:0; overflow:hidden;">
+      <h3 style="padding:20px 20px 0;">📄 Дэлгэрэнгүй лог — сериал дугаартай (TONLY)</h3>
       <div class="table-scroll">
-      <table>
-        <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Огноо</th><th style="color:#fff;">Парк</th><th style="color:#fff;">Мото цаг / км</th><th class="amt" style="color:#fff;">Тоо</th><th class="amt" style="color:#fff;">Дүн</th><th style="color:#fff;">Шалтгаан</th><th style="color:#fff;">Сериал дугаар</th></tr></thead>
+      <table class="detail-table">
+        <thead><tr><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Огноо</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Мото цаг / км</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тоо</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Шалтгаан</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Сериал дугаар</th></tr></thead>
         <tbody id="dg-tonly-log"></tbody>
       </table>
       </div>
     </div>
 
-    <div class="card scene" id="dg-howo-log-card">
-      <h3>📄 Дэлгэрэнгүй лог — сериал дугаартай (HOWO)</h3>
+    <div class="card scene" id="dg-howo-log-card" style="padding:0; overflow:hidden;">
+      <h3 style="padding:20px 20px 0;">📄 Дэлгэрэнгүй лог — сериал дугаартай (HOWO)</h3>
       <div class="table-scroll">
-      <table>
-        <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Огноо</th><th style="color:#fff;">Парк</th><th style="color:#fff;">Мото цаг / км</th><th class="amt" style="color:#fff;">Тоо</th><th class="amt" style="color:#fff;">Дүн</th><th style="color:#fff;">Шалтгаан</th><th style="color:#fff;">Сериал дугаар</th></tr></thead>
+      <table class="detail-table">
+        <thead><tr><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Огноо</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Мото цаг / км</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тоо</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Шалтгаан</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Сериал дугаар</th></tr></thead>
         <tbody id="dg-howo-log"></tbody>
       </table>
       </div>
@@ -1157,6 +1181,14 @@ function hexToRgba(hex, alpha){
   if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
   const r = parseInt(hex.substring(0,2),16), g = parseInt(hex.substring(2,4),16), b = parseInt(hex.substring(4,6),16);
   return `rgba(${r},${g},${b},${alpha})`;
+}
+// --- Дэлгэрэнгүй хүснэгтүүдийн ангиллыг өнгөт pill badge-ээр харуулах ---
+function catBadge(name, color){
+  return `<span class="cat-badge" style="background:${hexToRgba(color,0.16)}; color:${color}; border-color:${hexToRgba(color,0.4)};">${name}</span>`;
+}
+// --- Хоосон утгыг бүдэг, налуу тэмдэглэгээтэй харуулах ---
+function dashOrText(val){
+  return val ? val : '<span class="empty-dash">—</span>';
 }
 function applyCatHighlight(chartIds, labels, colors, activeName){
   chartIds.forEach(id=>{
@@ -1465,7 +1497,7 @@ sbCatBody.appendChild(totalRow);
 
 // (Excel-ийн эх дараалал хадгалагдана — цаашид дахин эрэмбэлэхгүй)
 
-const sbRow = (r,i) => `<tr><td class="idx-cell">${i+1}</td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td><span class="cat-dot" style="background:${catColors[r.cat]};"></span>${r.cat}</td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${r.note||'—'}</td></tr>`;
+const sbRow = (r,i) => `<tr style="--row-accent:${catColors[r.cat]||'#888'};"><td class="idx-cell"><span class="row-num">${i+1}</span></td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td>${catBadge(r.cat, catColors[r.cat]||'#888')}</td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${dashOrText(r.note)}</td></tr>`;
 function renderSbTable(data){
   document.getElementById('sb-body').innerHTML = data.map((r,i)=>sbRow(r,i)).join('');
 }
@@ -1561,7 +1593,7 @@ toTop10List.innerHTML = '';
   toTop10List.appendChild(div);
 });
 
-const toRow = (r,i) => `<tr><td class="idx-cell">${i+1}</td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td><span class="cat-dot" style="background:${toCatColors[r.cat]};"></span>${r.cat}</td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${r.note||'—'}</td></tr>`;
+const toRow = (r,i) => `<tr style="--row-accent:${toCatColors[r.cat]||'#888'};"><td class="idx-cell"><span class="row-num">${i+1}</span></td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td>${catBadge(r.cat, toCatColors[r.cat]||'#888')}</td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${dashOrText(r.note)}</td></tr>`;
 function renderToTable(data){
   document.getElementById('to-body').innerHTML = data.map((r,i)=>toRow(r,i)).join('');
 }
@@ -1655,7 +1687,7 @@ tuTop10List.innerHTML = '';
   tuTop10List.appendChild(div);
 });
 
-const tuRow = (r,i) => `<tr><td class="idx-cell">${i+1}</td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td><span class="cat-dot" style="background:${tuCatColors[r.cat]};"></span>${r.cat}</td><td class="amt">${(r.liters||0).toLocaleString('en-US')} л</td><td class="amt">${fmtM(r.amount)}</td></tr>`;
+const tuRow = (r,i) => `<tr style="--row-accent:${tuCatColors[r.cat]||'#888'};"><td class="idx-cell"><span class="row-num">${i+1}</span></td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td>${catBadge(r.cat, tuCatColors[r.cat]||'#888')}</td><td class="amt">${(r.liters||0).toLocaleString('en-US')} л</td><td class="amt">${fmtM(r.amount)}</td></tr>`;
 function renderTuTable(data){
   document.getElementById('tu-body').innerHTML = data.map((r,i)=>tuRow(r,i)).join('');
 }
@@ -2055,13 +2087,13 @@ function serialBadges(r){
   if(r.serial_pairs && r.serial_pairs.length){
     return r.serial_pairs.map(sp=>`<span class="serial-badge"><b>${sp.pos}</b> → ${sp.serial}</span>`).join('');
   }
-  return `<span class="reason-cell">${r.serial_note || '—'}</span>`;
+  return `<span class="reason-cell">${dashOrText(r.serial_note)}</span>`;
 }
 function renderLog(tbodyId, rows){
-  document.getElementById(tbodyId).innerHTML = rows.map(r => `<tr>
+  document.getElementById(tbodyId).innerHTML = rows.map(r => `<tr style="--row-accent:${dgColors[r.brand]||'#888'};">
     <td>${r.date}</td><td class="park-tag">${r.park}</td><td class="model-tag">${r.moto||'—'}</td>
     <td class="amt">${r.qty} ш</td><td class="amt">${fmtM(r.amount)}</td>
-    <td class="reason-cell">${r.reason||'—'}</td><td>${serialBadges(r)}</td>
+    <td class="reason-cell">${dashOrText(r.reason)}</td><td>${serialBadges(r)}</td>
   </tr>`).join('');
 }
 renderLog('dg-tonly-log', dgTonly);
