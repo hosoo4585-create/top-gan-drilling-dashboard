@@ -106,7 +106,11 @@
     transition:top .32s cubic-bezier(.4,0,.2,1), height .32s cubic-bezier(.4,0,.2,1), opacity .2s ease;
     opacity:0;
   }
-  .nav-indicator.on{opacity:1;}
+  .nav-indicator.on{opacity:1; animation:navIndicatorPulse 2.4s ease-in-out infinite;}
+  @keyframes navIndicatorPulse{
+    0%, 100%{ box-shadow:0 0 10px rgba(124,92,240,.7); }
+    50%{ box-shadow:0 0 18px rgba(124,92,240,1); }
+  }
   @keyframes navIconWiggle{
     0%, 100%{ transform:rotate(0deg) scale(1); }
     25%{ transform:rotate(-12deg) scale(1.15); }
@@ -119,10 +123,21 @@
     display:flex; align-items:center; justify-content:space-between; gap:8px;
     background:#1b2338; border:1px solid var(--line); color:var(--text);
     padding:9px 12px; border-radius:9px; font-size:12.5px; cursor:pointer; user-select:none;
+    position:relative;
   }
   .month-dd-btn:hover{background:#212a42;}
   .month-dd-btn .chev{color:var(--sub); font-size:11px; transition:transform .15s;}
   .month-dd.open .month-dd-btn .chev{transform:rotate(180deg);}
+  .month-dd-btn::before{
+    content:''; position:absolute; inset:0; border-radius:9px;
+    border:1px solid rgba(124,92,240,.55); pointer-events:none;
+    animation:sonarPulse 2.6s ease-out infinite;
+  }
+  @keyframes sonarPulse{
+    0%{ transform:scale(1); opacity:.6; }
+    75%{ opacity:0; }
+    100%{ transform:scale(1.1); opacity:0; }
+  }
   .month-dd-panel{
     display:none; position:fixed; z-index:200; background:var(--panel2); border:1px solid var(--line);
     border-radius:10px; padding:6px; box-shadow:0 12px 30px rgba(0,0,0,.4);
@@ -137,6 +152,17 @@
   .month-item.disabled:hover{background:none;}
   .month-item .soon{font-size:10.5px; color:var(--sub);}
   .month-item.active .soon{color:rgba(255,255,255,.75);}
+  .month-item{ opacity:0; animation:monthItemPop .3s ease-out forwards; }
+  .month-item:nth-child(1){animation-delay:.02s;}
+  .month-item:nth-child(2){animation-delay:.06s;}
+  .month-item:nth-child(3){animation-delay:.10s;}
+  .month-item:nth-child(4){animation-delay:.14s;}
+  .month-item:nth-child(5){animation-delay:.18s;}
+  .month-item:nth-child(n+6){animation-delay:.22s;}
+  @keyframes monthItemPop{
+    from{ opacity:0; transform:translateY(-6px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
 
   main{flex:1; min-width:0; padding:26px 28px 60px; max-width:1240px; margin:0 auto; transition:opacity .28s ease;}
   main.month-fading{opacity:.25;}
@@ -174,6 +200,11 @@
     .kpi .value.skeleton{ animation:none; }
     .nav-indicator{ transition:none; }
     .confetti-piece{ animation:none !important; display:none; }
+    .search-box:focus, .tire-search:focus{ animation:none; }
+    .page-progress{ transition:none; }
+    .month-dd-btn::before{ animation:none !important; display:none; }
+    .nav-indicator.on{ animation:none !important; }
+    .month-dd-panel .month-item{ animation:none !important; opacity:1 !important; }
   }
   h2.page-title{font-size:18px; font-weight:700; margin:0 0 4px;}
   .page-sub{font-size:12.5px; color:var(--sub); margin-bottom:20px;}
@@ -268,6 +299,22 @@
   }
   .donut-center-value{font-size:16px; font-weight:800; color:var(--text);}
   .donut-center-label{font-size:10px; color:var(--sub); margin-top:2px;}
+  .page-progress{
+    position:fixed; top:0; left:0; height:3px; width:0%; z-index:99999;
+    background:linear-gradient(90deg,#7c5cf0,#3b6fe0,#22d38a);
+    box-shadow:0 0 8px rgba(124,92,240,.8);
+    opacity:0; transition:width .22s ease-out, opacity .2s ease;
+  }
+  .page-progress.active{ opacity:1; }
+  [data-explain]{ cursor:help; }
+  .value-tooltip{
+    position:fixed; max-width:240px; background:#141a2e; color:#e8ebf5; border:1px solid rgba(124,92,240,.4);
+    padding:8px 12px; border-radius:9px; font-size:12px; line-height:1.4; font-weight:500;
+    box-shadow:0 10px 28px rgba(0,0,0,.45); z-index:10000; pointer-events:none;
+    opacity:0; transform:translateY(6px) scale(.96); transition:opacity .16s ease, transform .16s ease;
+  }
+  .value-tooltip.show{ opacity:1; transform:translateY(0) scale(1); }
+  :root[data-theme="light"] .value-tooltip{ background:#fff; color:#1a2033; border-color:rgba(124,92,240,.3); box-shadow:0 10px 28px rgba(0,0,0,.18); }
   .card{opacity:0;}
   .card.revealed{ animation:cardRevealIn .55s ease-out forwards; }
   .card.revealed-done{ opacity:1; }
@@ -288,6 +335,19 @@
   .search-box{
     width:100%; padding:10px 14px; border-radius:9px; border:1px solid var(--line);
     background:var(--panel2); color:var(--text); font-size:13px; margin-bottom:14px;
+    transition:border-color .25s ease, box-shadow .25s ease;
+  }
+  .search-box:focus, .tire-search:focus{
+    outline:none; border-color:transparent;
+    background-image:linear-gradient(var(--panel2), var(--panel2)), linear-gradient(90deg,#7c5cf0,#3b6fe0,#22d38a,#7c5cf0);
+    background-origin:border-box; background-clip:padding-box, border-box;
+    background-size:100% 100%, 300% 100%;
+    animation:searchGlowShift 2.4s linear infinite;
+    box-shadow:0 0 14px rgba(124,92,240,.35);
+  }
+  @keyframes searchGlowShift{
+    0%{ background-position:0 0, 0% 0; }
+    100%{ background-position:0 0, 300% 0; }
   }
   .table-scroll{overflow-x:auto; max-height:520px; overflow-y:auto;}
   table{width:100%; border-collapse:collapse; font-size:13px; min-width:640px;}
@@ -384,6 +444,7 @@
 </style>
 </head>
 <body>
+<div class="page-progress" id="pageProgress"></div>
 
 <div id="loginGate">
   <div class="login-box">
@@ -440,11 +501,11 @@
     </div>
 
     <div class="kpis">
-      <div class="kpi c1"><div class="label">Нийт зардал</div><div class="value" id="kpi-total">—</div><div class="sub" id="kpi-total-sub">—</div><div class="kpi-delta" id="kpi-total-delta"></div></div>
-      <div class="kpi c2"><div class="label">Сэлбэгийн зардал</div><div class="value" id="kpi-selbeg">—</div><div class="sub" id="kpi-selbeg-sub">—</div><div class="kpi-delta" id="kpi-selbeg-delta"></div></div>
-      <div class="kpi c3"><div class="label">Тосны зарцуулалт</div><div class="value" id="kpi-tos">—</div><div class="sub" id="kpi-tos-sub">—</div><div class="kpi-delta" id="kpi-tos-delta"></div></div>
-      <div class="kpi c4"><div class="label">Түлшний зардал</div><div class="value" id="kpi-tuls">—</div><div class="sub" id="kpi-liters">—</div><div class="kpi-delta" id="kpi-tuls-delta"></div></div>
-      <div class="kpi c5"><div class="label">Нийт бичлэг</div><div class="value" id="kpi-records">—</div></div>
+      <div class="kpi c1"><div class="label">Нийт зардал</div><div class="value" id="kpi-total" data-explain="Сэлбэг + Тос (ШТМ) + Түлшний нийт зардлын нийлбэр">—</div><div class="sub" id="kpi-total-sub">—</div><div class="kpi-delta" id="kpi-total-delta"></div></div>
+      <div class="kpi c2"><div class="label">Сэлбэгийн зардал</div><div class="value" id="kpi-selbeg" data-explain="Тухайн сард худалдан авсан бүх сэлбэг хэрэгслийн үнийн дүнгийн нийлбэр">—</div><div class="sub" id="kpi-selbeg-sub">—</div><div class="kpi-delta" id="kpi-selbeg-delta"></div></div>
+      <div class="kpi c3"><div class="label">Тосны зарцуулалт</div><div class="value" id="kpi-tos" data-explain="Тухайн сард техник тус бүрт хийсэн техникийн үйлчилгээ (тос, шүүлтүүр гэх мэт)-ний нийт зардал">—</div><div class="sub" id="kpi-tos-sub">—</div><div class="kpi-delta" id="kpi-tos-delta"></div></div>
+      <div class="kpi c4"><div class="label">Түлшний зардал</div><div class="value" id="kpi-tuls" data-explain="Тухайн сард цэнэглэсэн бүх түлшний нийт үнийн дүн (литр × дундаж үнэ)">—</div><div class="sub" id="kpi-liters">—</div><div class="kpi-delta" id="kpi-tuls-delta"></div></div>
+      <div class="kpi c5"><div class="label">Нийт бичлэг</div><div class="value" id="kpi-records" data-explain="Сэлбэг, Тос, Түлшний бүх гүйлгээний мөрийн нийт тоо">—</div></div>
     </div>
 
     <div class="grid2">
@@ -458,7 +519,7 @@
         <div class="hint">Нийт зардалд эзлэх хувь</div>
         <div class="chart-wrap" style="height:200px;"><canvas id="donutChart"></canvas>
           <div class="donut-center">
-            <div class="donut-center-value" id="donutCenterValue">—</div>
+            <div class="donut-center-value" id="donutCenterValue" data-explain="Сэлбэг, Тос, Түлшний зардлын нийлбэр дүн">—</div>
             <div class="donut-center-label">нийт</div>
           </div>
         </div>
@@ -520,10 +581,10 @@
     <!-- SUMMARY SUBPAGE -->
     <div id="sub-sb-summary" class="subpage active">
       <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
-        <div class="kpi c2"><div class="label">Нийт зардал</div><div class="value" id="sb-total">—</div></div>
+        <div class="kpi c2"><div class="label">Нийт зардал</div><div class="value" id="sb-total" data-explain="Доорх бүх сэлбэгийн мөрийн үнийн дүнгийн нийлбэр">—</div></div>
         <div class="kpi c1"><div class="label">Засварын бичлэг</div><div class="value" id="sb-count">—</div><div class="sub" id="sb-parks">—</div></div>
         <div class="kpi c3"><div class="label">Хамгийн их зардалтай</div><div class="value" id="sb-top-cat">—</div><div class="sub" id="sb-top-cat-amt">—</div></div>
-        <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="sb-avg">—</div></div>
+        <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="sb-avg" data-explain="Нийт зардлыг бичлэгийн тоонд харьцуулсан дундаж (Нийт зардал ÷ бичлэгийн тоо)">—</div></div>
       </div>
       <div class="grid2">
         <div class="card scene">
@@ -579,10 +640,10 @@
 
     <div id="sub-to-summary" class="subpage active">
       <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
-        <div class="kpi c2"><div class="label">Нийт ШТМ зардал</div><div class="value" id="to-total">—</div></div>
+        <div class="kpi c2"><div class="label">Нийт ШТМ зардал</div><div class="value" id="to-total" data-explain="Доорх бүх техникийн үйлчилгээний мөрийн үнийн дүнгийн нийлбэр">—</div></div>
         <div class="kpi c1"><div class="label">Засварын бичлэг</div><div class="value" id="to-count">—</div><div class="sub" id="to-parks">—</div></div>
         <div class="kpi c3"><div class="label">Хамгийн их зардалтай</div><div class="value" id="to-top-cat">—</div><div class="sub" id="to-top-cat-amt">—</div></div>
-        <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="to-avg">—</div></div>
+        <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="to-avg" data-explain="Нийт зардлыг бичлэгийн тоонд харьцуулсан дундаж (Нийт зардал ÷ бичлэгийн тоо)">—</div></div>
       </div>
       <div class="grid2">
         <div class="card scene">
@@ -643,10 +704,10 @@
 
     <div id="sub-tu-summary" class="subpage active">
       <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
-        <div class="kpi c2"><div class="label">Нийт түлшний зардал</div><div class="value" id="tu-total">—</div></div>
-        <div class="kpi c1"><div class="label">Нийт зарцуулсан түлш</div><div class="value" id="tu-liters">—</div></div>
+        <div class="kpi c2"><div class="label">Нийт түлшний зардал</div><div class="value" id="tu-total" data-explain="Доорх бүх түлшний цэнэглэлтийн мөрийн үнийн дүнгийн нийлбэр">—</div></div>
+        <div class="kpi c1"><div class="label">Нийт зарцуулсан түлш</div><div class="value" id="tu-liters" data-explain="Тухайн сард цэнэглэсэн бүх түлшний нийт литр">—</div></div>
         <div class="kpi c3"><div class="label">Хамгийн их зардалтай</div><div class="value" id="tu-top-cat">—</div><div class="sub" id="tu-top-cat-amt">—</div></div>
-        <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="tu-avg">—</div></div>
+        <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="tu-avg" data-explain="Нийт зардлыг бичлэгийн тоонд харьцуулсан дундаж (Нийт зардал ÷ бичлэгийн тоо)">—</div></div>
       </div>
       <div class="grid2">
         <div class="card scene">
@@ -762,8 +823,8 @@
 
     <div id="dg-normal-view">
     <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
-      <div class="kpi c3"><div class="label">Нийт авсан дугуй</div><div class="value" id="dg-total-qty">—</div><div class="kpi-delta" id="dg-total-qty-delta"></div></div>
-      <div class="kpi c5"><div class="label">Дугуйны нийт зардал</div><div class="value" id="dg-total-amt">—</div><div class="sub">Сэлбэгийн зардалд орсон</div><div class="kpi-delta" id="dg-total-amt-delta"></div></div>
+      <div class="kpi c3"><div class="label">Нийт авсан дугуй</div><div class="value" id="dg-total-qty" data-explain="TONLY болон HOWO загварын авсан дугуйн ширхэгийн нийлбэр">—</div><div class="kpi-delta" id="dg-total-qty-delta"></div></div>
+      <div class="kpi c5"><div class="label">Дугуйны нийт зардал</div><div class="value" id="dg-total-amt" data-explain="Авсан бүх дугуйн үнийн дүнгийн нийлбэр — энэ дүн Сэлбэгийн нийт зардалд аль хэдийн орсон байгаа">—</div><div class="sub">Сэлбэгийн зардалд орсон</div><div class="kpi-delta" id="dg-total-amt-delta"></div></div>
 
       <div class="kpi c1"><div class="label">HOWO-105 16R25</div><div class="value" id="dg-howo-qty">—</div><div class="sub" id="dg-howo-pct">—</div><div class="kpi-delta" id="dg-howo-qty-delta"></div></div>
       <div class="kpi c4"><div class="label">TONLY-891C 480/95R29</div><div class="value" id="dg-tonly-qty">—</div><div class="sub" id="dg-tonly-pct">—</div><div class="kpi-delta" id="dg-tonly-qty-delta"></div></div>
@@ -792,7 +853,7 @@
         <h3>Зардлын эзлэх хувь</h3>
         <div class="chart-wrap" style="height:200px;"><canvas id="dgBrandPie"></canvas>
           <div class="donut-center">
-            <div class="donut-center-value" id="dgPieCenterValue">—</div>
+            <div class="donut-center-value" id="dgPieCenterValue" data-explain="TONLY болон HOWO загварын дугуйны зардлын нийлбэр дүн">—</div>
             <div class="donut-center-label">нийт</div>
           </div>
         </div>
@@ -970,6 +1031,27 @@ function fireConfetti(targetElId){
 }
 
 // --- navigation ---
+// Хуудас/дэд-таб солиход топ ирмэгээр гүйдэг нимгэн ачааллын зураас
+function firePageProgress(){
+  const bar = document.getElementById('pageProgress');
+  if(!bar) return;
+  if(bar.__timers) bar.__timers.forEach(t=>clearTimeout(t));
+  bar.__timers = [];
+  bar.style.transition = 'none';
+  bar.style.width = '0%';
+  bar.classList.add('active');
+  requestAnimationFrame(()=>{
+    bar.style.transition = 'width .22s ease-out, opacity .2s ease';
+    bar.style.width = '70%';
+    bar.__timers.push(setTimeout(()=>{
+      bar.style.width = '100%';
+      bar.__timers.push(setTimeout(()=>{
+        bar.classList.remove('active');
+        bar.__timers.push(setTimeout(()=>{ bar.style.width = '0%'; }, 220));
+      }, 150));
+    }, 160));
+  });
+}
 function moveNavIndicator(item){
   const indicator = document.getElementById('navIndicator');
   const list = document.getElementById('navList');
@@ -987,6 +1069,7 @@ document.querySelectorAll('.nav-item').forEach(item=>{
     item.classList.add('active');
     document.getElementById('page-'+item.dataset.page).classList.add('active');
     moveNavIndicator(item);
+    firePageProgress();
   });
 });
 window.addEventListener('load', ()=>{
@@ -1004,6 +1087,7 @@ document.querySelectorAll('.subtab').forEach(item=>{
     bar.parentElement.querySelectorAll('.subpage').forEach(p=>p.classList.remove('active'));
     item.classList.add('active');
     document.getElementById('sub-'+item.dataset.sub).classList.add('active');
+    firePageProgress();
   });
 });
 
@@ -1065,6 +1149,30 @@ function mkChart(id, cfg){
 
 function gridColor(){
   return document.documentElement.getAttribute('data-theme')==='light' ? '#dde1ec' : '#232c42';
+}
+
+// --- Ангилал сонгоход chart-ын бусад өгөгдлийг бүдгэрүүлж, сонгосныг тод харуулах ---
+function hexToRgba(hex, alpha){
+  hex = (hex||'#888888').replace('#','');
+  if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
+  const r = parseInt(hex.substring(0,2),16), g = parseInt(hex.substring(2,4),16), b = parseInt(hex.substring(4,6),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+function applyCatHighlight(chartIds, labels, colors, activeName){
+  chartIds.forEach(id=>{
+    const chart = Chart.getChart ? Chart.getChart(id) : null;
+    if(!chart || !chart.data.datasets[0]) return;
+    const ds = chart.data.datasets[0];
+    const isCircular = chart.type==='pie' || chart.type==='doughnut' || (chart.config && (chart.config.type==='pie'||chart.config.type==='doughnut'));
+    if(!activeName || activeName==='Бүгд'){
+      ds.backgroundColor = colors;
+      if(isCircular) ds.offset = labels.map(()=>0);
+    } else {
+      ds.backgroundColor = labels.map((l,i)=> l===activeName ? colors[i] : hexToRgba(colors[i], 0.16));
+      if(isCircular) ds.offset = labels.map(l => l===activeName ? 16 : 0);
+    }
+    chart.update();
+  });
 }
 
 // --- KPI тоо 0-с бодит дүн хүртэл өсөж харагдах зөөлөн animation ---
@@ -1375,6 +1483,7 @@ filterBar.innerHTML = '';
     chip.classList.add('active');
     sbActiveCat = name;
     applySbFilter();
+    applyCatHighlight(['sbCatBar','sbCatPie'], catList.map(c=>c[0]), catList.map(c=>catColors[c[0]]), sbActiveCat);
   });
   filterBar.appendChild(chip);
 });
@@ -1470,6 +1579,7 @@ toFilterBar.innerHTML = '';
     chip.classList.add('active');
     toActiveCat = name;
     applyToFilter();
+    applyCatHighlight(['toCatBar','toCatPie'], toCatList.map(c=>c[0]), toCatList.map(c=>toCatColors[c[0]]), toActiveCat);
   });
   toFilterBar.appendChild(chip);
 });
@@ -1563,6 +1673,7 @@ tuFilterBar.innerHTML = '';
     chip.classList.add('active');
     tuActiveCat = name;
     applyTuFilter();
+    applyCatHighlight(['tuCatBar','tuCatPie'], tuCatList.map(c=>c[0]), tuCatList.map(c=>tuCatColors[c[0]]), tuActiveCat);
   });
   tuFilterBar.appendChild(chip);
 });
@@ -1785,6 +1896,8 @@ dgBrandFilterBar.innerHTML = '';
     dgActiveBrand = name;
     renderDgParkSections(dgActiveBrand);
     applyDgFilter();
+    const dgLabelMap = {TONLY:'TONLY-891C 480/95R29', HOWO:'HOWO-105 16R25'};
+    applyCatHighlight(['dgBrandCountChart','dgBrandCostChart','dgBrandPie'], ['HOWO-105 16R25','TONLY-891C 480/95R29'], [dgColors.HOWO,dgColors.TONLY], dgLabelMap[dgActiveBrand]);
   });
   dgBrandFilterBar.appendChild(chip);
 });
@@ -2245,6 +2358,7 @@ function switchReportMonth(key){
   const mainEl = document.querySelector('main');
   if(mainEl) mainEl.classList.add('month-fading');
   flashSkeleton(180);
+  firePageProgress();
   currentReportMonth = key;
   const m = REPORT_MONTHS.find(x=>x.key===key);
   const label = document.getElementById('monthDdLabel');
@@ -2425,6 +2539,50 @@ function initScrollReveal(){
   cards.forEach(c=>io.observe(c));
 }
 initScrollReveal();
+
+// --- Тоон утга дээр hover хийхэд "яаж тооцоолсон бэ" tooltip ---
+(function initValueTooltips(){
+  const tooltip = document.createElement('div');
+  tooltip.className = 'value-tooltip';
+  document.body.appendChild(tooltip);
+  let currentTarget = null;
+  function positionTooltip(el){
+    const rect = el.getBoundingClientRect();
+    const tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+    let left = rect.left + rect.width/2 - tw/2;
+    let top = rect.top - th - 10;
+    if(top < 8) top = rect.bottom + 10;
+    left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+  }
+  function showTooltip(el){
+    const text = el.getAttribute('data-explain');
+    if(!text) return;
+    tooltip.textContent = text;
+    tooltip.classList.add('show');
+    positionTooltip(el);
+    requestAnimationFrame(()=>positionTooltip(el));
+  }
+  function hideTooltip(){
+    tooltip.classList.remove('show');
+  }
+  document.addEventListener('mouseover', (e)=>{
+    const el = e.target.closest('[data-explain]');
+    if(el && el !== currentTarget){
+      currentTarget = el;
+      showTooltip(el);
+    }
+  });
+  document.addEventListener('mouseout', (e)=>{
+    const el = e.target.closest('[data-explain]');
+    if(el && (!e.relatedTarget || !el.contains(e.relatedTarget))){
+      currentTarget = null;
+      hideTooltip();
+    }
+  });
+  window.addEventListener('scroll', ()=>{ if(currentTarget) positionTooltip(currentTarget); }, true);
+})();
 </script>
 </body>
 </html>
