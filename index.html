@@ -80,13 +80,39 @@
     display:flex;align-items:center;justify-content:center;
   }
   .brand .mark img{height:100%; width:auto; display:block;}
-  .brand h1{font-size:13px; margin:0; letter-spacing:.2px; line-height:1.3;}
+  .brand h1{
+    font-size:13px; margin:0; letter-spacing:.2px; line-height:1.3;
+    background:linear-gradient(90deg, var(--text) 0%, var(--text) 35%, #a98bff 50%, var(--text) 65%, var(--text) 100%);
+    background-size:250% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:brandShimmer 5s linear infinite;
+  }
+  @keyframes brandShimmer{
+    0%{ background-position:200% 0; }
+    100%{ background-position:-200% 0; }
+  }
   .nav-item{
     display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:9px;
     color:var(--sub); font-size:13.5px; cursor:pointer; margin-bottom:3px; user-select:none;
   }
+  .nav-icon{display:inline-block;}
   .nav-item:hover{background:#1b2338; color:var(--text);}
+  .nav-item:hover .nav-icon{ animation:navIconWiggle .5s ease; }
   .nav-item.active{background:linear-gradient(135deg,#7c5cf0,#5a3fd0); color:#fff;}
+  .nav-list{position:relative;}
+  .nav-indicator{
+    position:absolute; left:-6px; width:4px; border-radius:4px;
+    background:linear-gradient(180deg,#a98bff,#7c5cf0);
+    box-shadow:0 0 10px rgba(124,92,240,.7);
+    transition:top .32s cubic-bezier(.4,0,.2,1), height .32s cubic-bezier(.4,0,.2,1), opacity .2s ease;
+    opacity:0;
+  }
+  .nav-indicator.on{opacity:1;}
+  @keyframes navIconWiggle{
+    0%, 100%{ transform:rotate(0deg) scale(1); }
+    25%{ transform:rotate(-12deg) scale(1.15); }
+    50%{ transform:rotate(10deg) scale(1.15); }
+    75%{ transform:rotate(-6deg) scale(1.1); }
+  }
   .period{font-size:12px; color:var(--sub); padding:10px 12px 16px;}
   .month-dd{position:relative; margin:0 6px 16px;}
   .month-dd-btn{
@@ -141,7 +167,13 @@
   @media (prefers-reduced-motion: reduce){
     .page.active, .subpage.active, .kpi, tbody tr, tr.high-cost-row td{ animation:none; opacity:1; }
     main{ transition:none; }
-    .card{ transition:none; }
+    .card{ transition:none; opacity:1 !important; animation:none !important; transform:none !important; }
+    .brand h1{ animation:none; -webkit-text-fill-color:initial; background:none; color:var(--text); }
+    .nav-icon{ animation:none !important; }
+    .delta-arrow{ animation:none !important; }
+    .kpi .value.skeleton{ animation:none; }
+    .nav-indicator{ transition:none; }
+    .confetti-piece{ animation:none !important; display:none; }
   }
   h2.page-title{font-size:18px; font-weight:700; margin:0 0 4px;}
   .page-sub{font-size:12.5px; color:var(--sub); margin-bottom:20px;}
@@ -194,6 +226,27 @@
   .kpi-delta.up{background:rgba(224,56,74,.28); color:#ffb3bb;}
   .kpi-delta.down{background:rgba(34,211,138,.25); color:#8ff0c4;}
   .kpi-delta.flat{background:rgba(255,255,255,.18); color:rgba(255,255,255,.85);}
+  .kpi .value.skeleton{
+    color:transparent !important; -webkit-text-fill-color:transparent;
+    background:linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.16) 50%, rgba(255,255,255,.06) 75%);
+    background-size:200% 100%; animation:skeletonShine 1.1s ease-in-out infinite;
+    border-radius:6px; display:inline-block; min-width:64px;
+  }
+  @keyframes skeletonShine{
+    0%{background-position:200% 0;}
+    100%{background-position:-200% 0;}
+  }
+  .delta-arrow{display:inline-block;}
+  .kpi-delta.up .delta-arrow{ animation:deltaBounceUp 1.4s ease-in-out infinite; }
+  .kpi-delta.down .delta-arrow{ animation:deltaBounceDown 1.4s ease-in-out infinite; }
+  @keyframes deltaBounceUp{
+    0%, 100%{ transform:translateY(0); }
+    50%{ transform:translateY(-3px); }
+  }
+  @keyframes deltaBounceDown{
+    0%, 100%{ transform:translateY(0); }
+    50%{ transform:translateY(3px); }
+  }
   .warn-badge{display:inline-block; font-size:12px; margin-left:5px; cursor:default;}
   tr.high-cost-row{background:rgba(224,56,74,.08);}
   .kpi.c1{background:linear-gradient(135deg,#2c4fc4,#1c2f7a);}
@@ -209,6 +262,28 @@
   .card h3{margin:0 0 4px; font-size:14.5px;}
   .card .hint{font-size:12px; color:var(--sub); margin-bottom:14px;}
   .chart-wrap{position:relative; height:260px;}
+  .donut-center{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    text-align:center; pointer-events:none;
+  }
+  .donut-center-value{font-size:16px; font-weight:800; color:var(--text);}
+  .donut-center-label{font-size:10px; color:var(--sub); margin-top:2px;}
+  .card{opacity:0;}
+  .card.revealed{ animation:cardRevealIn .55s ease-out forwards; }
+  .card.revealed-done{ opacity:1; }
+  @keyframes cardRevealIn{
+    from{ opacity:0; transform:translateY(22px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .confetti-piece{
+    position:fixed; top:0; left:0; width:7px; height:7px; pointer-events:none; z-index:9999;
+    border-radius:2px; transform:translate(-50%,-50%);
+    animation:confettiFall 1.1s ease-out forwards;
+  }
+  @keyframes confettiFall{
+    0%{ transform:translate(-50%,-50%) rotate(0deg); opacity:1; }
+    100%{ transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)); opacity:0; }
+  }
 
   .search-box{
     width:100%; padding:10px 14px; border-radius:9px; border:1px solid var(--line);
@@ -329,10 +404,6 @@
     <h1>ТОП ГАН ДРИЛЛИНГ ХХК</h1>
   </div>
   <div class="topbar-right">
-    <div class="swatches">
-      <span style="background:#7c5cf0;"></span><span style="background:#3b6fe0;"></span><span style="background:#1fb87a;"></span>
-      <span style="background:#e0a530;"></span><span style="background:#e0456f;"></span><span style="background:#e05ca0;"></span><span style="background:#a08560;"></span>
-    </div>
     <div class="logout-btn" id="themeToggleBtn" style="cursor:pointer;">☀️ Цайвар горим</div>
     <div class="logout-btn" id="logoutBtn" style="cursor:pointer;">Гарах</div>
   </div>
@@ -347,12 +418,15 @@
     </div>
     <div class="month-dd-panel" id="monthDdPanel"></div>
   </div>
-  <div class="nav-item active" data-page="dashboard">🏠 Dashboard</div>
-  <div class="nav-item" data-page="selbeg">📊 Сэлбэг</div>
-  <div class="nav-item" data-page="shtm">📘 ШТМ (Тос)</div>
-  <div class="nav-item" data-page="tuls">⛽ Түлш</div>
-  <div class="nav-item" data-page="duguy">🛞 <span id="dg-nav-label">Дугуй (7-р сар)</span></div>
-  <div class="nav-item" data-page="compare">⚖️ Харьцуулалт</div>
+  <div class="nav-list" id="navList">
+    <div class="nav-indicator" id="navIndicator"></div>
+    <div class="nav-item active" data-page="dashboard"><span class="nav-icon">🏠</span> Dashboard</div>
+    <div class="nav-item" data-page="selbeg"><span class="nav-icon">📊</span> Сэлбэг</div>
+    <div class="nav-item" data-page="shtm"><span class="nav-icon">📘</span> ШТМ (Тос)</div>
+    <div class="nav-item" data-page="tuls"><span class="nav-icon">⛽</span> Түлш</div>
+    <div class="nav-item" data-page="duguy"><span class="nav-icon">🛞</span> <span id="dg-nav-label">Дугуй (7-р сар)</span></div>
+    <div class="nav-item" data-page="compare"><span class="nav-icon">⚖️</span> Харьцуулалт</div>
+  </div>
 </div>
 
 <main>
@@ -382,7 +456,12 @@
       <div class="card scene">
         <h3>Зардлын бүтэц</h3>
         <div class="hint">Нийт зардалд эзлэх хувь</div>
-        <div class="chart-wrap" style="height:200px;"><canvas id="donutChart"></canvas></div>
+        <div class="chart-wrap" style="height:200px;"><canvas id="donutChart"></canvas>
+          <div class="donut-center">
+            <div class="donut-center-value" id="donutCenterValue">—</div>
+            <div class="donut-center-label">нийт</div>
+          </div>
+        </div>
         <ul class="legend-list" id="donut-legend"></ul>
       </div>
     </div>
@@ -711,7 +790,12 @@
       </div>
       <div class="card scene">
         <h3>Зардлын эзлэх хувь</h3>
-        <div class="chart-wrap" style="height:200px;"><canvas id="dgBrandPie"></canvas></div>
+        <div class="chart-wrap" style="height:200px;"><canvas id="dgBrandPie"></canvas>
+          <div class="donut-center">
+            <div class="donut-center-value" id="dgPieCenterValue">—</div>
+            <div class="donut-center-label">нийт</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -850,17 +934,68 @@ function setKpiDelta(elId, cur, prev){
   const arrow = pct > 0.05 ? '▲' : (pct < -0.05 ? '▼' : '▬');
   const sign = pct > 0 ? '+' : '';
   el.className = 'kpi-delta ' + cls;
-  el.textContent = `${arrow} ${sign}${pct.toFixed(1)}% өмнөх сараас`;
+  el.innerHTML = `<span class="delta-arrow">${arrow}</span> ${sign}${pct.toFixed(1)}% өмнөх сараас`;
+  if(elId === 'kpi-total-delta' && cls === 'down'){
+    fireConfetti('kpi-total');
+  }
+}
+
+// --- Нийт зардал буурахад "confetti" эерэг эффект ---
+function fireConfetti(targetElId){
+  const el = document.getElementById(targetElId);
+  if(!el) return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const card = el.closest('.kpi') || el;
+  const rect = card.getBoundingClientRect();
+  const colors = ['#7c5cf0','#3b6fe0','#22d38a','#e0a530','#8ff0c4'];
+  const originX = rect.left + rect.width/2;
+  const originY = rect.top + rect.height/2;
+  for(let i=0;i<20;i++){
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    const angle = Math.random()*Math.PI*2;
+    const dist = 50 + Math.random()*90;
+    const dx = Math.cos(angle)*dist;
+    const dy = Math.sin(angle)*dist - 30;
+    piece.style.left = originX + 'px';
+    piece.style.top = originY + 'px';
+    piece.style.background = colors[i % colors.length];
+    piece.style.setProperty('--dx', dx.toFixed(0)+'px');
+    piece.style.setProperty('--dy', (dy+80).toFixed(0)+'px');
+    piece.style.setProperty('--rot', (Math.random()*720-360).toFixed(0)+'deg');
+    piece.style.animationDelay = (Math.random()*0.12).toFixed(2)+'s';
+    document.body.appendChild(piece);
+    setTimeout(()=>piece.remove(), 1500);
+  }
 }
 
 // --- navigation ---
+function moveNavIndicator(item){
+  const indicator = document.getElementById('navIndicator');
+  const list = document.getElementById('navList');
+  if(!indicator || !list || !item) return;
+  const listRect = list.getBoundingClientRect();
+  const itemRect = item.getBoundingClientRect();
+  indicator.style.top = (itemRect.top - listRect.top) + 'px';
+  indicator.style.height = itemRect.height + 'px';
+  indicator.classList.add('on');
+}
 document.querySelectorAll('.nav-item').forEach(item=>{
   item.addEventListener('click', ()=>{
     document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     item.classList.add('active');
     document.getElementById('page-'+item.dataset.page).classList.add('active');
+    moveNavIndicator(item);
   });
+});
+window.addEventListener('load', ()=>{
+  const activeNav = document.querySelector('.nav-item.active');
+  if(activeNav) moveNavIndicator(activeNav);
+});
+window.addEventListener('resize', ()=>{
+  const activeNav = document.querySelector('.nav-item.active');
+  if(activeNav) moveNavIndicator(activeNav);
 });
 document.querySelectorAll('.subtab').forEach(item=>{
   item.addEventListener('click', ()=>{
@@ -913,6 +1048,13 @@ function parkSortKey(park){
   const m = p.match(/^([A-Z]+)-(\d+)/i);
   if(!m) return [p, 0];
   return [m[1].toUpperCase(), parseInt(m[2], 10)];
+}
+
+// --- Тоо гарахын өмнөх богино "skeleton" анимаци ---
+function flashSkeleton(ms){
+  const vals = document.querySelectorAll('.kpi .value');
+  vals.forEach(v => v.classList.add('skeleton'));
+  setTimeout(() => { vals.forEach(v => v.classList.remove('skeleton')); }, ms || 140);
 }
 
 function mkChart(id, cfg){
@@ -1089,6 +1231,7 @@ function updateMainDashboard(sel, tos, tul, recordsLabel, titleSuffix){
   mainBarChart.update();
   mainDonutChart.data.datasets[0].data = [sel, tos, tul];
   mainDonutChart.update();
+  animateValue('donutCenterValue', sel+tos+tul, fmtM, 700);
   renderMainLegend(sel, tos, tul);
   const barTitle = document.querySelector('#page-dashboard .grid2 .card h3');
   if(barTitle) barTitle.textContent = titleSuffix ? `Сэлбэг vs Тос vs Түлш — ${titleSuffix} (сая₮)` : 'Сэлбэг vs Тос vs Түлш (сая₮)';
@@ -1521,7 +1664,7 @@ function renderTuEfficiency(){
       const cls = pct>0.5 ? 'up' : (pct<-0.5 ? 'down' : 'flat');
       const arrow = pct>0.5 ? '▲' : (pct<-0.5 ? '▼' : '▬');
       const sign = pct>0 ? '+' : '';
-      changeHtml = `<span class="kpi-delta ${cls}" style="margin-top:0;">${arrow} ${sign}${pct.toFixed(1)}%</span>`;
+      changeHtml = `<span class="kpi-delta ${cls}" style="margin-top:0;"><span class="delta-arrow">${arrow}</span> ${sign}${pct.toFixed(1)}%</span>`;
     }
     const tr = document.createElement('tr');
     tr.innerHTML = `<td><span class="cat-dot" style="background:${tuCatColors[cat]||'#888'};"></span>${cat}</td><td class="amt">${fmtFull(curVal)}</td><td class="amt">${prevVal!==null ? fmtFull(prevVal) : '—'}</td><td class="amt">${changeHtml}</td>`;
@@ -1713,6 +1856,7 @@ mkChart('dgBrandPie', {
   data:{labels:['HOWO-105 16R25','TONLY-891C 480/95R29'], datasets:[{data:[dgHowoAmt,dgTonlyAmt], backgroundColor:[dgColors.HOWO,dgColors.TONLY], borderWidth:0}]},
   options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:c=>((c.raw/dgTotalAmt)*100).toFixed(1)+"%  ("+fmtM(c.raw)+")"}}}}
 });
+animateValue('dgPieCenterValue', dgTotalAmt, fmtM, 700);
 
 function dgParkAgg(rows){
   const m = {};
@@ -2100,6 +2244,7 @@ let currentReportMonth = '2026-07';
 function switchReportMonth(key){
   const mainEl = document.querySelector('main');
   if(mainEl) mainEl.classList.add('month-fading');
+  flashSkeleton(180);
   currentReportMonth = key;
   const m = REPORT_MONTHS.find(x=>x.key===key);
   const label = document.getElementById('monthDdLabel');
@@ -2162,6 +2307,7 @@ function initMonthDropdown(){
   renderPanel();
 }
 initMonthDropdown();
+flashSkeleton(280);
 renderReport('2026-07');
 
 // ===== Харьцуулалт (7-р сар vs 8-р сар) — 2 сарын нийт зардлын харьцуулалт =====
@@ -2254,6 +2400,31 @@ function renderCompareTab(){
   });
 }
 renderCompareTab();
+
+// --- Scroll-trigger reveal: карт бүр дэлгэц дээр орж ирэхэд зөөлөн gel-in хийх ---
+function initScrollReveal(){
+  const cards = document.querySelectorAll('.card:not(.revealed):not(.revealed-done)');
+  if(!('IntersectionObserver' in window) || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)){
+    cards.forEach(c=>c.classList.add('revealed-done'));
+    return;
+  }
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const card = entry.target;
+        card.classList.add('revealed');
+        card.addEventListener('animationend', function handler(){
+          card.classList.remove('revealed');
+          card.classList.add('revealed-done');
+          card.removeEventListener('animationend', handler);
+        });
+        io.unobserve(card);
+      }
+    });
+  }, {threshold:0.08, rootMargin:'0px 0px -30px 0px'});
+  cards.forEach(c=>io.observe(c));
+}
+initScrollReveal();
 </script>
 </body>
 </html>
