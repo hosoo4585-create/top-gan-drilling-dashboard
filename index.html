@@ -654,11 +654,11 @@
 
     <div id="dg-normal-view">
     <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
-      <div class="kpi c3"><div class="label">Нийт авсан дугуй</div><div class="value" id="dg-total-qty">—</div></div>
-      <div class="kpi c5"><div class="label">Дугуйны нийт зардал</div><div class="value" id="dg-total-amt">—</div><div class="sub">Сэлбэгийн зардалд орсон</div></div>
+      <div class="kpi c3"><div class="label">Нийт авсан дугуй</div><div class="value" id="dg-total-qty">—</div><div class="kpi-delta" id="dg-total-qty-delta"></div></div>
+      <div class="kpi c5"><div class="label">Дугуйны нийт зардал</div><div class="value" id="dg-total-amt">—</div><div class="sub">Сэлбэгийн зардалд орсон</div><div class="kpi-delta" id="dg-total-amt-delta"></div></div>
 
-      <div class="kpi c1"><div class="label">HOWO-105 16R25</div><div class="value" id="dg-howo-qty">—</div><div class="sub" id="dg-howo-pct">—</div></div>
-      <div class="kpi c4"><div class="label">TONLY-891C 480/95R29</div><div class="value" id="dg-tonly-qty">—</div><div class="sub" id="dg-tonly-pct">—</div></div>
+      <div class="kpi c1"><div class="label">HOWO-105 16R25</div><div class="value" id="dg-howo-qty">—</div><div class="sub" id="dg-howo-pct">—</div><div class="kpi-delta" id="dg-howo-qty-delta"></div></div>
+      <div class="kpi c4"><div class="label">TONLY-891C 480/95R29</div><div class="value" id="dg-tonly-qty">—</div><div class="sub" id="dg-tonly-pct">—</div><div class="kpi-delta" id="dg-tonly-qty-delta"></div></div>
     </div>
 
     <div class="grid2">
@@ -896,6 +896,30 @@ function gridColor(){
   return document.documentElement.getAttribute('data-theme')==='light' ? '#dde1ec' : '#232c42';
 }
 
+// --- KPI тоо 0-с бодит дүн хүртэл өсөж харагдах зөөлөн animation ---
+function animateValue(elId, targetValue, formatFn, duration){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  duration = duration || 700;
+  if(el.__animFrame) cancelAnimationFrame(el.__animFrame);
+  if(!isFinite(targetValue)){ el.textContent = formatFn(0); return; }
+  const startTime = performance.now();
+  function step(now){
+    const elapsed = now - startTime;
+    const t = Math.min(elapsed/duration, 1);
+    const eased = 1 - Math.pow(1-t, 3);
+    const current = targetValue * eased;
+    el.textContent = formatFn(current);
+    if(t < 1){
+      el.__animFrame = requestAnimationFrame(step);
+    } else {
+      el.textContent = formatFn(targetValue);
+      el.__animFrame = null;
+    }
+  }
+  el.__animFrame = requestAnimationFrame(step);
+}
+
 // --- Trend-based forecast helpers (шинжилгээ Сэлбэг/Тос/Түлш бүх табанд ашиглагдана) ---
 function forecastNext(seriesValues){
   if(seriesValues.length < 2) return null;
@@ -1017,11 +1041,11 @@ function renderMainLegend(sel, tos, tul){
 }
 
 function updateMainDashboard(sel, tos, tul, recordsLabel, titleSuffix){
-  document.getElementById('kpi-total').textContent = fmtM(sel+tos+tul);
-  document.getElementById('kpi-total-sub').textContent = fmtFull(sel+tos+tul);
-  document.getElementById('kpi-selbeg').textContent = fmtM(sel);
-  document.getElementById('kpi-tos').textContent = fmtM(tos);
-  document.getElementById('kpi-tuls').textContent = fmtM(tul);
+  animateValue('kpi-total', sel+tos+tul, fmtM, 700);
+  animateValue('kpi-total-sub', sel+tos+tul, fmtFull, 700);
+  animateValue('kpi-selbeg', sel, fmtM, 700);
+  animateValue('kpi-tos', tos, fmtM, 700);
+  animateValue('kpi-tuls', tul, fmtM, 700);
   document.getElementById('kpi-records').textContent = recordsLabel;
   mainBarChart.data.datasets[0].data = [sel/1e6, tos/1e6, tul/1e6];
   mainBarChart.update();
@@ -1113,7 +1137,7 @@ SB.forEach(r=> r.cat = sbCategory(r.model, r.park));
 document.getElementById('sb-count-tab').textContent = SB.length;
 document.getElementById('sb-count').textContent = SB.length;
 document.getElementById('sb-parks').textContent = new Set(SB.map(r=>r.park)).size + ' техник хамрагдсан';
-document.getElementById('sb-total').textContent = fmtM(DATA.selbeg);
+animateValue('sb-total', DATA.selbeg, fmtM, 700);
 document.getElementById('sb-avg').textContent = fmtM(DATA.selbeg / SB.length);
 
 const catSums = {};
@@ -1201,7 +1225,7 @@ TO.forEach(r=> r.cat = toCategory(r.park));
 document.getElementById('to-count-tab').textContent = TO.length;
 document.getElementById('to-count').textContent = TO.length;
 document.getElementById('to-parks').textContent = new Set(TO.map(r=>r.park)).size + ' техник хамрагдсан';
-document.getElementById('to-total').textContent = fmtM(DATA.tos);
+animateValue('to-total', DATA.tos, fmtM, 700);
 document.getElementById('to-avg').textContent = fmtM(DATA.tos / TO.length);
 
 const toCatSums = {};
@@ -1293,7 +1317,7 @@ TU.forEach(r=> r.cat = tuCategory(r.park));
 // (Excel-ийн эх дараалал хадгалагдана — цаашид дахин эрэмбэлэхгүй)
 
 document.getElementById('tu-count-tab').textContent = TU.length;
-document.getElementById('tu-total').textContent = fmtM(DATA.tuls);
+animateValue('tu-total', DATA.tuls, fmtM, 700);
 document.getElementById('tu-liters').textContent = DATA.liters.toLocaleString('en-US') + ' л';
 document.getElementById('tu-avg').textContent = fmtM(DATA.tuls / TU.length);
 
@@ -1576,14 +1600,36 @@ const dgHowoQty = dgHowo.reduce((a,r)=>a+r.qty,0);
 const dgTonlyAmt = dgTonly.reduce((a,r)=>a+r.amount,0);
 const dgHowoAmt = dgHowo.reduce((a,r)=>a+r.amount,0);
 
-document.getElementById('dg-total-qty').textContent = dgTotalQty + ' ш';
-document.getElementById('dg-total-amt').textContent = fmtM(dgTotalAmt);
+animateValue('dg-total-qty', dgTotalQty, v => Math.round(v) + ' ш', 700);
+animateValue('dg-total-amt', dgTotalAmt, fmtM, 700);
 document.getElementById('dg-howo-qty').textContent = dgHowoQty + ' ш';
 document.getElementById('dg-howo-pct').textContent = ((dgHowoQty/dgTotalQty)*100).toFixed(1) + '%';
 document.getElementById('dg-tonly-qty').textContent = dgTonlyQty + ' ш';
 document.getElementById('dg-tonly-pct').textContent = ((dgTonlyQty/dgTotalQty)*100).toFixed(1) + '%';
 document.getElementById('dg-tonly-count').textContent = dgTonlyQty;
 document.getElementById('dg-howo-count').textContent = dgHowoQty;
+
+// --- Өмнөх сартай харьцуулсан өсөлт/бууралт ---
+{
+  const dgHistMonths = REPORT_MONTHS.filter(m=>REPORT_DATA[m.key]);
+  const dgIdx = dgHistMonths.findIndex(m=>m.key===currentReportMonth);
+  const dgPrevMonth = dgIdx > 0 ? dgHistMonths[dgIdx-1] : null;
+  const dgPrevData = dgPrevMonth ? REPORT_DATA[dgPrevMonth.key] : null;
+  if(dgPrevData && dgPrevData.DG){
+    const prevTonly = dgPrevData.DG.filter(r=>r.brand==='TONLY');
+    const prevHowo = dgPrevData.DG.filter(r=>r.brand==='HOWO');
+    const prevTotalQty = dgPrevData.DG.reduce((a,r)=>a+r.qty,0);
+    const prevTotalAmt = dgPrevData.DG.reduce((a,r)=>a+r.amount,0);
+    const prevTonlyQty = prevTonly.reduce((a,r)=>a+r.qty,0);
+    const prevHowoQty = prevHowo.reduce((a,r)=>a+r.qty,0);
+    setKpiDelta('dg-total-qty-delta', dgTotalQty, prevTotalQty);
+    setKpiDelta('dg-total-amt-delta', dgTotalAmt, prevTotalAmt);
+    setKpiDelta('dg-howo-qty-delta', dgHowoQty, prevHowoQty);
+    setKpiDelta('dg-tonly-qty-delta', dgTonlyQty, prevTonlyQty);
+  } else {
+    ['dg-total-qty-delta','dg-total-amt-delta','dg-howo-qty-delta','dg-tonly-qty-delta'].forEach(id=>setKpiDelta(id, 0, null));
+  }
+}
 
 mkChart('dgBrandCountChart', {
   type:'bar',
