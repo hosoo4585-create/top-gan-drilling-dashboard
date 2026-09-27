@@ -112,7 +112,8 @@
   .month-item .soon{font-size:10.5px; color:var(--sub);}
   .month-item.active .soon{color:rgba(255,255,255,.75);}
 
-  main{flex:1; min-width:0; padding:26px 28px 60px; max-width:1240px; margin:0 auto;}
+  main{flex:1; min-width:0; padding:26px 28px 60px; max-width:1240px; margin:0 auto; transition:opacity .28s ease;}
+  main.month-fading{opacity:.25;}
   .page{display:none;}
   .page.active{display:block; animation:fadeSlideIn .38s ease-out;}
   @keyframes fadeSlideIn{
@@ -130,8 +131,17 @@
     from{ opacity:0; transform:translateY(12px) scale(.96); }
     to{ opacity:1; transform:translateY(0) scale(1); }
   }
+  @keyframes rowFadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+  tbody tr{ animation: rowFadeIn .25s ease-out; }
+  @keyframes highCostGlow{
+    0%, 100% { background-color: rgba(224,56,74,.08); }
+    50% { background-color: rgba(224,56,74,.22); }
+  }
+  tr.high-cost-row td{ animation: highCostGlow 2.6s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce){
-    .page.active, .subpage.active, .kpi{ animation:none; opacity:1; }
+    .page.active, .subpage.active, .kpi, tbody tr, tr.high-cost-row td{ animation:none; opacity:1; }
+    main{ transition:none; }
+    .card{ transition:none; }
   }
   h2.page-title{font-size:18px; font-weight:700; margin:0 0 4px;}
   .page-sub{font-size:12.5px; color:var(--sub); margin-bottom:20px;}
@@ -194,7 +204,8 @@
 
   .grid2{display:grid; grid-template-columns:1.3fr 1fr; gap:18px; margin-bottom:22px;}
   @media (max-width:900px){.grid2{grid-template-columns:1fr;}}
-  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px; transition:transform .22s ease, box-shadow .22s ease;}
+  .card:hover{transform:translateY(-4px) scale(1.012); box-shadow:0 14px 32px rgba(0,0,0,.38);}
   .card h3{margin:0 0 4px; font-size:14.5px;}
   .card .hint{font-size:12px; color:var(--sub); margin-bottom:14px;}
   .chart-wrap{position:relative; height:260px;}
@@ -2068,12 +2079,17 @@ const REPORT_MONTHS = [
 let currentReportMonth = '2026-07';
 
 function switchReportMonth(key){
+  const mainEl = document.querySelector('main');
+  if(mainEl) mainEl.classList.add('month-fading');
   currentReportMonth = key;
   const m = REPORT_MONTHS.find(x=>x.key===key);
   const label = document.getElementById('monthDdLabel');
   if(m && label) label.textContent = m.label;
   renderReport(key);
   hideParkDetail();
+  if(mainEl){
+    setTimeout(() => { mainEl.classList.remove('month-fading'); }, 140);
+  }
 }
 
 function initMonthDropdown(){
