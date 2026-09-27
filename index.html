@@ -168,6 +168,8 @@
   main.month-fading{opacity:.25;}
   .page{display:none;}
   .page.active{display:block; animation:fadeSlideIn .38s ease-out;}
+  .page.page-exiting{display:block; animation:pageFadeOut .15s ease-in forwards;}
+  @keyframes pageFadeOut{ from{opacity:1; transform:translateX(0);} to{opacity:0; transform:translateX(-12px);} }
   @keyframes fadeSlideIn{
     from{ opacity:0; transform:translateY(14px); }
     to{ opacity:1; transform:translateY(0); }
@@ -387,6 +389,55 @@
   .detail-table tbody tr{ cursor:pointer; }
   @keyframes rowEnter{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:translateY(0); } }
   .row-enter{ animation:rowEnter .35s ease both; }
+  .odo-digit{ display:inline-block; min-width:0.62ch; text-align:center; font-variant-numeric:tabular-nums; }
+  .odo-static{ display:inline-block; font-variant-numeric:tabular-nums; }
+  @keyframes odoSettle{ 0%{ transform:translateY(-4px) scale(1.15); opacity:.6; } 100%{ transform:translateY(0) scale(1); opacity:1; } }
+  .odo-settled{ animation:odoSettle .22s ease-out; }
+  .cmp-delta-badge{
+    display:inline-flex; align-items:center; gap:4px; margin-left:8px; padding:3px 10px; border-radius:20px;
+    font-size:11.5px; font-weight:700; vertical-align:middle;
+  }
+  .cmp-delta-badge:empty{ display:none; }
+  .cmp-delta-badge.up{ background:rgba(224,69,111,.15); color:#e0456f; border:1px solid rgba(224,69,111,.4); animation:deltaPulseRed 1.6s ease-in-out infinite; }
+  .cmp-delta-badge.down{ background:rgba(34,211,138,.15); color:#22d38a; border:1px solid rgba(34,211,138,.4); animation:deltaPulseGreen 1.6s ease-in-out infinite; }
+  .cmp-delta-badge.flat{ background:var(--panel2); color:var(--sub); border:1px solid var(--line); }
+  @keyframes deltaPulseRed{ 0%,100%{ box-shadow:0 0 0 0 rgba(224,69,111,.45); } 50%{ box-shadow:0 0 0 6px rgba(224,69,111,0); } }
+  @keyframes deltaPulseGreen{ 0%,100%{ box-shadow:0 0 0 0 rgba(34,211,138,.45); } 50%{ box-shadow:0 0 0 6px rgba(34,211,138,0); } }
+  .kpi.kpi-glow{ position:relative; }
+  .kpi.kpi-glow::after{
+    content:''; position:absolute; inset:-2px; border-radius:14px; pointer-events:none;
+    animation: kpiGlowPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes kpiGlowPulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(224,165,48,.4), 0 0 12px 1px rgba(224,165,48,.2); }
+    50%{ box-shadow:0 0 0 5px rgba(224,165,48,0), 0 0 20px 5px rgba(224,165,48,.45); }
+  }
+  /* Dark/Light горим сэлгэхэд өнгө бүхэлдээ зөөлөн шилждэг */
+  body, .sidebar, .topbar, .card, .kpi, .nav-item, input, select, table, th, td,
+  .logout-btn, .month-dd-btn, .month-dd-panel, .row-modal, .row-modal-overlay,
+  .search-box, .cat-chip, .pagination-bar, .load-more-btn, .subtab, .subtab-bar{
+    transition: background-color .35s ease, color .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .theme-morph{ animation: themeIconMorph .4s ease; }
+  @keyframes themeIconMorph{
+    0%{ transform:scale(1) rotate(0deg); opacity:1; }
+    50%{ transform:scale(.7) rotate(180deg); opacity:.35; }
+    100%{ transform:scale(1) rotate(360deg); opacity:1; }
+  }
+  /* Sidebar хумих/дэлгэх */
+  .sidebar{ transition: width .3s ease, padding .3s ease; }
+  .sidebar.collapsed{ width:64px; padding-left:8px; padding-right:8px; overflow:visible; }
+  .sidebar.collapsed .brand h1, .sidebar.collapsed .month-dd{ display:none; }
+  .sidebar.collapsed .nav-item{ justify-content:center; padding:10px 0; font-size:0; }
+  .sidebar.collapsed .nav-item .nav-icon{ font-size:18px; }
+  .sidebar.collapsed .brand{ justify-content:center; padding-bottom:14px; }
+  .sidebar-collapse-btn{
+    display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%;
+    background:var(--panel2); border:1px solid var(--line); color:var(--sub); cursor:pointer;
+    margin:0 auto 12px; font-size:12px; transition:background-color .2s ease, transform .3s ease;
+  }
+  .sidebar-collapse-btn:hover{ background:#1b2338; color:var(--text); }
+  .sidebar.collapsed .sidebar-collapse-btn{ transform:rotate(180deg); }
   .row-modal-overlay{
     position:fixed; inset:0; background:rgba(8,10,20,.62); backdrop-filter:blur(3px);
     display:flex; align-items:center; justify-content:center; z-index:9999;
@@ -543,7 +594,8 @@
 </div>
 
 <div class="layout">
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Хумих/Дэлгэх">◂</div>
   <div class="month-dd" id="monthDd">
     <div class="month-dd-btn" id="monthDdBtn">
       <span id="monthDdLabel">2026 оны 7-р сар</span>
@@ -655,7 +707,7 @@
       <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
         <div class="kpi c2"><div class="label">Нийт зардал</div><div class="value" id="sb-total" data-explain="Доорх бүх сэлбэгийн мөрийн үнийн дүнгийн нийлбэр">—</div></div>
         <div class="kpi c1"><div class="label">Засварын бичлэг</div><div class="value" id="sb-count">—</div><div class="sub" id="sb-parks">—</div></div>
-        <div class="kpi c3"><div class="label">Хамгийн их зардалтай</div><div class="value" id="sb-top-cat">—</div><div class="sub" id="sb-top-cat-amt">—</div></div>
+        <div class="kpi c3 kpi-glow"><div class="label">Хамгийн их зардалтай</div><div class="value" id="sb-top-cat">—</div><div class="sub" id="sb-top-cat-amt">—</div></div>
         <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="sb-avg" data-explain="Нийт зардлыг бичлэгийн тоонд харьцуулсан дундаж (Нийт зардал ÷ бичлэгийн тоо)">—</div></div>
       </div>
       <div class="grid2">
@@ -717,7 +769,7 @@
       <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
         <div class="kpi c2"><div class="label">Нийт ШТМ зардал</div><div class="value" id="to-total" data-explain="Доорх бүх техникийн үйлчилгээний мөрийн үнийн дүнгийн нийлбэр">—</div></div>
         <div class="kpi c1"><div class="label">Засварын бичлэг</div><div class="value" id="to-count">—</div><div class="sub" id="to-parks">—</div></div>
-        <div class="kpi c3"><div class="label">Хамгийн их зардалтай</div><div class="value" id="to-top-cat">—</div><div class="sub" id="to-top-cat-amt">—</div></div>
+        <div class="kpi c3 kpi-glow"><div class="label">Хамгийн их зардалтай</div><div class="value" id="to-top-cat">—</div><div class="sub" id="to-top-cat-amt">—</div></div>
         <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="to-avg" data-explain="Нийт зардлыг бичлэгийн тоонд харьцуулсан дундаж (Нийт зардал ÷ бичлэгийн тоо)">—</div></div>
       </div>
       <div class="grid2">
@@ -784,7 +836,7 @@
       <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
         <div class="kpi c2"><div class="label">Нийт түлшний зардал</div><div class="value" id="tu-total" data-explain="Доорх бүх түлшний цэнэглэлтийн мөрийн үнийн дүнгийн нийлбэр">—</div></div>
         <div class="kpi c1"><div class="label">Нийт зарцуулсан түлш</div><div class="value" id="tu-liters" data-explain="Тухайн сард цэнэглэсэн бүх түлшний нийт литр">—</div></div>
-        <div class="kpi c3"><div class="label">Хамгийн их зардалтай</div><div class="value" id="tu-top-cat">—</div><div class="sub" id="tu-top-cat-amt">—</div></div>
+        <div class="kpi c3 kpi-glow"><div class="label">Хамгийн их зардалтай</div><div class="value" id="tu-top-cat">—</div><div class="sub" id="tu-top-cat-amt">—</div></div>
         <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="tu-avg" data-explain="Нийт зардлыг бичлэгийн тоонд харьцуулсан дундаж (Нийт зардал ÷ бичлэгийн тоо)">—</div></div>
       </div>
       <div class="grid2">
@@ -834,7 +886,7 @@
       <div class="kpis" style="grid-template-columns:repeat(3,1fr); margin-bottom:22px;">
         <div class="kpi c4"><div class="label">Техникийн тоо</div><div class="value" id="tuph-count">—</div></div>
         <div class="kpi c1"><div class="label">Дундаж хэрэглээ</div><div class="value" id="tuph-avg">—</div></div>
-        <div class="kpi" style="background:linear-gradient(135deg,#e0384a,#8f1a26);"><div class="label">Хамгийн их хэрэглээтэй</div><div class="value" id="tuph-max-park">—</div><div class="sub" id="tuph-max-val">—</div></div>
+        <div class="kpi kpi-glow" style="background:linear-gradient(135deg,#e0384a,#8f1a26);"><div class="label">Хамгийн их хэрэглээтэй</div><div class="value" id="tuph-max-park">—</div><div class="sub" id="tuph-max-val">—</div></div>
       </div>
 
       <div class="card scene">
@@ -1007,24 +1059,24 @@
       <div class="chart-wrap" style="height:280px;"><canvas id="cmpCategoryShiftChart"></canvas></div>
     </div>
     <div class="card scene" style="margin-bottom:18px;">
-      <h3>Нийт зардал — 7-р сар vs 8-р сар</h3>
+      <h3>Нийт зардал — 7-р сар vs 8-р сар <span class="cmp-delta-badge" id="cmpTotalBadge"></span></h3>
       <div class="hint">Сэлбэг + Тос + Түлшний нийлбэр дүнгийн харьцуулалт</div>
       <div class="chart-wrap" style="height:280px;"><canvas id="cmpTotalChart"></canvas></div>
     </div>
     <div class="card scene" style="margin-bottom:18px;">
-      <h3>Сэлбэгийн зардал</h3>
+      <h3>Сэлбэгийн зардал <span class="cmp-delta-badge" id="cmpSbBadge"></span></h3>
       <div class="chart-wrap" style="height:240px;"><canvas id="cmpSbChart"></canvas></div>
     </div>
     <div class="card scene" style="margin-bottom:18px;">
-      <h3>ШТМ (Тос)-ны зардал</h3>
+      <h3>ШТМ (Тос)-ны зардал <span class="cmp-delta-badge" id="cmpToBadge"></span></h3>
       <div class="chart-wrap" style="height:240px;"><canvas id="cmpToChart"></canvas></div>
     </div>
     <div class="card scene" style="margin-bottom:18px;">
-      <h3>Түлшний зардал</h3>
+      <h3>Түлшний зардал <span class="cmp-delta-badge" id="cmpTuBadge"></span></h3>
       <div class="chart-wrap" style="height:240px;"><canvas id="cmpTuChart"></canvas></div>
     </div>
     <div class="card scene">
-      <h3>Дугуйны зардал</h3>
+      <h3>Дугуйны зардал <span class="cmp-delta-badge" id="cmpDgBadge"></span></h3>
       <div class="chart-wrap" style="height:240px;"><canvas id="cmpDgChart"></canvas></div>
     </div>
   </section>
@@ -1148,18 +1200,44 @@ function moveNavIndicator(item){
 }
 document.querySelectorAll('.nav-item').forEach(item=>{
   item.addEventListener('click', ()=>{
+    if(item.classList.contains('active')) return;
+    const targetId = 'page-'+item.dataset.page;
+    const oldPage = document.querySelector('.page.active');
     document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     item.classList.add('active');
-    document.getElementById('page-'+item.dataset.page).classList.add('active');
     moveNavIndicator(item);
-    firePageProgress();
+    const doSwitch = ()=>{
+      document.querySelectorAll('.page').forEach(p=>{ p.classList.remove('active'); p.classList.remove('page-exiting'); });
+      document.getElementById(targetId).classList.add('active');
+      firePageProgress();
+    };
+    if(oldPage && oldPage.id !== targetId && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      oldPage.classList.add('page-exiting');
+      setTimeout(doSwitch, 150);
+    } else {
+      doSwitch();
+    }
   });
 });
 window.addEventListener('load', ()=>{
   const activeNav = document.querySelector('.nav-item.active');
   if(activeNav) moveNavIndicator(activeNav);
 });
+const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+if(sidebarCollapseBtn){
+  sidebarCollapseBtn.addEventListener('click', ()=>{
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('collapsed');
+    try{ localStorage.setItem('tgd_sidebar_collapsed', sidebar.classList.contains('collapsed') ? '1' : '0'); }catch(e){}
+    setTimeout(()=>{
+      const activeNav = document.querySelector('.nav-item.active');
+      if(activeNav) moveNavIndicator(activeNav);
+    }, 320);
+  });
+  try{
+    if(localStorage.getItem('tgd_sidebar_collapsed') === '1') document.getElementById('sidebar').classList.add('collapsed');
+  }catch(e){}
+}
 window.addEventListener('resize', ()=>{
   const activeNav = document.querySelector('.nav-item.active');
   if(activeNav) moveNavIndicator(activeNav);
@@ -1229,6 +1307,37 @@ function mkChart(id, cfg){
   const existing = Chart.getChart ? Chart.getChart(id) : null;
   if(existing) existing.destroy();
   return new Chart(document.getElementById(id), cfg);
+}
+
+// Шугаман диаграм зүүнээс баруун тийш "зурагдаж" гарч ирэх анимаци (Chart.js progressive draw)
+function progressiveLineAnimation(pointCount, totalDuration){
+  pointCount = Math.max(pointCount||1, 1);
+  totalDuration = totalDuration || 900;
+  const delayBetweenPoints = totalDuration / pointCount;
+  return {
+    x:{
+      type:'number', easing:'linear', duration: delayBetweenPoints, from: NaN,
+      delay(ctx){
+        if(ctx.type !== 'data' || ctx.xStarted) return 0;
+        ctx.xStarted = true;
+        return ctx.index * delayBetweenPoints;
+      }
+    },
+    y:{
+      type:'number', easing:'linear', duration: delayBetweenPoints,
+      from(ctx){
+        if(ctx.index === 0) return ctx.chart.scales.y ? ctx.chart.scales.y.getPixelForValue(100) : 0;
+        const meta = ctx.chart.getDatasetMeta(ctx.datasetIndex);
+        const prevPoint = meta && meta.data && meta.data[ctx.index-1];
+        return prevPoint ? prevPoint.getProps(['y'], true).y : undefined;
+      },
+      delay(ctx){
+        if(ctx.type !== 'data' || ctx.yStarted) return 0;
+        ctx.yStarted = true;
+        return ctx.index * delayBetweenPoints;
+      }
+    }
+  };
 }
 
 function gridColor(){
@@ -1391,6 +1500,38 @@ function animateValue(elId, targetValue, formatFn, duration){
   el.__animFrame = requestAnimationFrame(step);
 }
 
+// --- KPI-ийн том тоонуудад "рулетка" (odometer/slot-machine) эффект ---
+function animateOdometer(elId, targetValue, formatFn){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  if(!isFinite(targetValue)){ el.textContent = formatFn(0); return; }
+  if(el.__odoTimers){ el.__odoTimers.forEach(t=>clearInterval(t)); }
+  el.__odoTimers = [];
+  const finalStr = formatFn(targetValue);
+  const chars = finalStr.split('');
+  el.innerHTML = chars.map(ch => /[0-9]/.test(ch) ? '<span class="odo-digit">'+ch+'</span>' : '<span class="odo-static">'+ch+'</span>').join('');
+  const digitEls = Array.from(el.querySelectorAll('.odo-digit'));
+  digitEls.forEach((span, i)=>{
+    const finalDigit = span.textContent;
+    const delay = i * 45;
+    const maxTicks = 8;
+    const tickMs = 40;
+    setTimeout(()=>{
+      let ticks = 0;
+      const iv = setInterval(()=>{
+        span.textContent = Math.floor(Math.random()*10);
+        ticks++;
+        if(ticks >= maxTicks){
+          clearInterval(iv);
+          span.textContent = finalDigit;
+          span.classList.add('odo-settled');
+        }
+      }, tickMs);
+      el.__odoTimers.push(iv);
+    }, delay);
+  });
+}
+
 // --- Trend-based forecast helpers (шинжилгээ Сэлбэг/Тос/Түлш бүх табанд ашиглагдана) ---
 function forecastNext(seriesValues){
   if(seriesValues.length < 2) return null;
@@ -1446,7 +1587,7 @@ function renderCostForecast(seriesField, labelElId, valueElId, trendElId, chartI
   mkChart(chartId, {
     type:'line',
     data:{labels:chartLabels, datasets},
-    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:!!forecastSeries, position:'bottom', labels:{boxWidth:10, font:{size:11}}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.raw!==null ? c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+' сая₮' : '—')}}}, scales:{y:{beginAtZero:false, grid:{color:gridColor()}}, x:{grid:{display:false}}}}
+    options:{responsive:true, maintainAspectRatio:false, animation:progressiveLineAnimation(chartLabels.length), plugins:{legend:{display:!!forecastSeries, position:'bottom', labels:{boxWidth:10, font:{size:11}}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.raw!==null ? c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+' сая₮' : '—')}}}, scales:{y:{beginAtZero:false, grid:{color:gridColor()}}, x:{grid:{display:false}}}}
   });
 }
 
@@ -1461,6 +1602,11 @@ function applyTheme(theme){
 function toggleTheme(){
   const cur = document.documentElement.getAttribute('data-theme') || 'dark';
   const next = cur === 'light' ? 'dark' : 'light';
+  const btn = document.getElementById('themeToggleBtn');
+  if(btn){
+    btn.classList.add('theme-morph');
+    setTimeout(()=>btn.classList.remove('theme-morph'), 400);
+  }
   applyTheme(next);
   if(typeof currentReportMonth !== 'undefined' && typeof REPORT_DATA !== 'undefined' && REPORT_DATA[currentReportMonth]){
     renderReport(currentReportMonth);
@@ -1521,11 +1667,11 @@ function renderMainLegend(sel, tos, tul){
 }
 
 function updateMainDashboard(sel, tos, tul, recordsLabel, titleSuffix){
-  animateValue('kpi-total', sel+tos+tul, fmtM, 700);
+  animateOdometer('kpi-total', sel+tos+tul, fmtM);
   animateValue('kpi-total-sub', sel+tos+tul, fmtFull, 700);
-  animateValue('kpi-selbeg', sel, fmtM, 700);
-  animateValue('kpi-tos', tos, fmtM, 700);
-  animateValue('kpi-tuls', tul, fmtM, 700);
+  animateOdometer('kpi-selbeg', sel, fmtM);
+  animateOdometer('kpi-tos', tos, fmtM);
+  animateOdometer('kpi-tuls', tul, fmtM);
   document.getElementById('kpi-records').textContent = recordsLabel;
   mainBarChart.data.datasets[0].data = [sel/1e6, tos/1e6, tul/1e6];
   mainBarChart.update();
@@ -1618,7 +1764,7 @@ SB.forEach(r=> r.cat = sbCategory(r.model, r.park));
 document.getElementById('sb-count-tab').textContent = SB.length;
 document.getElementById('sb-count').textContent = SB.length;
 document.getElementById('sb-parks').textContent = new Set(SB.map(r=>r.park)).size + ' техник хамрагдсан';
-animateValue('sb-total', DATA.selbeg, fmtM, 700);
+animateOdometer('sb-total', DATA.selbeg, fmtM);
 document.getElementById('sb-avg').textContent = fmtM(DATA.selbeg / SB.length);
 
 const catSums = {};
@@ -1714,7 +1860,7 @@ TO.forEach(r=> r.cat = toCategory(r.park));
 document.getElementById('to-count-tab').textContent = TO.length;
 document.getElementById('to-count').textContent = TO.length;
 document.getElementById('to-parks').textContent = new Set(TO.map(r=>r.park)).size + ' техник хамрагдсан';
-animateValue('to-total', DATA.tos, fmtM, 700);
+animateOdometer('to-total', DATA.tos, fmtM);
 document.getElementById('to-avg').textContent = fmtM(DATA.tos / TO.length);
 
 const toCatSums = {};
@@ -1814,7 +1960,7 @@ TU.forEach(r=> r.cat = tuCategory(r.park));
 // (Excel-ийн эх дараалал хадгалагдана — цаашид дахин эрэмбэлэхгүй)
 
 document.getElementById('tu-count-tab').textContent = TU.length;
-animateValue('tu-total', DATA.tuls, fmtM, 700);
+animateOdometer('tu-total', DATA.tuls, fmtM);
 document.getElementById('tu-liters').textContent = DATA.liters.toLocaleString('en-US') + ' л';
 document.getElementById('tu-avg').textContent = fmtM(DATA.tuls / TU.length);
 
@@ -1960,7 +2106,7 @@ function renderTuEfficiency(){
   mkChart('tuEffTrendChart', {
     type:'line',
     data:{labels:chartLabels, datasets:tuEffDatasets},
-    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:!!forecastSeries, position:'bottom', labels:{boxWidth:10, font:{size:11}}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.raw!==null ? c.raw.toLocaleString('en-US')+' ₮/л' : '—')}}}, scales:{y:{beginAtZero:false, grid:{color:gridColor()}, ticks:{callback:v=>v.toLocaleString('en-US')}}, x:{grid:{display:false}}}}
+    options:{responsive:true, maintainAspectRatio:false, animation:progressiveLineAnimation(chartLabels.length), plugins:{legend:{display:!!forecastSeries, position:'bottom', labels:{boxWidth:10, font:{size:11}}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.raw!==null ? c.raw.toLocaleString('en-US')+' ₮/л' : '—')}}}, scales:{y:{beginAtZero:false, grid:{color:gridColor()}, ticks:{callback:v=>v.toLocaleString('en-US')}}, x:{grid:{display:false}}}}
   });
 
   function catLitersAmount(monthData){
@@ -2128,7 +2274,7 @@ const dgTonlyAmt = dgTonly.reduce((a,r)=>a+r.amount,0);
 const dgHowoAmt = dgHowo.reduce((a,r)=>a+r.amount,0);
 
 animateValue('dg-total-qty', dgTotalQty, v => Math.round(v) + ' ш', 700);
-animateValue('dg-total-amt', dgTotalAmt, fmtM, 700);
+animateOdometer('dg-total-amt', dgTotalAmt, fmtM);
 document.getElementById('dg-howo-qty').textContent = dgHowoQty + ' ш';
 document.getElementById('dg-howo-pct').textContent = ((dgHowoQty/dgTotalQty)*100).toFixed(1) + '%';
 document.getElementById('dg-tonly-qty').textContent = dgTonlyQty + ' ш';
@@ -2545,6 +2691,7 @@ function showParkDetail(park){
     data:{labels:histLabels, datasets:[{label:park, data:histData.map(v=>v/1e6), borderColor:'#e0384a', backgroundColor:'#e0384a', tension:0.3, borderWidth:3, pointRadius:5}]},
     options:{
       responsive:true, maintainAspectRatio:false,
+      animation:progressiveLineAnimation(histLabels.length),
       plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
       scales:{y:{beginAtZero:true, grid:{color:gridColor()}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
     }
@@ -2701,6 +2848,22 @@ function renderCompareTab(){
     }
   });
 
+  function renderDeltaBadge(chartId, oldVal, newVal){
+    const badgeEl = document.getElementById(chartId.replace('Chart','Badge'));
+    if(!badgeEl) return;
+    if(!oldVal){ badgeEl.textContent = ''; badgeEl.className = 'cmp-delta-badge'; return; }
+    const pct = ((newVal-oldVal)/oldVal)*100;
+    if(Math.abs(pct) < 0.05){
+      badgeEl.textContent = '— 0%';
+      badgeEl.className = 'cmp-delta-badge flat';
+    } else if(pct > 0){
+      badgeEl.textContent = `▲ +${pct.toFixed(1)}%`;
+      badgeEl.className = 'cmp-delta-badge up';
+    } else {
+      badgeEl.textContent = `▼ ${pct.toFixed(1)}%`;
+      badgeEl.className = 'cmp-delta-badge down';
+    }
+  }
   function cmpChart(id, data, title){
     mkChart(id, {
       type:'bar',
@@ -2711,6 +2874,7 @@ function renderCompareTab(){
         scales:{y:{beginAtZero:true, grid:{color:gridColor()}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
       }
     });
+    renderDeltaBadge(id, data[0], data[1]);
   }
 
   cmpChart('cmpTotalChart', [julTotal, augTotal]);
@@ -2733,6 +2897,7 @@ function renderCompareTab(){
     },
     options:{
       responsive:true, maintainAspectRatio:false,
+      animation:progressiveLineAnimation(monthLabels.length),
       plugins:{legend:{position:'bottom', labels:{boxWidth:10}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
       scales:{y:{beginAtZero:true, grid:{color:gridColor()}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
     }
