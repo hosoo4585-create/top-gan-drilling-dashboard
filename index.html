@@ -367,6 +367,60 @@
   }
   .reason-cell{color:var(--sub); font-size:12.5px; max-width:320px;}
   .empty-dash{color:var(--sub); opacity:.5; font-style:italic;}
+  .detail-table th[data-key]{ cursor:pointer; user-select:none; }
+  .detail-table th[data-key]::after{ content:'⇅'; opacity:.4; margin-left:5px; font-size:9.5px; }
+  .detail-table th[data-key]:hover{ filter:brightness(1.15); }
+  .detail-table th.sort-asc::after{ content:'▲'; opacity:1; }
+  .detail-table th.sort-desc::after{ content:'▼'; opacity:1; }
+  .pagination-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 20px; border-top:1px solid var(--line); flex-wrap:wrap;
+  }
+  .pagination-bar:empty{ display:none; }
+  .page-info{ font-size:12px; color:var(--sub); }
+  .load-more-btn{
+    background:linear-gradient(135deg,#7c5cf0,#5a3fd0); color:#fff; border:none;
+    padding:8px 16px; border-radius:8px; font-size:12.5px; cursor:pointer; font-weight:600;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .load-more-btn:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(124,92,240,.4); }
+  .detail-table tbody tr{ cursor:pointer; }
+  @keyframes rowEnter{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:translateY(0); } }
+  .row-enter{ animation:rowEnter .35s ease both; }
+  .row-modal-overlay{
+    position:fixed; inset:0; background:rgba(8,10,20,.62); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; z-index:9999;
+    opacity:0; pointer-events:none; transition:opacity .18s ease;
+  }
+  .row-modal-overlay.show{ opacity:1; pointer-events:auto; }
+  .row-modal{
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    width:min(480px, 92vw); max-height:82vh; overflow-y:auto;
+    box-shadow:0 24px 60px rgba(0,0,0,.45);
+    transform:translateY(14px) scale(.97); opacity:0; transition:transform .2s cubic-bezier(.2,.9,.3,1.2), opacity .18s ease;
+    padding:22px 24px 24px;
+    position:relative;
+  }
+  .row-modal-overlay.show .row-modal{ transform:translateY(0) scale(1); opacity:1; }
+  .row-modal-close{
+    position:absolute; top:14px; right:14px; width:30px; height:30px; border-radius:50%;
+    border:none; background:var(--panel2); color:var(--txt); font-size:18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:background .15s ease, transform .15s ease;
+  }
+  .row-modal-close:hover{ background:#e0456f; color:#fff; transform:rotate(90deg); }
+  .row-modal-title{
+    font-size:16px; font-weight:700; padding-right:32px; margin-bottom:4px;
+  }
+  .row-modal-subtitle{ font-size:12px; color:var(--sub); margin-bottom:16px; }
+  .row-modal-field{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:14px;
+    padding:10px 0; border-bottom:1px solid var(--line); font-size:13px;
+  }
+  .row-modal-field:last-child{ border-bottom:none; }
+  .row-modal-field .rmf-label{ color:var(--sub); flex:0 0 auto; }
+  .row-modal-field .rmf-value{ text-align:right; font-weight:600; }
+  .row-modal-field .rmf-value.rmf-amount{ font-variant-numeric:tabular-nums; color:#22d38a; }
+  .row-modal-field .rmf-value.rmf-note{ text-align:left; font-weight:400; max-width:280px; }
   .row-num{
     display:inline-flex; align-items:center; justify-content:center;
     width:20px; height:20px; border-radius:50%; background:var(--panel2);
@@ -641,10 +695,11 @@
       <div class="card scene" style="padding:0; overflow:hidden;">
       <div class="table-scroll">
       <table class="detail-table">
-        <thead><tr><th class="idx-cell" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">#</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Модел</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Ангилал</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тайлбар</th></tr></thead>
+        <thead id="sb-thead"><tr><th class="idx-cell" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">#</th><th data-key="model" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Модел</th><th data-key="park" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th data-key="cat" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Ангилал</th><th class="amt" data-key="amount" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тайлбар</th></tr></thead>
         <tbody id="sb-body"></tbody>
       </table>
       </div>
+      <div class="pagination-bar" id="sb-pagination"></div>
       </div>
     </div>
   </section>
@@ -705,10 +760,11 @@
       <div class="card scene" style="padding:0; overflow:hidden;">
       <div class="table-scroll">
       <table class="detail-table">
-        <thead><tr><th class="idx-cell" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">#</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Модел</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Ангилал</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тайлбар</th></tr></thead>
+        <thead id="to-thead"><tr><th class="idx-cell" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">#</th><th data-key="model" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Модел</th><th data-key="park" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th data-key="cat" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Ангилал</th><th class="amt" data-key="amount" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тайлбар</th></tr></thead>
         <tbody id="to-body"></tbody>
       </table>
       </div>
+      <div class="pagination-bar" id="to-pagination"></div>
       </div>
     </div>
   </section>
@@ -762,10 +818,11 @@
       <div class="card scene" style="padding:0; overflow:hidden;">
       <div class="table-scroll">
       <table class="detail-table">
-        <thead><tr><th class="idx-cell" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">#</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Модел</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Ангилал</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Литр</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th></tr></thead>
+        <thead id="tu-thead"><tr><th class="idx-cell" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">#</th><th data-key="model" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Модел</th><th data-key="park" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th data-key="cat" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Ангилал</th><th class="amt" data-key="liters" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Литр</th><th class="amt" data-key="amount" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th></tr></thead>
         <tbody id="tu-body"></tbody>
       </table>
       </div>
+      <div class="pagination-bar" id="tu-pagination"></div>
       </div>
     </div>
 
@@ -915,20 +972,22 @@
       <h3 style="padding:20px 20px 0;">📄 Дэлгэрэнгүй лог — сериал дугаартай (TONLY)</h3>
       <div class="table-scroll">
       <table class="detail-table">
-        <thead><tr><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Огноо</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Мото цаг / км</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тоо</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Шалтгаан</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Сериал дугаар</th></tr></thead>
+        <thead id="dg-tonly-thead"><tr><th data-key="date" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Огноо</th><th data-key="park" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Мото цаг / км</th><th class="amt" data-key="qty" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тоо</th><th class="amt" data-key="amount" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Шалтгаан</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Сериал дугаар</th></tr></thead>
         <tbody id="dg-tonly-log"></tbody>
       </table>
       </div>
+      <div class="pagination-bar" id="dg-tonly-pagination"></div>
     </div>
 
     <div class="card scene" id="dg-howo-log-card" style="padding:0; overflow:hidden;">
       <h3 style="padding:20px 20px 0;">📄 Дэлгэрэнгүй лог — сериал дугаартай (HOWO)</h3>
       <div class="table-scroll">
       <table class="detail-table">
-        <thead><tr><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Огноо</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Мото цаг / км</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тоо</th><th class="amt" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Шалтгаан</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Сериал дугаар</th></tr></thead>
+        <thead id="dg-howo-thead"><tr><th data-key="date" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Огноо</th><th data-key="park" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Парк</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Мото цаг / км</th><th class="amt" data-key="qty" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Тоо</th><th class="amt" data-key="amount" style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Дүн</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Шалтгаан</th><th style="background:linear-gradient(135deg,#4a3aa8,#2e2270); color:#fff;">Сериал дугаар</th></tr></thead>
         <tbody id="dg-howo-log"></tbody>
       </table>
       </div>
+      <div class="pagination-bar" id="dg-howo-pagination"></div>
     </div>
     </div>
   </section>
@@ -974,6 +1033,7 @@
 </div>
 </div>
 <script>
+window.__tableRowData = window.__tableRowData || {};
 const SITE_PASSWORD = "TGD2026";
 function showApp(){
   document.getElementById('loginGate').style.display = 'none';
@@ -1189,6 +1249,106 @@ function catBadge(name, color){
 // --- Хоосон утгыг бүдэг, налуу тэмдэглэгээтэй харуулах ---
 function dashOrText(val){
   return val ? val : '<span class="empty-dash">—</span>';
+}
+
+// --- Дэлгэрэнгүй хүснэгтийн баганаар эрэмбэлэх ба хуудаслах (pagination) ---
+const TABLE_PAGE_SIZE = 20;
+function createTableState(){
+  return { sortKey:null, sortDir:1, shown:TABLE_PAGE_SIZE };
+}
+function sortRows(data, key, dir){
+  if(!key) return data;
+  return [...data].sort((a,b)=>{
+    let va = a[key], vb = b[key];
+    if(typeof va === 'string') va = va.toLowerCase();
+    if(typeof vb === 'string') vb = vb.toLowerCase();
+    if(va == null && vb == null) return 0;
+    if(va == null) return 1;
+    if(vb == null) return -1;
+    if(va < vb) return -1 * dir;
+    if(va > vb) return 1 * dir;
+    return 0;
+  });
+}
+// FLIP (First-Last-Invert-Play): эрэмбэлэхэд мөрүүд шууд харайхгүй, гулсаж шинэ байрандаа орно
+function flipRows(tbodyId, keyFn, updateFn){
+  const tbody = document.getElementById(tbodyId);
+  if(!tbody){ updateFn(); return; }
+  const firstRects = new Map();
+  Array.from(tbody.children).forEach(tr=>{
+    const idx = parseInt(tr.dataset.idx, 10);
+    const rec = (window.__tableRowData[tbodyId]||[])[idx];
+    if(rec){
+      try{ firstRects.set(keyFn(rec), tr.getBoundingClientRect()); }catch(e){}
+    }
+  });
+  updateFn();
+  Array.from(tbody.children).forEach(tr=>{
+    const idx = parseInt(tr.dataset.idx, 10);
+    const rec = (window.__tableRowData[tbodyId]||[])[idx];
+    if(!rec) return;
+    let key; try{ key = keyFn(rec); }catch(e){ return; }
+    const first = firstRects.get(key);
+    if(!first) return;
+    const last = tr.getBoundingClientRect();
+    const dy = first.top - last.top;
+    if(Math.abs(dy) < 1) return;
+    tr.style.transition = 'none';
+    tr.style.transform = `translateY(${dy}px)`;
+    requestAnimationFrame(()=>{
+      tr.style.transition = 'transform .35s cubic-bezier(.2,.8,.2,1)';
+      tr.style.transform = '';
+      tr.addEventListener('transitionend', ()=>{ tr.style.transition=''; tr.style.transform=''; }, {once:true});
+    });
+  });
+}
+function bindSortableHeaders(theadEl, state, onSort, tbodyId, keyFn){
+  if(!theadEl) return;
+  // Сар солих бүрд шинэ state/onSort-той дахин холбогдохын тулд хуучин listener-үүдийг клон хийж арилгана
+  theadEl.querySelectorAll('th[data-key]').forEach(th=>{
+    const fresh = th.cloneNode(true);
+    fresh.classList.remove('sort-asc','sort-desc');
+    th.parentNode.replaceChild(fresh, th);
+    fresh.addEventListener('click', ()=>{
+      const key = fresh.dataset.key;
+      if(state.sortKey === key){ state.sortDir *= -1; } else { state.sortKey = key; state.sortDir = 1; }
+      state.shown = TABLE_PAGE_SIZE;
+      theadEl.querySelectorAll('th[data-key]').forEach(t=>t.classList.remove('sort-asc','sort-desc'));
+      fresh.classList.add(state.sortDir===1 ? 'sort-asc' : 'sort-desc');
+      if(tbodyId && keyFn){
+        flipRows(tbodyId, keyFn, onSort);
+      } else {
+        onSort();
+      }
+    });
+  });
+}
+function renderLoadMore(containerId, tbodyId, state, total, onLoadMore){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  if(total === 0){ el.innerHTML = ''; return; }
+  if(state.shown >= total){
+    el.innerHTML = `<div class="page-info">Бүгд ${total} мөр харагдаж байна</div>`;
+    return;
+  }
+  const nextBatch = Math.min(TABLE_PAGE_SIZE, total - state.shown);
+  el.innerHTML = `<div class="page-info">${Math.min(state.shown, total)} / ${total} мөр харуулж байна</div><button class="load-more-btn">Цааш үзэх (+${nextBatch})</button>`;
+  el.querySelector('.load-more-btn').addEventListener('click', ()=>{
+    const oldShown = state.shown;
+    state.shown += TABLE_PAGE_SIZE;
+    onLoadMore();
+    const tbody = document.getElementById(tbodyId);
+    if(tbody){
+      Array.from(tbody.children).forEach(tr=>{
+        const idx = parseInt(tr.dataset.idx, 10);
+        if(idx >= oldShown){
+          tr.classList.add('row-enter');
+          tr.style.animationDelay = ((idx - oldShown) * 25) + 'ms';
+          tr.addEventListener('animationend', ()=>{ tr.classList.remove('row-enter'); tr.style.animationDelay=''; }, {once:true});
+        }
+      });
+    }
+  });
 }
 function applyCatHighlight(chartIds, labels, colors, activeName){
   chartIds.forEach(id=>{
@@ -1497,13 +1657,15 @@ sbCatBody.appendChild(totalRow);
 
 // (Excel-ийн эх дараалал хадгалагдана — цаашид дахин эрэмбэлэхгүй)
 
-const sbRow = (r,i) => `<tr style="--row-accent:${catColors[r.cat]||'#888'};"><td class="idx-cell"><span class="row-num">${i+1}</span></td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td>${catBadge(r.cat, catColors[r.cat]||'#888')}</td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${dashOrText(r.note)}</td></tr>`;
+const sbRow = (r,i) => `<tr data-idx="${i}" style="--row-accent:${catColors[r.cat]||'#888'};"><td class="idx-cell"><span class="row-num">${i+1}</span></td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td>${catBadge(r.cat, catColors[r.cat]||'#888')}</td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${dashOrText(r.note)}</td></tr>`;
 function renderSbTable(data){
   document.getElementById('sb-body').innerHTML = data.map((r,i)=>sbRow(r,i)).join('');
+  window.__tableRowData['sb-body'] = data;
 }
 renderSbTable(SB);
 
 let sbActiveCat = 'Бүгд';
+let sbTableState = createTableState();
 const filterBar = document.getElementById('sb-cat-filter');
 filterBar.innerHTML = '';
 ['Бүгд', ...catList.map(c=>c[0])].forEach(name=>{
@@ -1514,6 +1676,7 @@ filterBar.innerHTML = '';
     filterBar.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
     chip.classList.add('active');
     sbActiveCat = name;
+    sbTableState.shown = TABLE_PAGE_SIZE;
     applySbFilter();
     applyCatHighlight(['sbCatBar','sbCatPie'], catList.map(c=>c[0]), catList.map(c=>catColors[c[0]]), sbActiveCat);
   });
@@ -1523,9 +1686,13 @@ function applySbFilter(){
   const q = document.getElementById('sb-search').value.toLowerCase();
   let data = sbActiveCat==='Бүгд' ? SB : SB.filter(r=>r.cat===sbActiveCat);
   if(q) data = data.filter(r => [r.park,r.model,r.note].some(f=>String(f||'').toLowerCase().includes(q)));
-  renderSbTable(data);
+  data = sortRows(data, sbTableState.sortKey, sbTableState.sortDir);
+  renderSbTable(data.slice(0, sbTableState.shown));
+  renderLoadMore('sb-pagination', 'sb-body', sbTableState, data.length, applySbFilter);
 }
 FILTERS.sb = applySbFilter;
+FILTERS.sbReset = ()=>{ sbTableState.shown = TABLE_PAGE_SIZE; applySbFilter(); };
+bindSortableHeaders(document.getElementById('sb-thead'), sbTableState, ()=>{ FILTERS.sb(); }, 'sb-body', r=>`${r.park}|${r.model}|${r.note}|${r.amount}`);
 renderCostForecast('selbeg', 'sbfc-label', 'sbfc-value', 'sbfc-trend', 'sbFcChart');
 
 
@@ -1593,13 +1760,15 @@ toTop10List.innerHTML = '';
   toTop10List.appendChild(div);
 });
 
-const toRow = (r,i) => `<tr style="--row-accent:${toCatColors[r.cat]||'#888'};"><td class="idx-cell"><span class="row-num">${i+1}</span></td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td>${catBadge(r.cat, toCatColors[r.cat]||'#888')}</td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${dashOrText(r.note)}</td></tr>`;
+const toRow = (r,i) => `<tr data-idx="${i}" style="--row-accent:${toCatColors[r.cat]||'#888'};"><td class="idx-cell"><span class="row-num">${i+1}</span></td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td>${catBadge(r.cat, toCatColors[r.cat]||'#888')}</td><td class="amt">${fmtM(r.amount)}</td><td class="reason-cell">${dashOrText(r.note)}</td></tr>`;
 function renderToTable(data){
+  window.__tableRowData['to-body'] = data;
   document.getElementById('to-body').innerHTML = data.map((r,i)=>toRow(r,i)).join('');
 }
 renderToTable(TO);
 
 let toActiveCat = 'Бүгд';
+let toTableState = createTableState();
 const toFilterBar = document.getElementById('to-cat-filter');
 toFilterBar.innerHTML = '';
 ['Бүгд', ...toCatList.map(c=>c[0])].forEach(name=>{
@@ -1610,6 +1779,7 @@ toFilterBar.innerHTML = '';
     toFilterBar.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
     chip.classList.add('active');
     toActiveCat = name;
+    toTableState.shown = TABLE_PAGE_SIZE;
     applyToFilter();
     applyCatHighlight(['toCatBar','toCatPie'], toCatList.map(c=>c[0]), toCatList.map(c=>toCatColors[c[0]]), toActiveCat);
   });
@@ -1619,9 +1789,13 @@ function applyToFilter(){
   const q = document.getElementById('to-search').value.toLowerCase();
   let data = toActiveCat==='Бүгд' ? TO : TO.filter(r=>r.cat===toActiveCat);
   if(q) data = data.filter(r => [r.park,r.model,r.note].some(f=>String(f||'').toLowerCase().includes(q)));
-  renderToTable(data);
+  data = sortRows(data, toTableState.sortKey, toTableState.sortDir);
+  renderToTable(data.slice(0, toTableState.shown));
+  renderLoadMore('to-pagination', 'to-body', toTableState, data.length, applyToFilter);
 }
 FILTERS.to = applyToFilter;
+FILTERS.toReset = ()=>{ toTableState.shown = TABLE_PAGE_SIZE; applyToFilter(); };
+bindSortableHeaders(document.getElementById('to-thead'), toTableState, ()=>{ FILTERS.to(); }, 'to-body', r=>`${r.park}|${r.model}|${r.note}|${r.amount}`);
 renderCostForecast('tos', 'tofc-label', 'tofc-value', 'tofc-trend', 'toFcChart');
 
 function tuCategory(park){
@@ -1687,13 +1861,15 @@ tuTop10List.innerHTML = '';
   tuTop10List.appendChild(div);
 });
 
-const tuRow = (r,i) => `<tr style="--row-accent:${tuCatColors[r.cat]||'#888'};"><td class="idx-cell"><span class="row-num">${i+1}</span></td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td>${catBadge(r.cat, tuCatColors[r.cat]||'#888')}</td><td class="amt">${(r.liters||0).toLocaleString('en-US')} л</td><td class="amt">${fmtM(r.amount)}</td></tr>`;
+const tuRow = (r,i) => `<tr data-idx="${i}" style="--row-accent:${tuCatColors[r.cat]||'#888'};"><td class="idx-cell"><span class="row-num">${i+1}</span></td><td class="model-tag">${r.model||'—'}</td><td class="park-tag">${r.park||'—'}</td><td>${catBadge(r.cat, tuCatColors[r.cat]||'#888')}</td><td class="amt">${(r.liters||0).toLocaleString('en-US')} л</td><td class="amt">${fmtM(r.amount)}</td></tr>`;
 function renderTuTable(data){
   document.getElementById('tu-body').innerHTML = data.map((r,i)=>tuRow(r,i)).join('');
+  window.__tableRowData['tu-body'] = data;
 }
 renderTuTable(TU);
 
 let tuActiveCat = 'Бүгд';
+let tuTableState = createTableState();
 const tuFilterBar = document.getElementById('tu-cat-filter');
 tuFilterBar.innerHTML = '';
 ['Бүгд', ...tuCatList.map(c=>c[0])].forEach(name=>{
@@ -1704,6 +1880,7 @@ tuFilterBar.innerHTML = '';
     tuFilterBar.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
     chip.classList.add('active');
     tuActiveCat = name;
+    tuTableState.shown = TABLE_PAGE_SIZE;
     applyTuFilter();
     applyCatHighlight(['tuCatBar','tuCatPie'], tuCatList.map(c=>c[0]), tuCatList.map(c=>tuCatColors[c[0]]), tuActiveCat);
   });
@@ -1713,9 +1890,13 @@ function applyTuFilter(){
   const q = document.getElementById('tu-search').value.toLowerCase();
   let data = tuActiveCat==='Бүгд' ? TU : TU.filter(r=>r.cat===tuActiveCat);
   if(q) data = data.filter(r => [r.park,r.model,r.cat].some(f=>String(f||'').toLowerCase().includes(q)));
-  renderTuTable(data);
+  data = sortRows(data, tuTableState.sortKey, tuTableState.sortDir);
+  renderTuTable(data.slice(0, tuTableState.shown));
+  renderLoadMore('tu-pagination', 'tu-body', tuTableState, data.length, applyTuFilter);
 }
 FILTERS.tu = applyTuFilter;
+FILTERS.tuReset = ()=>{ tuTableState.shown = TABLE_PAGE_SIZE; applyTuFilter(); };
+bindSortableHeaders(document.getElementById('tu-thead'), tuTableState, ()=>{ FILTERS.tu(); }, 'tu-body', r=>`${r.park}|${r.model}|${r.liters}|${r.amount}`);
 
 if(typeof renderPerhourChart === 'function'){
   renderPerhourChart(typeof tuphActiveCat !== 'undefined' ? tuphActiveCat : 'Бүгд');
@@ -1839,9 +2020,9 @@ renderDgTab();
 
 }
 
-document.getElementById('sb-search').addEventListener('input', ()=>FILTERS.sb && FILTERS.sb());
-document.getElementById('to-search').addEventListener('input', ()=>FILTERS.to && FILTERS.to());
-document.getElementById('tu-search').addEventListener('input', ()=>FILTERS.tu && FILTERS.tu());
+document.getElementById('sb-search').addEventListener('input', ()=>FILTERS.sbReset && FILTERS.sbReset());
+document.getElementById('to-search').addEventListener('input', ()=>FILTERS.toReset && FILTERS.toReset());
+document.getElementById('tu-search').addEventListener('input', ()=>FILTERS.tuReset && FILTERS.tuReset());
 document.getElementById('tuSensSlider').addEventListener('input', function(){
   const pct = parseInt(this.value, 10);
   document.getElementById('tuSensPctLabel').textContent = (pct>0?'+':'') + pct + '%';
@@ -1916,6 +2097,8 @@ document.getElementById('dg-nav-label').textContent = dgMonthLabel;
 document.getElementById('dg-page-title').textContent = dgMonthLabel;
 const dgColors = {'TONLY':'#e0a530','HOWO':'#e0456f'};
 let dgActiveBrand = 'Бүгд';
+let dgTonlyTableState = createTableState();
+let dgHowoTableState = createTableState();
 const dgBrandFilterBar = document.getElementById('dg-brand-filter');
 dgBrandFilterBar.innerHTML = '';
 ['Бүгд','TONLY','HOWO'].forEach(name=>{
@@ -1926,6 +2109,8 @@ dgBrandFilterBar.innerHTML = '';
     dgBrandFilterBar.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
     chip.classList.add('active');
     dgActiveBrand = name;
+    dgTonlyTableState.shown = TABLE_PAGE_SIZE;
+    dgHowoTableState.shown = TABLE_PAGE_SIZE;
     renderDgParkSections(dgActiveBrand);
     applyDgFilter();
     const dgLabelMap = {TONLY:'TONLY-891C 480/95R29', HOWO:'HOWO-105 16R25'};
@@ -2090,11 +2275,12 @@ function serialBadges(r){
   return `<span class="reason-cell">${dashOrText(r.serial_note)}</span>`;
 }
 function renderLog(tbodyId, rows){
-  document.getElementById(tbodyId).innerHTML = rows.map(r => `<tr style="--row-accent:${dgColors[r.brand]||'#888'};">
+  document.getElementById(tbodyId).innerHTML = rows.map((r,i) => `<tr data-idx="${i}" style="--row-accent:${dgColors[r.brand]||'#888'};">
     <td>${r.date}</td><td class="park-tag">${r.park}</td><td class="model-tag">${r.moto||'—'}</td>
     <td class="amt">${r.qty} ш</td><td class="amt">${fmtM(r.amount)}</td>
     <td class="reason-cell">${dashOrText(r.reason)}</td><td>${serialBadges(r)}</td>
   </tr>`).join('');
+  window.__tableRowData[tbodyId] = rows;
 }
 renderLog('dg-tonly-log', dgTonly);
 renderLog('dg-howo-log', dgHowo);
@@ -2113,8 +2299,12 @@ function applyDgFilter(){
     const qOk = !q || r.park.toLowerCase().includes(q) || r.serials.toLowerCase().includes(q);
     return brandOk && qOk;
   };
-  renderLog('dg-tonly-log', dgTonly.filter(filterFn));
-  renderLog('dg-howo-log', dgHowo.filter(filterFn));
+  let tonlyData = sortRows(dgTonly.filter(filterFn), dgTonlyTableState.sortKey, dgTonlyTableState.sortDir);
+  let howoData = sortRows(dgHowo.filter(filterFn), dgHowoTableState.sortKey, dgHowoTableState.sortDir);
+  renderLog('dg-tonly-log', tonlyData.slice(0, dgTonlyTableState.shown));
+  renderLog('dg-howo-log', howoData.slice(0, dgHowoTableState.shown));
+  renderLoadMore('dg-tonly-pagination', 'dg-tonly-log', dgTonlyTableState, tonlyData.length, applyDgFilter);
+  renderLoadMore('dg-howo-pagination', 'dg-howo-log', dgHowoTableState, howoData.length, applyDgFilter);
 
   const resultsWrap = document.getElementById('dg-search-results-wrap');
   const normalView = document.getElementById('dg-normal-view');
@@ -2152,8 +2342,11 @@ function applyDgFilter(){
   }).join('');
 }
 FILTERS.dg = applyDgFilter;
+FILTERS.dgReset = ()=>{ dgTonlyTableState.shown = TABLE_PAGE_SIZE; dgHowoTableState.shown = TABLE_PAGE_SIZE; applyDgFilter(); };
+bindSortableHeaders(document.getElementById('dg-tonly-thead'), dgTonlyTableState, ()=>{ FILTERS.dg(); }, 'dg-tonly-log', r=>`${r.park}|${r.date}|${r.reason}|${r.amount}`);
+bindSortableHeaders(document.getElementById('dg-howo-thead'), dgHowoTableState, ()=>{ FILTERS.dg(); }, 'dg-howo-log', r=>`${r.park}|${r.date}|${r.reason}|${r.amount}`);
 }
-document.getElementById('dg-search').addEventListener('input', ()=>FILTERS.dg && FILTERS.dg());
+document.getElementById('dg-search').addEventListener('input', ()=>FILTERS.dgReset && FILTERS.dgReset());
 
 // --- Reusable park multi-select dropdown (grouped by prefix, search, select-all, clear) ---
 function buildParkGroups(){
@@ -2614,6 +2807,101 @@ initScrollReveal();
     }
   });
   window.addEventListener('scroll', ()=>{ if(currentTarget) positionTooltip(currentTarget); }, true);
+})();
+</script>
+<div class="row-modal-overlay" id="row-modal-overlay">
+  <div class="row-modal" id="row-modal">
+    <button class="row-modal-close" id="row-modal-close" aria-label="Хаах">&times;</button>
+    <div class="row-modal-title" id="row-modal-title"></div>
+    <div class="row-modal-subtitle" id="row-modal-subtitle"></div>
+    <div id="row-modal-body"></div>
+  </div>
+</div>
+<script>
+(function(){
+  const overlay = document.getElementById('row-modal-overlay');
+  const closeBtn = document.getElementById('row-modal-close');
+  window.__tableRowData = window.__tableRowData || {};
+  window.openRowModal = function(title, subtitle, fields){
+    document.getElementById('row-modal-title').textContent = title;
+    document.getElementById('row-modal-subtitle').textContent = subtitle || '';
+    document.getElementById('row-modal-body').innerHTML = fields.map((f,fi) =>
+      `<div class="row-modal-field"><div class="rmf-label">${f.label}</div><div class="rmf-value${f.cls ? ' '+f.cls : ''}"${f.raw!=null ? ` id="rmf-val-${fi}"` : ''}>${f.raw!=null ? fmtM(0) : f.value}</div></div>`
+    ).join('');
+    overlay.classList.add('show');
+    fields.forEach((f,fi)=>{
+      if(f.raw!=null && typeof animateValue === 'function'){
+        animateValue(`rmf-val-${fi}`, f.raw, fmtM, 550);
+      }
+    });
+  };
+  function closeRowModal(){ overlay.classList.remove('show'); }
+  closeBtn.addEventListener('click', closeRowModal);
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeRowModal(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeRowModal(); });
+
+  function buildFieldsFor(tbodyId, r){
+    if(tbodyId === 'sb-body' || tbodyId === 'to-body'){
+      return {
+        title: r.model || r.park || 'Дэлгэрэнгүй',
+        subtitle: [r.park, r.purpose].filter(Boolean).join(' · '),
+        fields: [
+          {label:'Парк №', value: r.park || '—'},
+          {label:'Модель', value: r.model || '—'},
+          {label:'Ангилал', value: r.cat || '—'},
+          {label:'Дүн', value: fmtM(r.amount), raw: r.amount, cls:'rmf-amount'},
+          {label:'Тайлбар', value: r.note || '—', cls:'rmf-note'},
+        ]
+      };
+    }
+    if(tbodyId === 'tu-body'){
+      return {
+        title: r.model || r.park || 'Дэлгэрэнгүй',
+        subtitle: [r.park, r.cat].filter(Boolean).join(' · '),
+        fields: [
+          {label:'Парк №', value: r.park || '—'},
+          {label:'Модель', value: r.model || '—'},
+          {label:'Ангилал', value: r.cat || '—'},
+          {label:'Литр', value: (r.liters||0).toLocaleString('en-US') + ' л'},
+          {label:'Дүн', value: fmtM(r.amount), raw: r.amount, cls:'rmf-amount'},
+        ]
+      };
+    }
+    if(tbodyId === 'dg-tonly-log' || tbodyId === 'dg-howo-log'){
+      const serials = (r.serial_pairs && r.serial_pairs.length)
+        ? r.serial_pairs.map(sp=>`${sp.pos} → ${sp.serial}`).join(', ')
+        : (r.serial_note || '—');
+      return {
+        title: r.park || 'Дэлгэрэнгүй',
+        subtitle: [r.brand, r.date].filter(Boolean).join(' · '),
+        fields: [
+          {label:'Огноо', value: r.date || '—'},
+          {label:'Парк №', value: r.park || '—'},
+          {label:'Мото цаг/км', value: r.moto || '—'},
+          {label:'Тоо ширхэг', value: (r.qty!=null ? r.qty+' ш' : '—')},
+          {label:'Дүн', value: fmtM(r.amount), raw: r.amount, cls:'rmf-amount'},
+          {label:'Шалтгаан', value: r.reason || '—', cls:'rmf-note'},
+          {label:'Сериал дугаар', value: serials, cls:'rmf-note'},
+        ]
+      };
+    }
+    return null;
+  }
+
+  document.addEventListener('click', (e)=>{
+    const tr = e.target.closest('.detail-table tbody tr[data-idx]');
+    if(!tr) return;
+    const tbody = tr.closest('tbody');
+    if(!tbody) return;
+    const arr = window.__tableRowData[tbody.id];
+    if(!arr) return;
+    const idx = parseInt(tr.dataset.idx, 10);
+    const r = arr[idx];
+    if(!r) return;
+    const info = buildFieldsFor(tbody.id, r);
+    if(!info) return;
+    window.openRowModal(info.title, info.subtitle, info.fields);
+  });
 })();
 </script>
 </body>
