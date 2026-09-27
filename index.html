@@ -114,7 +114,25 @@
 
   main{flex:1; min-width:0; padding:26px 28px 60px; max-width:1240px; margin:0 auto;}
   .page{display:none;}
-  .page.active{display:block;}
+  .page.active{display:block; animation:fadeSlideIn .38s ease-out;}
+  @keyframes fadeSlideIn{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .kpi{ opacity:0; animation:kpiPop .45s ease-out forwards; }
+  .kpi:nth-child(1){ animation-delay:.05s; }
+  .kpi:nth-child(2){ animation-delay:.12s; }
+  .kpi:nth-child(3){ animation-delay:.19s; }
+  .kpi:nth-child(4){ animation-delay:.26s; }
+  .kpi:nth-child(5){ animation-delay:.33s; }
+  .kpi:nth-child(6){ animation-delay:.4s; }
+  @keyframes kpiPop{
+    from{ opacity:0; transform:translateY(12px) scale(.96); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .page.active, .subpage.active, .kpi{ animation:none; opacity:1; }
+  }
   h2.page-title{font-size:18px; font-weight:700; margin:0 0 4px;}
   .page-sub{font-size:12.5px; color:var(--sub); margin-bottom:20px;}
 
@@ -216,7 +234,7 @@
     background:var(--panel); border:1px solid var(--line); color:var(--sub); font-size:13px; cursor:pointer;
   }
   .subtab.active{background:linear-gradient(135deg,#7c5cf0,#5a3fd0); color:#fff; border-color:transparent;}
-  .subpage{display:none;} .subpage.active{display:block;}
+  .subpage{display:none;} .subpage.active{display:block; animation:fadeSlideIn .32s ease-out;}
   .cat-filter{display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;}
   .cat-chip{
     padding:8px 14px; border-radius:9px; background:var(--panel); border:1px solid var(--line);
@@ -1001,8 +1019,17 @@ Chart.defaults.color = '#8b96b3';
 Chart.defaults.font.family = "Segoe UI, sans-serif";
 
 // Global hover "3D" interaction effects — applies to every chart in the dashboard
-Chart.defaults.animation.duration = 450;
+Chart.defaults.animation.duration = 800;
 Chart.defaults.animation.easing = 'easeOutQuart';
+// Мөр/цэг бүр дараалан (staggered) ургаж ирэх — Chart.js-ийн албан ёсны staggered animation загвар
+Chart.defaults.animation.delay = function(context){
+  let delay = 0;
+  if(context.type === 'data' && context.mode === 'default' && !context.dropped){
+    delay = context.dataIndex * 35 + context.datasetIndex * 90;
+    context.dropped = true;
+  }
+  return delay;
+};
 Chart.defaults.elements.arc.hoverOffset = 14;
 Chart.defaults.elements.arc.hoverBorderWidth = 2;
 Chart.defaults.elements.arc.hoverBorderColor = '#ffffff';
