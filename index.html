@@ -725,15 +725,15 @@
       <div class="chart-wrap" style="height:340px;"><canvas id="dgComboChart"></canvas></div>
     </div>
 
-    <div class="grid2">
-      <div class="card scene">
+    <div class="grid2" id="dg-park-grid">
+      <div class="card scene" id="dg-tonly-park-card">
         <h3>🚛 TONLY — техник тус бүрээр (<span id="dg-tonly-count">—</span>ш)</h3>
         <table>
           <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Парк</th><th class="amt" style="color:#fff;">Авсан дугуй</th><th class="amt" style="color:#fff;">Дүн</th></tr></thead>
           <tbody id="dg-tonly-park-table"></tbody>
         </table>
       </div>
-      <div class="card scene">
+      <div class="card scene" id="dg-howo-park-card">
         <h3>🚚 HOWO — техник тус бүрээр (<span id="dg-howo-count">—</span>ш)</h3>
         <table>
           <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Парк</th><th class="amt" style="color:#fff;">Авсан дугуй</th><th class="amt" style="color:#fff;">Дүн</th></tr></thead>
@@ -742,7 +742,7 @@
       </div>
     </div>
 
-    <div class="card scene" style="margin-bottom:18px; margin-top:18px;">
+    <div class="card scene" id="dg-tonly-log-card" style="margin-bottom:18px; margin-top:18px;">
       <h3>📄 Дэлгэрэнгүй лог — сериал дугаартай (TONLY)</h3>
       <div class="table-scroll">
       <table>
@@ -752,7 +752,7 @@
       </div>
     </div>
 
-    <div class="card scene">
+    <div class="card scene" id="dg-howo-log-card">
       <h3>📄 Дэлгэрэнгүй лог — сериал дугаартай (HOWO)</h3>
       <div class="table-scroll">
       <table>
@@ -1629,6 +1629,22 @@ const dgMonthLabel = `Дугуй (${dgMonthNum}-р сар)`;
 document.getElementById('dg-nav-label').textContent = dgMonthLabel;
 document.getElementById('dg-page-title').textContent = dgMonthLabel;
 const dgColors = {'TONLY':'#e0a530','HOWO':'#e0456f'};
+let dgActiveBrand = 'Бүгд';
+const dgBrandFilterBar = document.getElementById('dg-brand-filter');
+dgBrandFilterBar.innerHTML = '';
+['Бүгд','TONLY','HOWO'].forEach(name=>{
+  const chip = document.createElement('div');
+  chip.className = 'cat-chip' + (name==='Бүгд' ? ' active' : '');
+  chip.textContent = name;
+  chip.addEventListener('click', ()=>{
+    dgBrandFilterBar.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    dgActiveBrand = name;
+    renderDgParkSections(dgActiveBrand);
+    applyDgFilter();
+  });
+  dgBrandFilterBar.appendChild(chip);
+});
 const dgTonly = DG.filter(r=>r.brand==='TONLY');
 const dgHowo = DG.filter(r=>r.brand==='HOWO');
 const dgTotalQty = DG.reduce((a,r)=>a+r.qty,0);
@@ -1710,34 +1726,6 @@ const dgAllParks = [...new Set(DG.map(r=>r.park))].sort((a,b)=>{
   return pa===pb ? na-nb : pa.localeCompare(pb);
 });
 
-mkChart('dgParkBar', {
-  type:'bar',
-  data:{
-    labels:dgAllParks,
-    datasets:[
-      {label:'TONLY', data:dgAllParks.map(p=>dgTonlyByPark[p]?dgTonlyByPark[p].qty:0), backgroundColor:dgColors.TONLY},
-      {label:'HOWO', data:dgAllParks.map(p=>dgHowoByPark[p]?dgHowoByPark[p].qty:0), backgroundColor:dgColors.HOWO},
-    ]
-  },
-  options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{x:{beginAtZero:true, grid:{color:gridColor()}}, y:{grid:{display:false}}}}
-});
-
-mkChart('dgComboChart', {
-  data:{
-    labels:dgAllParks,
-    datasets:[
-      {type:'bar', label:'TONLY тоо (ш)', data:dgAllParks.map(p=>dgTonlyByPark[p]?dgTonlyByPark[p].qty:0), backgroundColor:dgColors.TONLY, yAxisID:'y'},
-      {type:'bar', label:'HOWO тоо (ш)', data:dgAllParks.map(p=>dgHowoByPark[p]?dgHowoByPark[p].qty:0), backgroundColor:dgColors.HOWO, yAxisID:'y'},
-      {type:'line', label:'Зардал (сая₮)', data:dgAllParks.map(p=>((dgTonlyByPark[p]?dgTonlyByPark[p].amount:0)+(dgHowoByPark[p]?dgHowoByPark[p].amount:0))/1e6), borderColor:'#22d38a', backgroundColor:'#22d38a', yAxisID:'y1', tension:0.3},
-    ]
-  },
-  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top', labels:{boxWidth:10}}}, scales:{
-    x:{grid:{display:false}, ticks:{maxRotation:90, minRotation:90}},
-    y:{position:'left', beginAtZero:true, title:{display:true,text:'ш'}, grid:{color:gridColor()}},
-    y1:{position:'right', beginAtZero:true, title:{display:true,text:'сая₮'}, grid:{display:false}}
-  }}
-});
-
 function renderParkTable(tbodyId, byPark){
   const tbody = document.getElementById(tbodyId);
   tbody.innerHTML = '';
@@ -1757,8 +1745,54 @@ function renderParkTable(tbodyId, byPark){
   totRow.innerHTML = `<td class="amt total" style="text-align:left;">НИЙТ ДҮН</td><td class="amt total">${totQty} ш</td><td class="amt total">${fmtM(totAmt)}</td>`;
   tbody.appendChild(totRow);
 }
-renderParkTable('dg-tonly-park-table', dgTonlyByPark);
-renderParkTable('dg-howo-park-table', dgHowoByPark);
+
+function renderDgParkSections(brand){
+  const showTonly = brand==='Бүгд' || brand==='TONLY';
+  const showHowo = brand==='Бүгд' || brand==='HOWO';
+
+  const parksForChart = brand==='Бүгд' ? dgAllParks
+    : dgAllParks.filter(p => brand==='TONLY' ? dgTonlyByPark[p] : dgHowoByPark[p]);
+
+  const parkBarDatasets = [];
+  if(showTonly) parkBarDatasets.push({label:'TONLY', data:parksForChart.map(p=>dgTonlyByPark[p]?dgTonlyByPark[p].qty:0), backgroundColor:dgColors.TONLY});
+  if(showHowo) parkBarDatasets.push({label:'HOWO', data:parksForChart.map(p=>dgHowoByPark[p]?dgHowoByPark[p].qty:0), backgroundColor:dgColors.HOWO});
+
+  mkChart('dgParkBar', {
+    type:'bar',
+    data:{ labels:parksForChart, datasets:parkBarDatasets },
+    options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{x:{beginAtZero:true, grid:{color:gridColor()}}, y:{grid:{display:false}}}}
+  });
+
+  const comboDatasets = [];
+  if(showTonly) comboDatasets.push({type:'bar', label:'TONLY тоо (ш)', data:parksForChart.map(p=>dgTonlyByPark[p]?dgTonlyByPark[p].qty:0), backgroundColor:dgColors.TONLY, yAxisID:'y'});
+  if(showHowo) comboDatasets.push({type:'bar', label:'HOWO тоо (ш)', data:parksForChart.map(p=>dgHowoByPark[p]?dgHowoByPark[p].qty:0), backgroundColor:dgColors.HOWO, yAxisID:'y'});
+  comboDatasets.push({type:'line', label:'Зардал (сая₮)', data:parksForChart.map(p=>((showTonly && dgTonlyByPark[p]?dgTonlyByPark[p].amount:0)+(showHowo && dgHowoByPark[p]?dgHowoByPark[p].amount:0))/1e6), borderColor:'#22d38a', backgroundColor:'#22d38a', yAxisID:'y1', tension:0.3});
+
+  mkChart('dgComboChart', {
+    data:{ labels:parksForChart, datasets:comboDatasets },
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top', labels:{boxWidth:10}}}, scales:{
+      x:{grid:{display:false}, ticks:{maxRotation:90, minRotation:90}},
+      y:{position:'left', beginAtZero:true, title:{display:true,text:'ш'}, grid:{color:gridColor()}},
+      y1:{position:'right', beginAtZero:true, title:{display:true,text:'сая₮'}, grid:{display:false}}
+    }}
+  });
+
+  renderParkTable('dg-tonly-park-table', dgTonlyByPark);
+  renderParkTable('dg-howo-park-table', dgHowoByPark);
+
+  const tonlyParkCard = document.getElementById('dg-tonly-park-card');
+  const howoParkCard = document.getElementById('dg-howo-park-card');
+  const parkGrid = document.getElementById('dg-park-grid');
+  if(tonlyParkCard) tonlyParkCard.style.display = showTonly ? '' : 'none';
+  if(howoParkCard) howoParkCard.style.display = showHowo ? '' : 'none';
+  if(parkGrid) parkGrid.style.gridTemplateColumns = (showTonly && showHowo) ? '' : '1fr';
+
+  const tonlyLogCard = document.getElementById('dg-tonly-log-card');
+  const howoLogCard = document.getElementById('dg-howo-log-card');
+  if(tonlyLogCard) tonlyLogCard.style.display = showTonly ? '' : 'none';
+  if(howoLogCard) howoLogCard.style.display = showHowo ? '' : 'none';
+}
+renderDgParkSections(dgActiveBrand);
 
 function serialBadges(r){
   if(r.serial_pairs && r.serial_pairs.length){
@@ -1776,21 +1810,6 @@ function renderLog(tbodyId, rows){
 renderLog('dg-tonly-log', dgTonly);
 renderLog('dg-howo-log', dgHowo);
 
-let dgActiveBrand = 'Бүгд';
-const dgBrandFilterBar = document.getElementById('dg-brand-filter');
-dgBrandFilterBar.innerHTML = '';
-['Бүгд','TONLY','HOWO'].forEach(name=>{
-  const chip = document.createElement('div');
-  chip.className = 'cat-chip' + (name==='Бүгд' ? ' active' : '');
-  chip.textContent = name;
-  chip.addEventListener('click', ()=>{
-    dgBrandFilterBar.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');
-    dgActiveBrand = name;
-    applyDgFilter();
-  });
-  dgBrandFilterBar.appendChild(chip);
-});
 function highlightMatch(text, q){
   if(!q) return text;
   const idx = text.toLowerCase().indexOf(q);
