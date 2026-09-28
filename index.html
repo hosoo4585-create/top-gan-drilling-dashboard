@@ -438,6 +438,29 @@
   }
   .sidebar-collapse-btn:hover{ background:#1b2338; color:var(--text); }
   .sidebar.collapsed .sidebar-collapse-btn{ transform:rotate(180deg); }
+  .empty-state-row{ cursor:default !important; }
+  .empty-state-row td{ padding:38px 0 !important; text-align:center; border-bottom:none !important; }
+  .empty-state{ display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--sub); font-size:13px; }
+  .empty-emoji{ font-size:32px; display:inline-block; animation:emptyBounce 1.6s ease-in-out infinite; }
+  @keyframes emptyBounce{
+    0%,100%{ transform:translateY(0) rotate(0deg); }
+    50%{ transform:translateY(-8px) rotate(-8deg); }
+  }
+  /* KPI карт дээр hover хийхэд 3D налддаг эффект */
+  .kpi{ transition:transform .3s ease; }
+  @media (hover:hover){
+    .kpi:hover{ z-index:2; }
+  }
+  /* Сарын явцын progress ring */
+  .month-ring{
+    position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:50%;
+    background: conic-gradient(var(--ring-color, #7c5cf0) calc(var(--ring-pct, 0) * 1%), rgba(120,130,160,.18) 0);
+  }
+  .month-ring-inner{
+    position:absolute; inset:4px; border-radius:50%; background:var(--panel);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .month-ring-pct{ font-size:8px; font-weight:700; color:var(--sub); }
   .row-modal-overlay{
     position:fixed; inset:0; background:rgba(8,10,20,.62); backdrop-filter:blur(3px);
     display:flex; align-items:center; justify-content:center; z-index:9999;
@@ -625,7 +648,7 @@
     </div>
 
     <div class="kpis">
-      <div class="kpi c1"><div class="label">Нийт зардал</div><div class="value" id="kpi-total" data-explain="Сэлбэг + Тос (ШТМ) + Түлшний нийт зардлын нийлбэр">—</div><div class="sub" id="kpi-total-sub">—</div><div class="kpi-delta" id="kpi-total-delta"></div></div>
+      <div class="kpi c1"><div class="month-ring" id="ring-kpi-total"><div class="month-ring-inner"><span class="month-ring-pct"></span></div></div><div class="label">Нийт зардал</div><div class="value" id="kpi-total" data-explain="Сэлбэг + Тос (ШТМ) + Түлшний нийт зардлын нийлбэр">—</div><div class="sub" id="kpi-total-sub">—</div><div class="kpi-delta" id="kpi-total-delta"></div></div>
       <div class="kpi c2"><div class="label">Сэлбэгийн зардал</div><div class="value" id="kpi-selbeg" data-explain="Тухайн сард худалдан авсан бүх сэлбэг хэрэгслийн үнийн дүнгийн нийлбэр">—</div><div class="sub" id="kpi-selbeg-sub">—</div><div class="kpi-delta" id="kpi-selbeg-delta"></div></div>
       <div class="kpi c3"><div class="label">Тосны зарцуулалт</div><div class="value" id="kpi-tos" data-explain="Тухайн сард техник тус бүрт хийсэн техникийн үйлчилгээ (тос, шүүлтүүр гэх мэт)-ний нийт зардал">—</div><div class="sub" id="kpi-tos-sub">—</div><div class="kpi-delta" id="kpi-tos-delta"></div></div>
       <div class="kpi c4"><div class="label">Түлшний зардал</div><div class="value" id="kpi-tuls" data-explain="Тухайн сард цэнэглэсэн бүх түлшний нийт үнийн дүн (литр × дундаж үнэ)">—</div><div class="sub" id="kpi-liters">—</div><div class="kpi-delta" id="kpi-tuls-delta"></div></div>
@@ -705,7 +728,7 @@
     <!-- SUMMARY SUBPAGE -->
     <div id="sub-sb-summary" class="subpage active">
       <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
-        <div class="kpi c2"><div class="label">Нийт зардал</div><div class="value" id="sb-total" data-explain="Доорх бүх сэлбэгийн мөрийн үнийн дүнгийн нийлбэр">—</div></div>
+        <div class="kpi c2"><div class="month-ring" id="ring-sb-total"><div class="month-ring-inner"><span class="month-ring-pct"></span></div></div><div class="label">Нийт зардал</div><div class="value" id="sb-total" data-explain="Доорх бүх сэлбэгийн мөрийн үнийн дүнгийн нийлбэр">—</div></div>
         <div class="kpi c1"><div class="label">Засварын бичлэг</div><div class="value" id="sb-count">—</div><div class="sub" id="sb-parks">—</div></div>
         <div class="kpi c3 kpi-glow"><div class="label">Хамгийн их зардалтай</div><div class="value" id="sb-top-cat">—</div><div class="sub" id="sb-top-cat-amt">—</div></div>
         <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="sb-avg" data-explain="Нийт зардлыг бичлэгийн тоонд харьцуулсан дундаж (Нийт зардал ÷ бичлэгийн тоо)">—</div></div>
@@ -767,7 +790,7 @@
 
     <div id="sub-to-summary" class="subpage active">
       <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
-        <div class="kpi c2"><div class="label">Нийт ШТМ зардал</div><div class="value" id="to-total" data-explain="Доорх бүх техникийн үйлчилгээний мөрийн үнийн дүнгийн нийлбэр">—</div></div>
+        <div class="kpi c2"><div class="month-ring" id="ring-to-total"><div class="month-ring-inner"><span class="month-ring-pct"></span></div></div><div class="label">Нийт ШТМ зардал</div><div class="value" id="to-total" data-explain="Доорх бүх техникийн үйлчилгээний мөрийн үнийн дүнгийн нийлбэр">—</div></div>
         <div class="kpi c1"><div class="label">Засварын бичлэг</div><div class="value" id="to-count">—</div><div class="sub" id="to-parks">—</div></div>
         <div class="kpi c3 kpi-glow"><div class="label">Хамгийн их зардалтай</div><div class="value" id="to-top-cat">—</div><div class="sub" id="to-top-cat-amt">—</div></div>
         <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="to-avg" data-explain="Нийт зардлыг бичлэгийн тоонд харьцуулсан дундаж (Нийт зардал ÷ бичлэгийн тоо)">—</div></div>
@@ -834,7 +857,7 @@
 
     <div id="sub-tu-summary" class="subpage active">
       <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
-        <div class="kpi c2"><div class="label">Нийт түлшний зардал</div><div class="value" id="tu-total" data-explain="Доорх бүх түлшний цэнэглэлтийн мөрийн үнийн дүнгийн нийлбэр">—</div></div>
+        <div class="kpi c2"><div class="month-ring" id="ring-tu-total"><div class="month-ring-inner"><span class="month-ring-pct"></span></div></div><div class="label">Нийт түлшний зардал</div><div class="value" id="tu-total" data-explain="Доорх бүх түлшний цэнэглэлтийн мөрийн үнийн дүнгийн нийлбэр">—</div></div>
         <div class="kpi c1"><div class="label">Нийт зарцуулсан түлш</div><div class="value" id="tu-liters" data-explain="Тухайн сард цэнэглэсэн бүх түлшний нийт литр">—</div></div>
         <div class="kpi c3 kpi-glow"><div class="label">Хамгийн их зардалтай</div><div class="value" id="tu-top-cat">—</div><div class="sub" id="tu-top-cat-amt">—</div></div>
         <div class="kpi c5"><div class="label">Дундаж / бичлэг</div><div class="value" id="tu-avg" data-explain="Нийт зардлыг бичлэгийн тоонд харьцуулсан дундаж (Нийт зардал ÷ бичлэгийн тоо)">—</div></div>
@@ -957,7 +980,7 @@
     <div id="dg-normal-view">
     <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
       <div class="kpi c3"><div class="label">Нийт авсан дугуй</div><div class="value" id="dg-total-qty" data-explain="TONLY болон HOWO загварын авсан дугуйн ширхэгийн нийлбэр">—</div><div class="kpi-delta" id="dg-total-qty-delta"></div></div>
-      <div class="kpi c5"><div class="label">Дугуйны нийт зардал</div><div class="value" id="dg-total-amt" data-explain="Авсан бүх дугуйн үнийн дүнгийн нийлбэр — энэ дүн Сэлбэгийн нийт зардалд аль хэдийн орсон байгаа">—</div><div class="sub">Сэлбэгийн зардалд орсон</div><div class="kpi-delta" id="dg-total-amt-delta"></div></div>
+      <div class="kpi c5"><div class="month-ring" id="ring-dg-total"><div class="month-ring-inner"><span class="month-ring-pct"></span></div></div><div class="label">Дугуйны нийт зардал</div><div class="value" id="dg-total-amt" data-explain="Авсан бүх дугуйн үнийн дүнгийн нийлбэр — энэ дүн Сэлбэгийн нийт зардалд аль хэдийн орсон байгаа">—</div><div class="sub">Сэлбэгийн зардалд орсон</div><div class="kpi-delta" id="dg-total-amt-delta"></div></div>
 
       <div class="kpi c1"><div class="label">HOWO-105 16R25</div><div class="value" id="dg-howo-qty">—</div><div class="sub" id="dg-howo-pct">—</div><div class="kpi-delta" id="dg-howo-qty-delta"></div></div>
       <div class="kpi c4"><div class="label">TONLY-891C 480/95R29</div><div class="value" id="dg-tonly-qty">—</div><div class="sub" id="dg-tonly-pct">—</div><div class="kpi-delta" id="dg-tonly-qty-delta"></div></div>
@@ -1242,6 +1265,73 @@ window.addEventListener('resize', ()=>{
   const activeNav = document.querySelector('.nav-item.active');
   if(activeNav) moveNavIndicator(activeNav);
 });
+
+// --- KPI карт дээр hover хийхэд бага зэрэг 3D налддаг (tilt) эффект ---
+if(window.matchMedia('(hover: hover)').matches){
+  document.addEventListener('mousemove', (e)=>{
+    const kpi = e.target.closest('.kpi');
+    if(!kpi) return;
+    kpi.style.transition = 'none';
+    const rect = kpi.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / rect.width - 0.5;
+    const relY = (e.clientY - rect.top) / rect.height - 0.5;
+    const rotY = (relX * 8).toFixed(2);
+    const rotX = (-relY * 8).toFixed(2);
+    kpi.style.transform = `perspective(700px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.015)`;
+  });
+  document.addEventListener('mouseout', (e)=>{
+    const kpi = e.target.closest('.kpi');
+    if(!kpi) return;
+    if(e.relatedTarget && kpi.contains(e.relatedTarget)) return;
+    kpi.style.transition = 'transform .35s ease';
+    kpi.style.transform = 'perspective(700px) rotateX(0deg) rotateY(0deg) scale(1)';
+  });
+}
+
+// --- Сарын явцын progress ring: тайлангийн сар хэдэн хувь дууссаныг харуулна ---
+function daysInReportMonth(monthKey){
+  const [y,m] = monthKey.split('-').map(Number);
+  return new Date(y, m, 0).getDate();
+}
+function monthProgressPct(monthKey){
+  const [y,m] = monthKey.split('-').map(Number);
+  const now = new Date();
+  const total = daysInReportMonth(monthKey);
+  const curY = now.getFullYear(), curM = now.getMonth()+1;
+  if(y < curY || (y===curY && m < curM)) return 100;
+  if(y === curY && m === curM) return Math.min(100, Math.round((now.getDate()/total)*100));
+  return 0;
+}
+function animateRing(elId, targetPct, duration){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  duration = duration || 700;
+  if(el.__ringFrame) cancelAnimationFrame(el.__ringFrame);
+  const label = el.querySelector('.month-ring-pct');
+  const startTime = performance.now();
+  function step(now){
+    const t = Math.min((now-startTime)/duration, 1);
+    const eased = 1 - Math.pow(1-t, 3);
+    const val = targetPct * eased;
+    el.style.setProperty('--ring-pct', val.toFixed(1));
+    if(label) label.textContent = Math.round(val) + '%';
+    if(t < 1){
+      el.__ringFrame = requestAnimationFrame(step);
+    } else {
+      el.style.setProperty('--ring-pct', targetPct);
+      if(label) label.textContent = targetPct + '%';
+      el.__ringFrame = null;
+    }
+  }
+  el.__ringFrame = requestAnimationFrame(step);
+}
+function updateAllMonthRings(monthKey){
+  const pct = monthProgressPct(monthKey);
+  ['ring-kpi-total','ring-sb-total','ring-to-total','ring-tu-total','ring-dg-total'].forEach(id=>{
+    animateRing(id, pct, 700);
+  });
+}
+
 document.querySelectorAll('.subtab').forEach(item=>{
   item.addEventListener('click', ()=>{
     const bar = item.closest('.subtab-bar');
@@ -1358,6 +1448,10 @@ function catBadge(name, color){
 // --- Хоосон утгыг бүдэг, налуу тэмдэглэгээтэй харуулах ---
 function dashOrText(val){
   return val ? val : '<span class="empty-dash">—</span>';
+}
+// --- Хайлт/шүүлтэд юу ч олдоогүй үеийн хөгжилтэй "хоосон байна" төлөв ---
+function emptyStateRow(colSpan){
+  return `<tr class="empty-state-row"><td colspan="${colSpan}"><div class="empty-state"><div class="empty-emoji">🔍</div><div>Илэрц олдсонгүй</div></div></td></tr>`;
 }
 
 // --- Дэлгэрэнгүй хүснэгтийн баганаар эрэмбэлэх ба хуудаслах (pagination) ---
@@ -1684,6 +1778,7 @@ function updateMainDashboard(sel, tos, tul, recordsLabel, titleSuffix){
 }
 
 function renderReport(monthKey){
+  if(typeof updateAllMonthRings === 'function') updateAllMonthRings(monthKey);
   DATA = REPORT_DATA[monthKey];
   SB = DATA.SB; TO = DATA.TO; TU = DATA.TU; DG = DATA.DG;
   PARK_TOTALS = buildParkTotals();
@@ -1833,7 +1928,12 @@ function applySbFilter(){
   let data = sbActiveCat==='Бүгд' ? SB : SB.filter(r=>r.cat===sbActiveCat);
   if(q) data = data.filter(r => [r.park,r.model,r.note].some(f=>String(f||'').toLowerCase().includes(q)));
   data = sortRows(data, sbTableState.sortKey, sbTableState.sortDir);
-  renderSbTable(data.slice(0, sbTableState.shown));
+  if(data.length === 0){
+    document.getElementById('sb-body').innerHTML = emptyStateRow(6);
+    window.__tableRowData['sb-body'] = [];
+  } else {
+    renderSbTable(data.slice(0, sbTableState.shown));
+  }
   renderLoadMore('sb-pagination', 'sb-body', sbTableState, data.length, applySbFilter);
 }
 FILTERS.sb = applySbFilter;
@@ -1936,7 +2036,12 @@ function applyToFilter(){
   let data = toActiveCat==='Бүгд' ? TO : TO.filter(r=>r.cat===toActiveCat);
   if(q) data = data.filter(r => [r.park,r.model,r.note].some(f=>String(f||'').toLowerCase().includes(q)));
   data = sortRows(data, toTableState.sortKey, toTableState.sortDir);
-  renderToTable(data.slice(0, toTableState.shown));
+  if(data.length === 0){
+    document.getElementById('to-body').innerHTML = emptyStateRow(6);
+    window.__tableRowData['to-body'] = [];
+  } else {
+    renderToTable(data.slice(0, toTableState.shown));
+  }
   renderLoadMore('to-pagination', 'to-body', toTableState, data.length, applyToFilter);
 }
 FILTERS.to = applyToFilter;
@@ -2037,7 +2142,12 @@ function applyTuFilter(){
   let data = tuActiveCat==='Бүгд' ? TU : TU.filter(r=>r.cat===tuActiveCat);
   if(q) data = data.filter(r => [r.park,r.model,r.cat].some(f=>String(f||'').toLowerCase().includes(q)));
   data = sortRows(data, tuTableState.sortKey, tuTableState.sortDir);
-  renderTuTable(data.slice(0, tuTableState.shown));
+  if(data.length === 0){
+    document.getElementById('tu-body').innerHTML = emptyStateRow(6);
+    window.__tableRowData['tu-body'] = [];
+  } else {
+    renderTuTable(data.slice(0, tuTableState.shown));
+  }
   renderLoadMore('tu-pagination', 'tu-body', tuTableState, data.length, applyTuFilter);
 }
 FILTERS.tu = applyTuFilter;
@@ -2447,8 +2557,18 @@ function applyDgFilter(){
   };
   let tonlyData = sortRows(dgTonly.filter(filterFn), dgTonlyTableState.sortKey, dgTonlyTableState.sortDir);
   let howoData = sortRows(dgHowo.filter(filterFn), dgHowoTableState.sortKey, dgHowoTableState.sortDir);
-  renderLog('dg-tonly-log', tonlyData.slice(0, dgTonlyTableState.shown));
-  renderLog('dg-howo-log', howoData.slice(0, dgHowoTableState.shown));
+  if(tonlyData.length === 0){
+    document.getElementById('dg-tonly-log').innerHTML = emptyStateRow(7);
+    window.__tableRowData['dg-tonly-log'] = [];
+  } else {
+    renderLog('dg-tonly-log', tonlyData.slice(0, dgTonlyTableState.shown));
+  }
+  if(howoData.length === 0){
+    document.getElementById('dg-howo-log').innerHTML = emptyStateRow(7);
+    window.__tableRowData['dg-howo-log'] = [];
+  } else {
+    renderLog('dg-howo-log', howoData.slice(0, dgHowoTableState.shown));
+  }
   renderLoadMore('dg-tonly-pagination', 'dg-tonly-log', dgTonlyTableState, tonlyData.length, applyDgFilter);
   renderLoadMore('dg-howo-pagination', 'dg-howo-log', dgHowoTableState, howoData.length, applyDgFilter);
 
