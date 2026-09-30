@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ТОП ГАН ДРИЛЛИНГ — Техникийн зардлын тайлан</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0c1220">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ТГД Тайлан">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root{
@@ -461,6 +467,59 @@
     display:flex; align-items:center; justify-content:center;
   }
   .month-ring-pct{ font-size:8px; font-weight:700; color:var(--sub); }
+  /* Харьцуулалт табны санхүүгийн нэмэлт шинжилгээ */
+  .cmp-index-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .cmp-index-row:last-child{ border-bottom:none; }
+  .cmp-index-month{ font-size:13px; color:var(--sub); flex:1; }
+  .cmp-index-val{ font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .cmp-index-delta{ font-size:11.5px; font-weight:600; margin-left:4px; }
+  .cmp-index-delta.up{ color:#e0456f; }
+  .cmp-index-delta.down{ color:#22d38a; }
+  .risk-badge{
+    display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;
+  }
+  .risk-badge.normal{ background:rgba(34,211,138,.15); color:#22d38a; border:1px solid rgba(34,211,138,.4); }
+  .risk-badge.watch{ background:rgba(224,165,48,.15); color:#e0a530; border:1px solid rgba(224,165,48,.4); }
+  .risk-badge.risky{ background:rgba(224,69,111,.15); color:#e0456f; border:1px solid rgba(224,69,111,.4); animation:deltaPulseRed 1.6s ease-in-out infinite; }
+  .cmp-structure-month{ padding:12px 0; border-bottom:1px solid var(--line); }
+  .cmp-structure-month:last-child{ border-bottom:none; }
+  .cmp-structure-month-label{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--sub); margin-bottom:8px; }
+  .cmp-conc-flag{ font-size:11px; font-weight:700; color:#e0a530; background:rgba(224,165,48,.14); border:1px solid rgba(224,165,48,.4); padding:2px 8px; border-radius:12px; }
+  .cmp-structure-bar{ display:flex; height:14px; border-radius:7px; overflow:hidden; background:var(--panel2); }
+  .cmp-structure-bar .seg{ height:100%; width:0%; transition:width .8s cubic-bezier(.2,.8,.2,1); }
+  .cmp-structure-bar .seg.sel{ background:#5b8dff; }
+  .cmp-structure-bar .seg.tos{ background:#e0a530; }
+  .cmp-structure-bar .seg.tul{ background:#3ad0e8; }
+  .cmp-structure-legend{ display:flex; gap:14px; margin-top:6px; font-size:11.5px; color:var(--sub); }
+  .cmp-structure-legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .cmp-structure-legend .dot{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .cmp-rankshift{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .cmp-rankshift-col h4{ margin:0 0 8px; font-size:12.5px; color:var(--sub); font-weight:700; }
+  .cmp-rankshift-item{
+    display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:8px; margin-bottom:6px; font-size:12.5px;
+  }
+  .cmp-rankshift-item.entered{ background:rgba(224,69,111,.1); color:#e0456f; }
+  .cmp-rankshift-item.left{ background:rgba(34,211,138,.1); color:#22d38a; }
+  .cmp-rankshift-empty{ font-size:12.5px; color:var(--sub); font-style:italic; }
+  @media (max-width:1000px){ .cmp-rankshift{ grid-template-columns:1fr; } }
+  .cmp-month-picker-row{ display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
+  .cmp-month-picker-field{ display:flex; flex-direction:column; gap:6px; }
+  .cmp-month-picker-field label{ font-size:11.5px; color:var(--sub); font-weight:700; text-transform:uppercase; letter-spacing:.03em; }
+  .cmp-month-picker-field select{
+    padding:9px 14px; border-radius:10px; border:1px solid var(--line); background:var(--panel2); color:var(--text);
+    font-size:13.5px; font-weight:600; cursor:pointer; min-width:180px;
+  }
+  .cmp-month-picker-vs{ font-size:13px; font-weight:800; color:var(--sub); padding-bottom:10px; }
+  .park-sparkline-cell{ text-align:center; vertical-align:middle; }
+  .park-sparkline-cell svg{ display:block; margin:0 auto; overflow:visible; }
+  .park-sparkline-cell .spark-line{ fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .park-sparkline-cell .spark-dot{ fill:currentColor; }
+  .park-sparkline-cell.spark-up{ color:#e0456f; }
+  .park-sparkline-cell.spark-down{ color:#22d38a; }
+  .park-sparkline-cell.spark-flat{ color:var(--sub); }
   .row-modal-overlay{
     position:fixed; inset:0; background:rgba(8,10,20,.62); backdrop-filter:blur(3px);
     display:flex; align-items:center; justify-content:center; z-index:9999;
@@ -587,6 +646,31 @@
   }
   .login-box .err{color:#e0456f; font-size:12px; margin-top:10px; min-height:14px;}
   #appRoot{min-height:100vh;}
+  #welcomeIntro{
+    position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center;
+    flex-direction:column; background:var(--bg); opacity:1;
+  }
+  #welcomeIntro.show{ display:flex; }
+  #welcomeIntro.fade-out{ transition:opacity .45s ease; opacity:0; }
+  .welcome-intro-inner{ display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .welcome-intro-logo{
+    width:84px; height:84px; border-radius:20px; overflow:hidden; opacity:0; transform:scale(.6);
+    animation:introLogoPop .7s cubic-bezier(.34,1.56,.64,1) .1s forwards;
+    box-shadow:0 10px 32px rgba(0,0,0,.35);
+  }
+  .welcome-intro-logo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .welcome-intro-name{
+    font-size:19px; font-weight:800; color:var(--text); opacity:0; transform:translateY(8px);
+    animation:introTextIn .55s ease .45s forwards; letter-spacing:.02em; text-align:center;
+  }
+  .welcome-intro-sub{
+    font-size:12.5px; color:var(--sub); opacity:0; animation:introTextIn .55s ease .65s forwards;
+  }
+  @keyframes introLogoPop{ to{ opacity:1; transform:scale(1); } }
+  @keyframes introTextIn{ to{ opacity:1; transform:translateY(0); } }
+  @media (prefers-reduced-motion: reduce){
+    .welcome-intro-logo, .welcome-intro-name, .welcome-intro-sub{ animation:none !important; opacity:1 !important; transform:none !important; }
+  }
 </style>
 </head>
 <body>
@@ -603,6 +687,14 @@
   </div>
 </div>
 
+<div id="welcomeIntro">
+  <div class="welcome-intro-inner">
+    <div class="welcome-intro-logo" id="welcomeIntroLogo"></div>
+    <div class="welcome-intro-name">ТОП ГАН ДРИЛЛИНГ ХХК</div>
+    <div class="welcome-intro-sub">Мэдээллийн дашбоард ачааллаж байна...</div>
+  </div>
+</div>
+
 <div id="appRoot">
 
 <div class="topbar">
@@ -611,8 +703,10 @@
     <h1>ТОП ГАН ДРИЛЛИНГ ХХК</h1>
   </div>
   <div class="topbar-right">
+    <div class="logout-btn" id="pwaInstallBtn" style="cursor:pointer; display:none;">📲 <span data-i18n="btn-install">Апп суулгах</span></div>
+    <div class="logout-btn" id="langToggleBtn" style="cursor:pointer;">EN</div>
     <div class="logout-btn" id="themeToggleBtn" style="cursor:pointer;">☀️ Цайвар горим</div>
-    <div class="logout-btn" id="logoutBtn" style="cursor:pointer;">Гарах</div>
+    <div class="logout-btn" id="logoutBtn" style="cursor:pointer;" data-i18n="btn-logout">Гарах</div>
   </div>
 </div>
 
@@ -628,19 +722,19 @@
   </div>
   <div class="nav-list" id="navList">
     <div class="nav-indicator" id="navIndicator"></div>
-    <div class="nav-item active" data-page="dashboard"><span class="nav-icon">🏠</span> Dashboard</div>
-    <div class="nav-item" data-page="selbeg"><span class="nav-icon">📊</span> Сэлбэг</div>
-    <div class="nav-item" data-page="shtm"><span class="nav-icon">📘</span> ШТМ (Тос)</div>
-    <div class="nav-item" data-page="tuls"><span class="nav-icon">⛽</span> Түлш</div>
+    <div class="nav-item active" data-page="dashboard"><span class="nav-icon">🏠</span> <span data-i18n="nav-dashboard">Dashboard</span></div>
+    <div class="nav-item" data-page="selbeg"><span class="nav-icon">📊</span> <span data-i18n="nav-selbeg">Сэлбэг</span></div>
+    <div class="nav-item" data-page="shtm"><span class="nav-icon">📘</span> <span data-i18n="nav-shtm">ШТМ (Тос)</span></div>
+    <div class="nav-item" data-page="tuls"><span class="nav-icon">⛽</span> <span data-i18n="nav-tuls">Түлш</span></div>
     <div class="nav-item" data-page="duguy"><span class="nav-icon">🛞</span> <span id="dg-nav-label">Дугуй (7-р сар)</span></div>
-    <div class="nav-item" data-page="compare"><span class="nav-icon">⚖️</span> Харьцуулалт</div>
+    <div class="nav-item" data-page="compare"><span class="nav-icon">⚖️</span> <span data-i18n="nav-compare">Харьцуулалт</span></div>
   </div>
 </div>
 
 <main>
   <!-- DASHBOARD PAGE -->
   <section id="page-dashboard" class="page active">
-    <h2 class="page-title">🏠 Dashboard</h2>
+    <h2 class="page-title">🏠 <span data-i18n="nav-dashboard">Dashboard</span></h2>
 
     <div class="card scene search-panel">
       <h3>Техник хайх</h3>
@@ -707,7 +801,7 @@
         <div class="hint">Парк тус бүрийн нийт зардлаар эрэмбэлэв — эхний 10. ⚠️ тэмдэг нь дундаж техникийн зардлаас 1.5 дахин өндөр гарсныг илтгэнэ</div>
         <div class="table-scroll">
         <table>
-          <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Парк</th><th style="color:#fff;">Модел</th><th class="amt" style="color:#fff;">Сэлбэг</th><th class="amt" style="color:#fff;">Тос</th><th class="amt" style="color:#fff;">Түлш</th><th class="amt" style="color:#fff;">Дугуй</th><th class="amt" style="color:#fff;">Нийт</th></tr></thead>
+          <thead style="background:linear-gradient(135deg,#4a3aa8,#2e2270);"><tr><th style="color:#fff;">Парк</th><th style="color:#fff;">Модел</th><th class="amt" style="color:#fff;">Сэлбэг</th><th class="amt" style="color:#fff;">Тос</th><th class="amt" style="color:#fff;">Түлш</th><th class="amt" style="color:#fff;">Дугуй</th><th class="amt" style="color:#fff;">Нийт</th><th style="color:#fff; text-align:center;">Чиг хандлага</th></tr></thead>
           <tbody id="top10-body"></tbody>
         </table>
         </div>
@@ -718,7 +812,7 @@
 
   <!-- SELBEG PAGE -->
   <section id="page-selbeg" class="page">
-    <h2 class="page-title">📊 Сэлбэг</h2>
+    <h2 class="page-title">📊 <span data-i18n="nav-selbeg">Сэлбэг</span></h2>
 
     <div class="subtab-bar">
       <div class="subtab active" data-sub="sb-summary">📈 Нэгтгэл</div>
@@ -781,7 +875,7 @@
 
   <!-- SHTM (OIL) PAGE -->
   <section id="page-shtm" class="page">
-    <h2 class="page-title">📘 ШТМ</h2>
+    <h2 class="page-title">📘 <span data-i18n="title-shtm">ШТМ</span></h2>
 
     <div class="subtab-bar">
       <div class="subtab active" data-sub="to-summary">📈 Нэгтгэл</div>
@@ -846,7 +940,7 @@
 
   <!-- TULS (FUEL) PAGE -->
   <section id="page-tuls" class="page">
-    <h2 class="page-title">⛽ Түлш</h2>
+    <h2 class="page-title">⛽ <span data-i18n="nav-tuls">Түлш</span></h2>
 
     <div class="subtab-bar">
       <div class="subtab active" data-sub="tu-summary">📈 Нэгтгэл</div>
@@ -1069,8 +1163,42 @@
 
   <!-- COMPARE PAGE -->
   <section id="page-compare" class="page">
-    <h2 class="page-title">Харьцуулалт</h2>
-    <div class="page-sub">2026 оны 7 ба 8-р сарын нийт зардлын харьцуулалт</div>
+    <h2 class="page-title"><span data-i18n="nav-compare">Харьцуулалт</span></h2>
+    <div class="page-sub" id="cmpPageSub">2026 оны 7 ба 8-р сарын нийт зардлын харьцуулалт</div>
+
+    <div class="card scene cmp-month-picker" style="margin-bottom:18px;">
+      <h3>Харьцуулах саруудаа сонгоно уу</h3>
+      <div class="cmp-month-picker-row">
+        <div class="cmp-month-picker-field">
+          <label for="cmpMonth1Sel">1-р сар</label>
+          <select id="cmpMonth1Sel"></select>
+        </div>
+        <span class="cmp-month-picker-vs">vs</span>
+        <div class="cmp-month-picker-field">
+          <label for="cmpMonth2Sel">2-р сар</label>
+          <select id="cmpMonth2Sel"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-bottom:18px;">
+      <div class="card scene">
+        <h3>Зардлын индекс ба эрсдэлийн түвшин</h3>
+        <div class="hint">Эхний сарыг 100 гэж үзэж, дараагийн сар бүрийг индексжүүлнэ</div>
+        <div id="cmpIndexList" class="cmp-index-list"></div>
+      </div>
+      <div class="card scene">
+        <h3>Зардлын бүтцийн харьцаа</h3>
+        <div class="hint">Сэлбэг, Тос, Түлшний нийт зардалд эзлэх хувь</div>
+        <div id="cmpStructureList" class="cmp-structure-list"></div>
+      </div>
+    </div>
+    <div class="card scene" style="margin-bottom:18px;">
+      <h3>ТОП 10-ын өөрчлөлт (сар сараар)</h3>
+      <div class="hint">Хамгийн өндөр зардалтай ТОП 10 техникт орсон/гарсан өөрчлөлт</div>
+      <div id="cmpRankShift" class="cmp-rankshift"></div>
+    </div>
+
     <div class="card scene" style="margin-bottom:18px;">
       <h3>Зардлын чиг хандлага (сар сараар)</h3>
       <div class="hint">Сар нэмэгдэх бүрд шинэ цэг автоматаар нэмэгдэнэ</div>
@@ -1082,7 +1210,7 @@
       <div class="chart-wrap" style="height:280px;"><canvas id="cmpCategoryShiftChart"></canvas></div>
     </div>
     <div class="card scene" style="margin-bottom:18px;">
-      <h3>Нийт зардал — 7-р сар vs 8-р сар <span class="cmp-delta-badge" id="cmpTotalBadge"></span></h3>
+      <h3>Нийт зардал — <span id="cmpTotalTitleSpan">7-р сар vs 8-р сар</span> <span class="cmp-delta-badge" id="cmpTotalBadge"></span></h3>
       <div class="hint">Сэлбэг + Тос + Түлшний нийлбэр дүнгийн харьцуулалт</div>
       <div class="chart-wrap" style="height:280px;"><canvas id="cmpTotalChart"></canvas></div>
     </div>
@@ -1111,7 +1239,28 @@
 window.__tableRowData = window.__tableRowData || {};
 const SITE_PASSWORD = "TGD2026";
 function showApp(){
-  document.getElementById('loginGate').style.display = 'none';
+  const loginGate = document.getElementById('loginGate');
+  const intro = document.getElementById('welcomeIntro');
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!intro || reduceMotion){
+    loginGate.style.display = 'none';
+    if(intro) intro.style.display = 'none';
+    return;
+  }
+  const introLogo = document.getElementById('welcomeIntroLogo');
+  if(introLogo && !introLogo.querySelector('img')){
+    const sourceImg = document.querySelector('.brand .mark img');
+    if(sourceImg) introLogo.appendChild(sourceImg.cloneNode(true));
+  }
+  loginGate.style.display = 'none';
+  intro.classList.add('show');
+  setTimeout(()=>{
+    intro.classList.add('fade-out');
+    setTimeout(()=>{
+      intro.classList.remove('show','fade-out');
+      intro.style.display = 'none';
+    }, 480);
+  }, 1300);
 }
 function tryLogin(){
   const val = document.getElementById('loginPass').value;
@@ -1777,6 +1926,46 @@ function updateMainDashboard(sel, tos, tul, recordsLabel, titleSuffix){
   if(barTitle) barTitle.textContent = titleSuffix ? `Сэлбэг vs Тос vs Түлш — ${titleSuffix} (сая₮)` : 'Сэлбэг vs Тос vs Түлш (сая₮)';
 }
 
+// --- Техник тус бүрийн сар сарын нийт зардлын цуврал (Сэлбэг+Тос+Түлш), бэлэн бүх сараар ---
+function getParkTotalSeries(park){
+  const histMonths = REPORT_MONTHS.filter(m=>REPORT_DATA[m.key]);
+  return histMonths.map(m=>{
+    const md = REPORT_DATA[m.key];
+    let sb=0, to=0, tu=0;
+    md.SB.forEach(r=>{ if(r.park===park) sb+=r.amount; });
+    md.TO.forEach(r=>{ if(r.park===park) to+=r.amount; });
+    md.TU.forEach(r=>{ if(r.park===park) tu+=r.amount; });
+    return sb+to+tu;
+  });
+}
+function renderSparklineSVG(values, w, h){
+  w = w || 90; h = h || 28;
+  if(!values || values.length < 2){
+    return { svg: `<span style="color:var(--sub); font-size:11.5px;">—</span>`, trend: 'flat' };
+  }
+  const max = Math.max(...values), min = Math.min(...values);
+  const range = (max - min) || 1;
+  const pad = 3;
+  const stepX = (w - pad*2) / (values.length - 1);
+  const pts = values.map((v,i)=>{
+    const x = pad + i*stepX;
+    const y = pad + (1 - (v - min)/range) * (h - pad*2);
+    return [x,y];
+  });
+  const pathD = pts.map((p,i)=> (i===0?'M':'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const lastPt = pts[pts.length-1];
+  const first = values[0], last = values[values.length-1];
+  const pctChange = first ? (last-first)/first*100 : 0;
+  let trend = 'flat';
+  if(pctChange > 5) trend = 'up';
+  else if(pctChange < -5) trend = 'down';
+  const svg = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <path class="spark-line" d="${pathD}"></path>
+    <circle class="spark-dot" cx="${lastPt[0].toFixed(1)}" cy="${lastPt[1].toFixed(1)}" r="2.3"></circle>
+  </svg>`;
+  return { svg, trend };
+}
+
 function renderReport(monthKey){
   if(typeof updateAllMonthRings === 'function') updateAllMonthRings(monthKey);
   DATA = REPORT_DATA[monthKey];
@@ -1820,7 +2009,8 @@ top10.forEach(r=>{
   const isHigh = tot > highCostThreshold;
   if(isHigh) tr.classList.add('high-cost-row');
   const warnBadge = isHigh ? `<span class="warn-badge" title="Дундаж техникээс 1.5 дахин өндөр зардалтай">⚠️</span>` : '';
-  tr.innerHTML = `<td class="park-tag">${r.park}${warnBadge}</td><td class="model-tag">${r.model}</td><td class="amt" style="color:#5b8dff;">${fmtM(r.selbeg)}</td><td class="amt" style="color:#e0a530;">${fmtM(r.tos)}</td><td class="amt" style="color:#3ad0e8;">${fmtM(r.tuls)}</td><td class="amt" style="color:var(--sub);">${r.duguy ? r.duguy+' ш' : '—'}</td><td class="amt total">${fmtM(tot)}</td>`;
+  const sparkData = renderSparklineSVG(getParkTotalSeries(r.park));
+  tr.innerHTML = `<td class="park-tag">${r.park}${warnBadge}</td><td class="model-tag">${r.model}</td><td class="amt" style="color:#5b8dff;">${fmtM(r.selbeg)}</td><td class="amt" style="color:#e0a530;">${fmtM(r.tos)}</td><td class="amt" style="color:#3ad0e8;">${fmtM(r.tuls)}</td><td class="amt" style="color:var(--sub);">${r.duguy ? r.duguy+' ш' : '—'}</td><td class="amt total">${fmtM(tot)}</td><td class="park-sparkline-cell spark-${sparkData.trend}" title="Сар сарын нийт зардлын чиг хандлага">${sparkData.svg}</td>`;
   tbody.appendChild(tr);
 });
 
@@ -2290,6 +2480,40 @@ document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme)
   try{ saved = localStorage.getItem('tgd_theme') || 'dark'; }catch(e){}
   applyTheme(saved);
 })();
+
+// --- Монгол/Англи хэл сэлгэх (үндсэн навигаци, гарчиг, товчнууд) ---
+const I18N_DICT = {
+  'nav-dashboard': { mn:'Dashboard', en:'Dashboard' },
+  'nav-selbeg':    { mn:'Сэлбэг', en:'Spare Parts' },
+  'nav-shtm':      { mn:'ШТМ (Тос)', en:'Oil (ШТМ)' },
+  'title-shtm':    { mn:'ШТМ', en:'Oil (ШТМ)' },
+  'nav-tuls':      { mn:'Түлш', en:'Fuel' },
+  'nav-compare':   { mn:'Харьцуулалт', en:'Compare' },
+  'btn-logout':    { mn:'Гарах', en:'Log out' },
+  'btn-install':   { mn:'Апп суулгах', en:'Install app' },
+};
+function applyLanguage(lang){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const entry = I18N_DICT[el.dataset.i18n];
+    if(entry) el.textContent = entry[lang] || entry.mn;
+  });
+  const btn = document.getElementById('langToggleBtn');
+  if(btn) btn.textContent = lang === 'en' ? 'МН' : 'EN';
+  document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'mn');
+  try{ localStorage.setItem('tgd_lang', lang); }catch(e){}
+}
+(function initLang(){
+  let saved = 'mn';
+  try{ saved = localStorage.getItem('tgd_lang') || 'mn'; }catch(e){}
+  applyLanguage(saved);
+})();
+const langToggleBtn = document.getElementById('langToggleBtn');
+if(langToggleBtn){
+  langToggleBtn.addEventListener('click', ()=>{
+    const cur = document.documentElement.getAttribute('lang') === 'en' ? 'en' : 'mn';
+    applyLanguage(cur === 'en' ? 'mn' : 'en');
+  });
+}
 
 const allCatColor = '#7c5cf0';
 let tuPerhourChartInstance = null;
@@ -2917,6 +3141,30 @@ flashSkeleton(280);
 renderReport('2026-07');
 
 // ===== Харьцуулалт (7-р сар vs 8-р сар) — 2 сарын нийт зардлын харьцуулалт =====
+function populateCmpMonthSelectors(months){
+  const sel1 = document.getElementById('cmpMonth1Sel');
+  const sel2 = document.getElementById('cmpMonth2Sel');
+  if(!sel1 || !sel2) return;
+  if(sel1.dataset.populated === String(months.length)) return; // already built for this many months
+  const prevVal1 = sel1.value, prevVal2 = sel2.value;
+  const optsHtml = months.map(m=>`<option value="${m.key}">${m.label}</option>`).join('');
+  sel1.innerHTML = optsHtml;
+  sel2.innerHTML = optsHtml;
+  sel1.dataset.populated = String(months.length);
+  sel2.dataset.populated = String(months.length);
+  // default: the two most recent months; restore previous selection if it still exists
+  const defaultKey1 = months.length >= 2 ? months[months.length-2].key : months[0].key;
+  const defaultKey2 = months[months.length-1].key;
+  sel1.value = months.some(m=>m.key===prevVal1) ? prevVal1 : defaultKey1;
+  sel2.value = months.some(m=>m.key===prevVal2) ? prevVal2 : defaultKey2;
+  if(!sel1.dataset.wired){
+    sel1.addEventListener('change', renderCompareTab);
+    sel2.addEventListener('change', renderCompareTab);
+    sel1.dataset.wired = '1';
+    sel2.dataset.wired = '1';
+  }
+}
+
 function renderCompareTab(){
   // Бэлэн байгаа бүх сарыг REPORT_MONTHS-ийн дарааллаар цуглуулна — шинэ сар нэмэгдэх бүрд автоматаар өргөжинө
   const months = REPORT_MONTHS.filter(m=>REPORT_DATA[m.key]);
@@ -2927,14 +3175,108 @@ function renderCompareTab(){
     return { total: d.selbeg+d.tos+d.tuls, selbeg: d.selbeg, tos: d.tos, tuls: d.tuls, dg };
   });
 
-  const jul = REPORT_DATA['2026-07'];
-  const aug = REPORT_DATA['2026-08'];
+  populateCmpMonthSelectors(months);
+  const sel1 = document.getElementById('cmpMonth1Sel');
+  const sel2 = document.getElementById('cmpMonth2Sel');
+  const month1Key = (sel1 && sel1.value && REPORT_DATA[sel1.value]) ? sel1.value : (months.length>=2 ? months[months.length-2].key : months[0].key);
+  const month2Key = (sel2 && sel2.value && REPORT_DATA[sel2.value]) ? sel2.value : months[months.length-1].key;
+  const month1Meta = REPORT_MONTHS.find(m=>m.key===month1Key) || {label:month1Key};
+  const month2Meta = REPORT_MONTHS.find(m=>m.key===month2Key) || {label:month2Key};
+
+  const jul = REPORT_DATA[month1Key];
+  const aug = REPORT_DATA[month2Key];
   const julDgTotal = jul.DG.reduce((a,r)=>a+r.amount,0);
   const augDgTotal = aug.DG.reduce((a,r)=>a+r.amount,0);
   const julTotal = jul.selbeg + jul.tos + jul.tuls;
   const augTotal = aug.selbeg + aug.tos + aug.tuls;
   const cmpColors = ['#3b6fe0','#e0a530'];
-  const labels = ['7-р сар','8-р сар'];
+  const labels = [month1Meta.label.replace('2026 оны ',''), month2Meta.label.replace('2026 оны ','')];
+
+  const pageSubEl = document.getElementById('cmpPageSub');
+  if(pageSubEl) pageSubEl.textContent = `${month1Meta.label} ба ${month2Meta.label} сарын нийт зардлын харьцуулалт`;
+
+  // --- Зардлын индекс (эхний сар = 100) ба сар бүрийн эрсдэлийн түвшин ---
+  const indexListEl = document.getElementById('cmpIndexList');
+  if(indexListEl){
+    const baseTotal = seriesData[0] ? seriesData[0].total : 0;
+    indexListEl.innerHTML = seriesData.map((s,i)=>{
+      const idx = baseTotal ? (s.total/baseTotal*100) : 100;
+      let riskHtml;
+      if(i === 0){
+        riskHtml = `<span class="risk-badge normal">Суурь сар</span>`;
+      } else {
+        const prevTotal = seriesData[i-1].total;
+        const growth = prevTotal ? ((s.total-prevTotal)/prevTotal*100) : 0;
+        let cls = 'normal', label = 'Хэвийн';
+        if(growth > 15){ cls='risky'; label='Эрсдэлтэй'; }
+        else if(growth > 5){ cls='watch'; label='Анхаарах'; }
+        riskHtml = `<span class="risk-badge ${cls}">${label} (${growth>=0?'+':''}${growth.toFixed(1)}%)</span>`;
+      }
+      return `<div class="cmp-index-row"><span class="cmp-index-month">${monthLabels[i]}</span><span class="cmp-index-val">${idx.toFixed(1)}</span>${riskHtml}</div>`;
+    }).join('');
+  }
+
+  // --- Зардлын бүтцийн харьцаа (Сэлбэг/Тос/Түлш) ---
+  const structureListEl = document.getElementById('cmpStructureList');
+  if(structureListEl){
+    structureListEl.innerHTML = seriesData.map((s,i)=>{
+      const tot = s.total || 1;
+      const selPct = s.selbeg/tot*100, tosPct = s.tos/tot*100, tulPct = s.tuls/tot*100;
+      const maxPct = Math.max(selPct, tosPct, tulPct);
+      const flag = maxPct > 60 ? `<span class="cmp-conc-flag">⚠ нэг хэсэгт төвлөрсөн</span>` : '';
+      return `<div class="cmp-structure-month">
+        <div class="cmp-structure-month-label">${monthLabels[i]} ${flag}</div>
+        <div class="cmp-structure-bar">
+          <div class="seg sel" style="width:${selPct}%"></div>
+          <div class="seg tos" style="width:${tosPct}%"></div>
+          <div class="seg tul" style="width:${tulPct}%"></div>
+        </div>
+        <div class="cmp-structure-legend">
+          <span><span class="dot" style="background:#5b8dff;"></span>Сэлбэг ${selPct.toFixed(1)}%</span>
+          <span><span class="dot" style="background:#e0a530;"></span>Тос ${tosPct.toFixed(1)}%</span>
+          <span><span class="dot" style="background:#3ad0e8;"></span>Түлш ${tulPct.toFixed(1)}%</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // --- ТОП 10-ын өөрчлөлт (сүүлийн 2 сарын хооронд) ---
+  const rankShiftEl = document.getElementById('cmpRankShift');
+  if(rankShiftEl){
+    if(months.length < 2){
+      rankShiftEl.innerHTML = `<div class="cmp-rankshift-empty">Харьцуулахад дор хаяж 2 сарын мэдээлэл шаардлагатай</div>`;
+    } else {
+      function buildParkTotalsForMonth(monthData){
+        const m = {};
+        function ensure(p){ if(!m[p]) m[p] = {selbeg:0, tos:0, tuls:0}; return m[p]; }
+        monthData.SB.forEach(r=>{ if(!r.park) return; const e=ensure(r.park); e.selbeg+=r.amount; });
+        monthData.TO.forEach(r=>{ if(!r.park) return; const e=ensure(r.park); e.tos+=r.amount; });
+        monthData.TU.forEach(r=>{ if(!r.park) return; const e=ensure(r.park); e.tuls+=r.amount; });
+        return m;
+      }
+      function top10ParksForMonth(monthData){
+        const totals = buildParkTotalsForMonth(monthData);
+        return Object.entries(totals).map(([park,d])=>({park, total:d.selbeg+d.tos+d.tuls}))
+          .sort((a,b)=>b.total-a.total).slice(0,10).map(r=>r.park);
+      }
+      const prevMonth = months[months.length-2];
+      const lastMonth = months[months.length-1];
+      const prevTop10 = top10ParksForMonth(REPORT_DATA[prevMonth.key]);
+      const lastTop10 = top10ParksForMonth(REPORT_DATA[lastMonth.key]);
+      const entered = lastTop10.filter(p => !prevTop10.includes(p));
+      const left = prevTop10.filter(p => !lastTop10.includes(p));
+      const enteredHtml = entered.length
+        ? entered.map(p=>`<div class="cmp-rankshift-item entered">▲ ${p}</div>`).join('')
+        : `<div class="cmp-rankshift-empty">Шинэ өөрчлөлт байхгүй</div>`;
+      const leftHtml = left.length
+        ? left.map(p=>`<div class="cmp-rankshift-item left">▼ ${p}</div>`).join('')
+        : `<div class="cmp-rankshift-empty">Өөрчлөлт байхгүй</div>`;
+      rankShiftEl.innerHTML = `
+        <div class="cmp-rankshift-col"><h4>Шинээр ТОП 10-д орсон (${prevMonth.label.replace('2026 оны ','')} → ${lastMonth.label.replace('2026 оны ','')})</h4>${enteredHtml}</div>
+        <div class="cmp-rankshift-col"><h4>ТОП 10-с гарсан</h4>${leftHtml}</div>
+      `;
+    }
+  }
 
   // Ангиллын (TONLY/HOWO гэх мэт) эзлэх хувийн шилжилт — Сэлбэг+Тос+Түлшний нийт дүнгээр
   function categoryShareForMonth(monthData){
@@ -2957,8 +3299,8 @@ function renderCompareTab(){
     data:{
       labels: catOrderCmp,
       datasets:[
-        {label:'7-р сар', data: julCatPct, backgroundColor: cmpColors[0], borderRadius:6},
-        {label:'8-р сар', data: augCatPct, backgroundColor: cmpColors[1], borderRadius:6},
+        {label: labels[0], data: julCatPct, backgroundColor: cmpColors[0], borderRadius:6},
+        {label: labels[1], data: augCatPct, backgroundColor: cmpColors[1], borderRadius:6},
       ]
     },
     options:{
@@ -2996,6 +3338,9 @@ function renderCompareTab(){
     });
     renderDeltaBadge(id, data[0], data[1]);
   }
+
+  const cmpTotalTitleSpan = document.getElementById('cmpTotalTitleSpan');
+  if(cmpTotalTitleSpan) cmpTotalTitleSpan.textContent = `${labels[0]} vs ${labels[1]}`;
 
   cmpChart('cmpTotalChart', [julTotal, augTotal]);
   cmpChart('cmpSbChart', [jul.selbeg, aug.selbeg]);
@@ -3186,6 +3531,37 @@ initScrollReveal();
     const info = buildFieldsFor(tbody.id, r);
     if(!info) return;
     window.openRowModal(info.title, info.subtitle, info.fields);
+  });
+})();
+
+// --- PWA: утсан дээр "апп шиг" суулгах + сүүлд үзсэн дата офлайн үед харагдах ---
+(function initPWA(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('sw.js').catch(()=>{ /* sw.js байхгүй бол чимээгүй алгасна */ });
+    });
+  }
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    const btn = document.getElementById('pwaInstallBtn');
+    if(btn) btn.style.display = 'inline-flex';
+  });
+  window.addEventListener('DOMContentLoaded', ()=>{
+    const btn = document.getElementById('pwaInstallBtn');
+    if(!btn) return;
+    btn.addEventListener('click', async ()=>{
+      if(!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      btn.style.display = 'none';
+    });
+  });
+  window.addEventListener('appinstalled', ()=>{
+    const btn = document.getElementById('pwaInstallBtn');
+    if(btn) btn.style.display = 'none';
   });
 })();
 </script>
