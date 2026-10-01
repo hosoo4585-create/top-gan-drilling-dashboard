@@ -527,6 +527,31 @@
   .fuel-price-chg.up{ color:#e0456f; }
   .fuel-price-chg.down{ color:#22d38a; }
   .fuel-price-chg.flat{ color:var(--sub); }
+  .fuel-price-chg.up .chg-arrow, .fuel-price-chg.down .chg-arrow{ display:inline-block; animation:chgArrowPulse 1.6s ease-in-out 2; }
+  @keyframes chgArrowPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.35); } }
+  .fuel-price-row{ opacity:0; transform:translateY(-8px); animation:rowSlideIn .4s ease forwards; }
+  .fuel-price-val .cu-num{ display:inline-block; }
+  .fuel-log-table tbody tr{ opacity:0; transform:translateY(-6px); animation:rowSlideIn .35s ease forwards; }
+  @keyframes rowSlideIn{ to{ opacity:1; transform:translateY(0); } }
+  @media (prefers-reduced-motion: reduce){
+    .fuel-price-chg.up .chg-arrow, .fuel-price-chg.down .chg-arrow{ animation:none; }
+    .fuel-price-row, .fuel-log-table tbody tr{ animation:none !important; opacity:1 !important; transform:none !important; }
+  }
+  .fuel-cal-wrap{ display:flex; flex-direction:column; gap:18px; }
+  .fuel-cal-month{ }
+  .fuel-cal-month h4{ margin:0 0 8px; font-size:12.5px; color:var(--sub); font-weight:700; }
+  .fuel-cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .fuel-cal-dow{ text-align:center; font-size:10px; color:var(--sub); padding-bottom:2px; }
+  .fuel-cal-cell{
+    aspect-ratio:1; border-radius:6px; background:var(--panel2,#111726); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:10.5px; color:var(--sub);
+    position:relative; cursor:default; opacity:0; animation:calCellIn .3s ease forwards;
+  }
+  .fuel-cal-cell.empty{ background:transparent; border:none; }
+  .fuel-cal-cell.has-data{ color:#fff; font-weight:700; }
+  .fuel-cal-cell[title]:hover{ outline:2px solid #7c5cf0; z-index:2; }
+  @keyframes calCellIn{ to{ opacity:1; } }
+  @media (prefers-reduced-motion: reduce){ .fuel-cal-cell{ animation:none !important; opacity:1 !important; } }
   .fuel-log-wrap{ max-height:420px; overflow-y:auto; border:1px solid var(--line); border-radius:10px; }
   .fuel-log-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
   .fuel-log-table thead th{
@@ -1120,6 +1145,11 @@
 
     <div id="sub-tu-price" class="subpage">
       <div class="card scene" style="margin-bottom:18px;">
+        <h3>📈 Үнийн хэлбэлзлийн түүх (шат хэлбэрээр)</h3>
+        <div class="hint">Нийлүүлэгч тус бүрийн 1 литрийн үнэ хэзээ, хэрхэн өөрчлөгдсөнийг шат хэлбэрээр харуулав — шугам тэгш хэвтэх үед үнэ тогтмол, босоо үсрэлт үнийн өөрчлөлтийг илэрхийлнэ</div>
+        <div class="chart-wrap" style="height:280px;"><canvas id="fuelPriceStepChart"></canvas></div>
+      </div>
+      <div class="card scene" style="margin-bottom:18px;">
         <h3>⛽ Нийлүүлэгчийн түлшний үнийн өөрчлөлтийн түүх</h3>
         <div class="hint">Шатахуун нийлүүлэгчдийн нэхэмжлэхээс гаргасан 1 литрийн үнийн өөрчлөлтийн он цагийн жагсаалт</div>
         <div id="fuelPriceHistoryList" class="fuel-price-history"></div>
@@ -1127,11 +1157,19 @@
       <div class="card scene" style="margin-bottom:18px; border:1px solid rgba(224,165,48,.35);">
         <h3>📊 Зардлын өсөлтийн задаргаа — Үнэ vs Хэрэглээ</h3>
         <div class="hint" id="fuelDecompHint">Өмнөх сартай харьцуулахад нийт түлшний зардлын өөрчлөлтийг үнийн нөлөө болон хэрэглээний (литр) нөлөөлөлд задалсан</div>
-        <div class="kpis" style="grid-template-columns:repeat(2,1fr);">
-          <div class="kpi c2"><div class="label">Үнийн өсөлтийн нөлөө</div><div class="value" id="fuelDecompPrice">—</div><div class="sub" id="fuelDecompPricePct">—</div></div>
-          <div class="kpi c4"><div class="label">Хэрэглээ (литр) өсөлтийн нөлөө</div><div class="value" id="fuelDecompVolume">—</div><div class="sub" id="fuelDecompVolumePct">—</div></div>
+        <div style="display:grid; grid-template-columns:1fr 160px; gap:18px; align-items:center;">
+          <div class="kpis" style="grid-template-columns:repeat(2,1fr);">
+            <div class="kpi c2"><div class="label">Үнийн өсөлтийн нөлөө</div><div class="value" id="fuelDecompPrice">—</div><div class="sub" id="fuelDecompPricePct">—</div></div>
+            <div class="kpi c4"><div class="label">Хэрэглээ (литр) өсөлтийн нөлөө</div><div class="value" id="fuelDecompVolume">—</div><div class="sub" id="fuelDecompVolumePct">—</div></div>
+          </div>
+          <div class="chart-wrap" style="height:140px;"><canvas id="fuelDecompPieChart"></canvas></div>
         </div>
         <div class="sub" id="fuelDecompSummary" style="margin-top:12px; color:var(--sub); font-size:12.5px;"></div>
+      </div>
+      <div class="card scene" style="margin-bottom:18px;">
+        <h3>🗓️ Худалдан авалтын хуанли (жарчим)</h3>
+        <div class="hint">Өдөр бүрийн худалдан авсан нийт литрийн хэмжээг өнгөний эрчимээр харуулав — өнгө хэчнээн тод байна, төдий чинээ их литр худалдан авсан</div>
+        <div id="fuelCalendarHeatmap" class="fuel-cal-wrap"></div>
       </div>
       <div class="card scene">
         <h3>🧾 Шатахуун худалдан авалтын бүртгэл (2026-07-01-с хойш)</h3>
@@ -1869,6 +1907,29 @@ function animateValue(elId, targetValue, formatFn, duration){
   el.__animFrame = requestAnimationFrame(step);
 }
 
+// --- Элементийн тоог from -> to хүртэл "хөвж" өсгөх богино count-up эффект (жишээ: 4,000 -> 4,450) ---
+function animateCountFromTo(el, from, to, formatFn, duration){
+  if(!el) return;
+  duration = duration || 650;
+  if(from === null || from === undefined || !isFinite(from)) from = to;
+  if(el.__cuFrame) cancelAnimationFrame(el.__cuFrame);
+  const startTime = performance.now();
+  function step(now){
+    const elapsed = now - startTime;
+    const t = Math.min(elapsed/duration, 1);
+    const eased = 1 - Math.pow(1-t, 3);
+    const current = from + (to-from)*eased;
+    el.textContent = formatFn(current);
+    if(t < 1){
+      el.__cuFrame = requestAnimationFrame(step);
+    } else {
+      el.textContent = formatFn(to);
+      el.__cuFrame = null;
+    }
+  }
+  el.__cuFrame = requestAnimationFrame(step);
+}
+
 // --- KPI-ийн том тоонуудад "рулетка" (odometer/slot-machine) эффект ---
 function animateOdometer(elId, targetValue, formatFn){
   const el = document.getElementById(elId);
@@ -2539,21 +2600,48 @@ function renderTuEfficiency(){
       });
     });
     rows.sort((a,b)=> a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
-    priceHistEl.innerHTML = rows.map(r=>{
+    priceHistEl.innerHTML = rows.map((r,i)=>{
       let chgHtml = `<span class="fuel-price-chg flat">—</span>`;
       if(r.prev !== null){
         const pct = (r.price - r.prev) / r.prev * 100;
         const cls = pct > 0.05 ? 'up' : (pct < -0.05 ? 'down' : 'flat');
         const arrow = pct > 0.05 ? '▲' : (pct < -0.05 ? '▼' : '—');
-        chgHtml = `<span class="fuel-price-chg ${cls}">${arrow} ${pct>=0?'+':''}${pct.toFixed(1)}%</span>`;
+        chgHtml = `<span class="fuel-price-chg ${cls}"><span class="chg-arrow">${arrow}</span> ${pct>=0?'+':''}${pct.toFixed(1)}%</span>`;
       }
-      return `<div class="fuel-price-row">
+      return `<div class="fuel-price-row" style="animation-delay:${i*70}ms">
         <span class="fuel-price-date">${r.date}</span>
         <span class="fuel-price-supplier">${r.supplier}</span>
-        <span class="fuel-price-val">${r.price.toLocaleString('en-US')}₮/л</span>
+        <span class="fuel-price-val"><span class="cu-num" id="fph-val-${i}">${(r.prev ?? r.price).toLocaleString('en-US')}₮/л</span></span>
         ${chgHtml}
       </div>`;
     }).join('');
+    rows.forEach((r,i)=>{
+      const el = document.getElementById('fph-val-'+i);
+      setTimeout(()=>{
+        animateCountFromTo(el, r.prev, r.price, v => Math.round(v).toLocaleString('en-US')+'₮/л', 650);
+      }, i*70 + 150);
+    });
+  }
+
+  // --- Үнийн хэлбэлзлийн шат (step) хэлбэрийн диаграм ---
+  if(document.getElementById('fuelPriceStepChart')){
+    const stepData = buildFuelPriceStepData();
+    mkChart('fuelPriceStepChart', {
+      type:'line',
+      data: stepData,
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{position:'bottom', labels:{boxWidth:10, font:{size:11}}},
+          tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.raw!==null ? c.raw.toLocaleString('en-US')+' ₮/л' : '—')}}
+        },
+        scales:{
+          y:{beginAtZero:false, grid:{color:gridColor()}, ticks:{callback:v=>v.toLocaleString('en-US')}},
+          x:{grid:{display:false}}
+        }
+      }
+    });
   }
 
   // --- Зардлын өсөлтийн задаргаа: Үнэ vs Хэрэглээ (нарийн тооцоолол — Jul→Aug гэх мэт хоёр сарын хооронд) ---
@@ -2572,14 +2660,27 @@ function renderTuEfficiency(){
       const dirWord = totalDelta >= 0 ? 'өссөн' : 'буурсан';
       document.getElementById('fuelDecompSummary').textContent =
         `${prevMonth.label} → ${histMonths[mIdx].label}: түлшний нийт зардал ${fmtM(Math.abs(totalDelta))}-р ${dirWord}. Үүний ихэнх хэсгийг ${Math.abs(priceAbsPct) >= Math.abs(volumeAbsPct) ? 'түлшний үнийн өөрчлөлт' : 'зарцуулсан литрийн хэмжээний өөрчлөлт'} тайлбарлаж байна.`;
+      if(document.getElementById('fuelDecompPieChart')){
+        mkChart('fuelDecompPieChart', {
+          type:'doughnut',
+          data:{ labels:['Үнийн нөлөө','Хэрэглээний нөлөө'], datasets:[{ data:[Math.abs(priceEffect), Math.abs(volumeEffect)], backgroundColor:['#7c5cf0','#e0a530'], borderWidth:0 }] },
+          options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>{ const t=Math.abs(priceEffect)+Math.abs(volumeEffect)||1; return ((c.raw/t)*100).toFixed(1)+'%  ('+fmtM(c.raw)+')'; }}} } }
+        });
+      }
     } else {
       document.getElementById('fuelDecompPrice').textContent = '—';
       document.getElementById('fuelDecompVolume').textContent = '—';
       document.getElementById('fuelDecompPricePct').textContent = '';
       document.getElementById('fuelDecompVolumePct').textContent = '';
       document.getElementById('fuelDecompSummary').textContent = 'Задаргаа хийхэд өмнөх сарын мэдээлэл шаардлагатай.';
+      const pieCanvas = document.getElementById('fuelDecompPieChart');
+      if(pieCanvas){
+        const existing = Chart.getChart ? Chart.getChart('fuelDecompPieChart') : null;
+        if(existing) existing.destroy();
+      }
     }
   }
+  renderFuelCalendarHeatmap();
 
   const trendLabels = histMonths.map(m=>m.label.replace('2026 оны ',''));
   const trendData = histMonths.map(m=>{
@@ -3364,6 +3465,63 @@ function fuelLogSupplierBadgeClass(s){
   if(s === 'Шунхлай трейдинг') return 'sup-shun';
   return 'sup-ulz';
 }
+function fuelSupplierColor(s){
+  if(s === 'Тод петролиум') return '#5b8dff';
+  if(s === 'Шунхлай трейдинг') return '#e0a530';
+  return '#3ad0e8';
+}
+// Нийлүүлэгч тус бүрийн 1 литрийн үнийг "шат" (step) хэлбэрт зориулж, нийтлэг огнооны тэнхлэг дээр бэлдэх
+function buildFuelPriceStepData(){
+  const allDates = Array.from(new Set(FUEL_PRICE_HISTORY.map(e=>e.date))).sort();
+  const suppliers = Array.from(new Set(FUEL_PRICE_HISTORY.map(e=>e.supplier)));
+  const datasets = suppliers.map(s=>{
+    const events = FUEL_PRICE_HISTORY.filter(e=>e.supplier===s).slice().sort((a,b)=> a.date<b.date?-1:1);
+    let idx = -1;
+    const data = allDates.map(d=>{
+      while(idx+1 < events.length && events[idx+1].date <= d) idx++;
+      return idx>=0 ? events[idx].price : null;
+    });
+    const color = fuelSupplierColor(s);
+    return { label:s, data, borderColor:color, backgroundColor:color, stepped:'before', tension:0, pointRadius:4, pointHoverRadius:6, spanGaps:false };
+  });
+  return { labels:allDates, datasets };
+}
+// Худалдан авалтын хуанли (жарчим) — өдөр бүрийн нийт литрийг өнгөний эрчимээр харуулах
+function renderFuelCalendarHeatmap(){
+  const el = document.getElementById('fuelCalendarHeatmap');
+  if(!el) return;
+  const dayTotals = {};
+  FUEL_PURCHASE_LOG.forEach(r=>{
+    if(!dayTotals[r.date]) dayTotals[r.date] = { liters:0, count:0 };
+    dayTotals[r.date].liters += r.liters;
+    dayTotals[r.date].count += 1;
+  });
+  const maxLiters = Math.max(1, ...Object.values(dayTotals).map(d=>d.liters));
+  const months = [
+    { key:'2026-07', label:'2026 оны 7-р сар', days:31 },
+    { key:'2026-08', label:'2026 оны 8-р сар', days:31 },
+    { key:'2026-09', label:'2026 оны 9-р сар', days:30 },
+  ];
+  const dowLabels = ['Да','Мя','Лх','Пү','Ба','Бя','Ня'];
+  el.innerHTML = months.map(m=>{
+    const y = parseInt(m.key.slice(0,4),10), mo = parseInt(m.key.slice(5,7),10);
+    const firstDow = (new Date(Date.UTC(y, mo-1, 1)).getUTCDay()+6)%7; // 0=Даваа эхлэлтэй
+    let cells = '';
+    for(let i=0;i<firstDow;i++) cells += `<div class="fuel-cal-cell empty"></div>`;
+    for(let d=1; d<=m.days; d++){
+      const dateStr = `${m.key}-${String(d).padStart(2,'0')}`;
+      const info = dayTotals[dateStr];
+      const delay = (firstDow + d - 1) * 12;
+      if(info){
+        const alpha = 0.18 + (info.liters/maxLiters)*0.72;
+        cells += `<div class="fuel-cal-cell has-data" style="background:rgba(124,92,240,${alpha.toFixed(2)}); animation-delay:${delay}ms" title="${dateStr}: ${info.count} орлого, ${info.liters.toLocaleString('en-US')} литр">${d}</div>`;
+      } else {
+        cells += `<div class="fuel-cal-cell" style="animation-delay:${delay}ms">${d}</div>`;
+      }
+    }
+    return `<div class="fuel-cal-month"><h4>${m.label}</h4><div class="fuel-cal-grid">${dowLabels.map(dd=>`<div class="fuel-cal-dow">${dd}</div>`).join('')}${cells}</div></div>`;
+  }).join('');
+}
 function renderFuelLogTable(){
   const body = document.getElementById('fuelLogBody');
   const countEl = document.getElementById('fuelLogCount');
@@ -3378,9 +3536,10 @@ function renderFuelLogTable(){
     body.innerHTML = `<tr><td colspan="6"><div class="fuel-log-empty">Бичлэг олдсонгүй</div></td></tr>`;
     return;
   }
-  body.innerHTML = rows.map(r=>{
+  body.innerHTML = rows.map((r,i)=>{
     const amount = r.liters * r.price;
-    return `<tr>
+    const delay = Math.min(i*18, 500);
+    return `<tr style="animation-delay:${delay}ms">
       <td>${r.date}</td>
       <td><span class="fuel-log-supplier-badge ${fuelLogSupplierBadgeClass(r.supplier)}">${r.supplier}</span></td>
       <td>${r.name || '—'}</td>
