@@ -537,21 +537,6 @@
     .fuel-price-chg.up .chg-arrow, .fuel-price-chg.down .chg-arrow{ animation:none; }
     .fuel-price-row, .fuel-log-table tbody tr{ animation:none !important; opacity:1 !important; transform:none !important; }
   }
-  .fuel-cal-wrap{ display:flex; flex-direction:column; gap:18px; }
-  .fuel-cal-month{ }
-  .fuel-cal-month h4{ margin:0 0 8px; font-size:12.5px; color:var(--sub); font-weight:700; }
-  .fuel-cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
-  .fuel-cal-dow{ text-align:center; font-size:10px; color:var(--sub); padding-bottom:2px; }
-  .fuel-cal-cell{
-    aspect-ratio:1; border-radius:6px; background:var(--panel2,#111726); border:1px solid var(--line);
-    display:flex; align-items:center; justify-content:center; font-size:10.5px; color:var(--sub);
-    position:relative; cursor:default; opacity:0; animation:calCellIn .3s ease forwards;
-  }
-  .fuel-cal-cell.empty{ background:transparent; border:none; }
-  .fuel-cal-cell.has-data{ color:#fff; font-weight:700; }
-  .fuel-cal-cell[title]:hover{ outline:2px solid #7c5cf0; z-index:2; }
-  @keyframes calCellIn{ to{ opacity:1; } }
-  @media (prefers-reduced-motion: reduce){ .fuel-cal-cell{ animation:none !important; opacity:1 !important; } }
   .fuel-log-wrap{ max-height:420px; overflow-y:auto; border:1px solid var(--line); border-radius:10px; }
   .fuel-log-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
   .fuel-log-table thead th{
@@ -1165,11 +1150,6 @@
           <div class="chart-wrap" style="height:140px;"><canvas id="fuelDecompPieChart"></canvas></div>
         </div>
         <div class="sub" id="fuelDecompSummary" style="margin-top:12px; color:var(--sub); font-size:12.5px;"></div>
-      </div>
-      <div class="card scene" style="margin-bottom:18px;">
-        <h3>🗓️ Худалдан авалтын хуанли (жарчим)</h3>
-        <div class="hint">Өдөр бүрийн худалдан авсан нийт литрийн хэмжээг өнгөний эрчимээр харуулав — өнгө хэчнээн тод байна, төдий чинээ их литр худалдан авсан</div>
-        <div id="fuelCalendarHeatmap" class="fuel-cal-wrap"></div>
       </div>
       <div class="card scene">
         <h3>🧾 Шатахуун худалдан авалтын бүртгэл (2026-07-01-с хойш)</h3>
@@ -2680,7 +2660,6 @@ function renderTuEfficiency(){
       }
     }
   }
-  renderFuelCalendarHeatmap();
 
   const trendLabels = histMonths.map(m=>m.label.replace('2026 оны ',''));
   const trendData = histMonths.map(m=>{
@@ -3485,42 +3464,6 @@ function buildFuelPriceStepData(){
     return { label:s, data, borderColor:color, backgroundColor:color, stepped:'before', tension:0, pointRadius:4, pointHoverRadius:6, spanGaps:false };
   });
   return { labels:allDates, datasets };
-}
-// Худалдан авалтын хуанли (жарчим) — өдөр бүрийн нийт литрийг өнгөний эрчимээр харуулах
-function renderFuelCalendarHeatmap(){
-  const el = document.getElementById('fuelCalendarHeatmap');
-  if(!el) return;
-  const dayTotals = {};
-  FUEL_PURCHASE_LOG.forEach(r=>{
-    if(!dayTotals[r.date]) dayTotals[r.date] = { liters:0, count:0 };
-    dayTotals[r.date].liters += r.liters;
-    dayTotals[r.date].count += 1;
-  });
-  const maxLiters = Math.max(1, ...Object.values(dayTotals).map(d=>d.liters));
-  const months = [
-    { key:'2026-07', label:'2026 оны 7-р сар', days:31 },
-    { key:'2026-08', label:'2026 оны 8-р сар', days:31 },
-    { key:'2026-09', label:'2026 оны 9-р сар', days:30 },
-  ];
-  const dowLabels = ['Да','Мя','Лх','Пү','Ба','Бя','Ня'];
-  el.innerHTML = months.map(m=>{
-    const y = parseInt(m.key.slice(0,4),10), mo = parseInt(m.key.slice(5,7),10);
-    const firstDow = (new Date(Date.UTC(y, mo-1, 1)).getUTCDay()+6)%7; // 0=Даваа эхлэлтэй
-    let cells = '';
-    for(let i=0;i<firstDow;i++) cells += `<div class="fuel-cal-cell empty"></div>`;
-    for(let d=1; d<=m.days; d++){
-      const dateStr = `${m.key}-${String(d).padStart(2,'0')}`;
-      const info = dayTotals[dateStr];
-      const delay = (firstDow + d - 1) * 12;
-      if(info){
-        const alpha = 0.18 + (info.liters/maxLiters)*0.72;
-        cells += `<div class="fuel-cal-cell has-data" style="background:rgba(124,92,240,${alpha.toFixed(2)}); animation-delay:${delay}ms" title="${dateStr}: ${info.count} орлого, ${info.liters.toLocaleString('en-US')} литр">${d}</div>`;
-      } else {
-        cells += `<div class="fuel-cal-cell" style="animation-delay:${delay}ms">${d}</div>`;
-      }
-    }
-    return `<div class="fuel-cal-month"><h4>${m.label}</h4><div class="fuel-cal-grid">${dowLabels.map(dd=>`<div class="fuel-cal-dow">${dd}</div>`).join('')}${cells}</div></div>`;
-  }).join('');
 }
 function renderFuelLogTable(){
   const body = document.getElementById('fuelLogBody');
