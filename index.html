@@ -1010,6 +1010,7 @@
       <div class="subtab" data-sub="tu-detail">📋 Дэлгэрэнгүй (<span id="tu-count-tab">—</span>)</div>
       <div class="subtab" data-sub="tu-perhour">⚡ 1 мото цагт хэрэглээ</div>
       <div class="subtab" data-sub="tu-efficiency">💧 Дундаж зардлын өөрчлөлт</div>
+      <div class="subtab" data-sub="tu-price">💲 Үнийн өсөлт, бууралт</div>
     </div>
 
     <div id="sub-tu-summary" class="subpage active">
@@ -1085,32 +1086,6 @@
         <h3>Сар бүрийн 1 литр түлшний дундаж үнэ (₮/л)</h3>
         <div class="chart-wrap" style="height:280px;"><canvas id="tuEffTrendChart"></canvas></div>
       </div>
-      <div class="card scene" style="margin-bottom:18px;">
-        <h3>⛽ Нийлүүлэгчийн түлшний үнийн өөрчлөлтийн түүх</h3>
-        <div class="hint">Шатахуун нийлүүлэгчдийн нэхэмжлэхээс гаргасан 1 литрийн үнийн өөрчлөлтийн он цагийн жагсаалт</div>
-        <div id="fuelPriceHistoryList" class="fuel-price-history"></div>
-      </div>
-      <div class="card scene" style="margin-bottom:18px;">
-        <h3>🧾 Шатахуун худалдан авалтын бүртгэл (2026-07-01-с хойш)</h3>
-        <div class="hint">Нийлүүлэгчээр шүүж, бодит худалдан авалт бүрийг ачаалал, литр, нэгж үнээр нь харах</div>
-        <div class="cat-filter" id="fuelLogFilter" style="margin-bottom:0;"></div>
-        <div class="fuel-log-count" id="fuelLogCount"></div>
-        <div class="fuel-log-wrap">
-          <table class="fuel-log-table">
-            <thead><tr><th>Огноо</th><th>Нийлүүлэгч</th><th>Машин / Жолооч</th><th class="amt">Литр</th><th class="amt">Нэгж үнэ (₮/л)</th><th class="amt">Дүн (₮)</th></tr></thead>
-            <tbody id="fuelLogBody"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="card scene" style="margin-bottom:18px; border:1px solid rgba(224,165,48,.35);">
-        <h3>📊 Зардлын өсөлтийн задаргаа — Үнэ vs Хэрэглээ</h3>
-        <div class="hint" id="fuelDecompHint">Өмнөх сартай харьцуулахад нийт түлшний зардлын өөрчлөлтийг үнийн нөлөө болон хэрэглээний (литр) нөлөөлөлд задалсан</div>
-        <div class="kpis" style="grid-template-columns:repeat(2,1fr);">
-          <div class="kpi c2"><div class="label">Үнийн өсөлтийн нөлөө</div><div class="value" id="fuelDecompPrice">—</div><div class="sub" id="fuelDecompPricePct">—</div></div>
-          <div class="kpi c4"><div class="label">Хэрэглээ (литр) өсөлтийн нөлөө</div><div class="value" id="fuelDecompVolume">—</div><div class="sub" id="fuelDecompVolumePct">—</div></div>
-        </div>
-        <div class="sub" id="fuelDecompSummary" style="margin-top:12px; color:var(--sub); font-size:12.5px;"></div>
-      </div>
       <div class="card scene">
         <h3>Ангилал тус бүрийн 1 литрийн үнэ (өмнөх сартай харьцуулсан)</h3>
         <div class="table-scroll">
@@ -1139,6 +1114,35 @@
           <div class="kpi c4"><div class="label">Шинэ түлшний зардал</div><div class="value" id="tuSensNewFuel">—</div><div class="sub" id="tuSensFuelDelta">—</div></div>
           <div class="kpi c3"><div class="label">Нийт зардалд нэмэгдэх/хасагдах дүн</div><div class="value" id="tuSensTotalDelta">—</div></div>
           <div class="kpi c5"><div class="label">Шинэ нийт зардал</div><div class="value" id="tuSensNewTotal">—</div><div class="sub" id="tuSensTotalPct">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sub-tu-price" class="subpage">
+      <div class="card scene" style="margin-bottom:18px;">
+        <h3>⛽ Нийлүүлэгчийн түлшний үнийн өөрчлөлтийн түүх</h3>
+        <div class="hint">Шатахуун нийлүүлэгчдийн нэхэмжлэхээс гаргасан 1 литрийн үнийн өөрчлөлтийн он цагийн жагсаалт</div>
+        <div id="fuelPriceHistoryList" class="fuel-price-history"></div>
+      </div>
+      <div class="card scene" style="margin-bottom:18px; border:1px solid rgba(224,165,48,.35);">
+        <h3>📊 Зардлын өсөлтийн задаргаа — Үнэ vs Хэрэглээ</h3>
+        <div class="hint" id="fuelDecompHint">Өмнөх сартай харьцуулахад нийт түлшний зардлын өөрчлөлтийг үнийн нөлөө болон хэрэглээний (литр) нөлөөлөлд задалсан</div>
+        <div class="kpis" style="grid-template-columns:repeat(2,1fr);">
+          <div class="kpi c2"><div class="label">Үнийн өсөлтийн нөлөө</div><div class="value" id="fuelDecompPrice">—</div><div class="sub" id="fuelDecompPricePct">—</div></div>
+          <div class="kpi c4"><div class="label">Хэрэглээ (литр) өсөлтийн нөлөө</div><div class="value" id="fuelDecompVolume">—</div><div class="sub" id="fuelDecompVolumePct">—</div></div>
+        </div>
+        <div class="sub" id="fuelDecompSummary" style="margin-top:12px; color:var(--sub); font-size:12.5px;"></div>
+      </div>
+      <div class="card scene">
+        <h3>🧾 Шатахуун худалдан авалтын бүртгэл (2026-07-01-с хойш)</h3>
+        <div class="hint">Нийлүүлэгчээр шүүж, бодит худалдан авалт бүрийг ачаалал, литр, нэгж үнээр нь харах</div>
+        <div class="cat-filter" id="fuelLogFilter" style="margin-bottom:0;"></div>
+        <div class="fuel-log-count" id="fuelLogCount"></div>
+        <div class="fuel-log-wrap">
+          <table class="fuel-log-table">
+            <thead><tr><th>Огноо</th><th>Нийлүүлэгч</th><th>Машин / Жолооч</th><th class="amt">Литр</th><th class="amt">Нэгж үнэ (₮/л)</th><th class="amt">Дүн (₮)</th></tr></thead>
+            <tbody id="fuelLogBody"></tbody>
+          </table>
         </div>
       </div>
     </div>
