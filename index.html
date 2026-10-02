@@ -806,6 +806,151 @@
   @media (prefers-reduced-motion: reduce){
     .welcome-intro-logo, .welcome-intro-name, .welcome-intro-sub{ animation:none !important; opacity:1 !important; transform:none !important; }
   }
+
+  /* ===== Киноны горим (Story Mode) ===== */
+  .story-overlay{
+    position:fixed; inset:0; z-index:9999; display:none; flex-direction:column;
+    background:#0b0f1a; color:#eef1f8;
+    padding: calc(env(safe-area-inset-top,0px) + 18px) 24px calc(env(safe-area-inset-bottom,0px) + 18px);
+  }
+  .story-overlay.open{ display:flex; }
+  .story-overlay::before{
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 15%, rgba(124,92,240,.16), transparent 60%),
+      radial-gradient(ellipse 50% 45% at 85% 80%, rgba(34,184,207,.12), transparent 60%);
+  }
+  .story-rail{display:flex; align-items:center; gap:14px; margin-bottom:6px; position:relative; z-index:1;}
+  .story-rail-brand{font-size:12px; color:#8b96b3; letter-spacing:.3px; white-space:nowrap;}
+  .story-rail-brand b{color:#eef1f8; font-weight:700;}
+  .story-segs{flex:1; display:flex; gap:6px;}
+  .story-seg{flex:1; height:3px; border-radius:3px; background:#232c42; overflow:hidden; position:relative;}
+  .story-seg i{position:absolute; inset:0; width:0%; background:linear-gradient(90deg,#a98bff,#7c5cf0); border-radius:3px;}
+  .story-seg.done i{width:100%;}
+  .story-seg.live i{animation:storyFillSeg var(--dur,6000ms) linear forwards;}
+  @keyframes storyFillSeg{ from{width:0%;} to{width:100%;} }
+  .story-rail-tag{font-size:11px; color:#8b96b3; white-space:nowrap; font-variant-numeric:tabular-nums;}
+  .story-close{
+    width:30px; height:30px; border-radius:50%; border:1px solid #232c42; background:#111726;
+    color:#eef1f8; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;
+  }
+  .story-screen{ flex:1; display:flex; align-items:center; justify-content:center; min-height:0; position:relative; z-index:1; }
+  .story-slide{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:22px; text-align:center; opacity:0; transform:translateY(18px) scale(.98);
+    transition:opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1);
+    pointer-events:none; padding:10px 6px;
+  }
+  .story-slide.active{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; z-index:2; }
+  .story-slide.leaving{ opacity:0; transform:translateY(-14px) scale(1.02); }
+  .story-eyebrow{ font-size:12px; letter-spacing:1.6px; text-transform:uppercase; color:#a98bff; font-weight:700; }
+  .story-headline{
+    font-family:"Segoe UI",system-ui,sans-serif; font-weight:800;
+    font-size:clamp(20px,5vw,36px); line-height:1.2; margin:0; max-width:780px; text-wrap:balance;
+  }
+  .story-narration{ font-size:clamp(13px,2vw,16px); color:#8b96b3; max-width:520px; line-height:1.55; margin:0; }
+  .story-big-number{
+    font-family:"Segoe UI",system-ui,sans-serif; font-weight:800; font-variant-numeric:tabular-nums;
+    font-size:clamp(38px,9vw,78px); line-height:1; background:linear-gradient(90deg,#fff,#a98bff);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .story-sub-number{ font-size:13px; color:#8b96b3; }
+  .story-kpi-row{display:flex; gap:16px; flex-wrap:wrap; justify-content:center; max-width:720px;}
+  .story-kpi-tile{ background:#141b2d; border:1px solid #232c42; border-radius:14px; padding:16px 20px; min-width:140px; }
+  .story-kpi-tile .l{font-size:11.5px; color:#8b96b3; margin-bottom:6px;}
+  .story-kpi-tile .v{font-weight:800; font-size:21px; font-variant-numeric:tabular-nums;}
+  .story-donut-wrap{display:flex; align-items:center; gap:34px; flex-wrap:wrap; justify-content:center;}
+  .story-donut-legend{display:flex; flex-direction:column; gap:10px; text-align:left;}
+  .story-dl-item{display:flex; align-items:center; gap:9px; font-size:13.5px;}
+  .story-dl-dot{width:11px; height:11px; border-radius:50%; flex:none;}
+  .story-dl-val{color:#8b96b3; font-variant-numeric:tabular-nums; margin-left:4px;}
+  .story-spotlight-card{
+    background:#141b2d; border:1px solid #232c42; border-radius:18px; padding:28px 34px;
+    display:flex; flex-direction:column; align-items:center; gap:10px; min-width:260px;
+    animation:storySpotlightPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes storySpotlightPulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(124,92,240,.25); }
+    50%{ box-shadow:0 0 0 10px rgba(124,92,240,0); }
+  }
+  .story-spotlight-fire{font-size:30px;}
+  .story-spotlight-park{font-weight:800; font-size:26px;}
+  .story-spotlight-amt{font-size:15px; color:#e0a530; font-weight:700; font-variant-numeric:tabular-nums;}
+  .story-shift-cols{display:flex; gap:28px; flex-wrap:wrap; justify-content:center; max-width:620px;}
+  .story-shift-col{text-align:left;}
+  .story-shift-col h4{font-size:12px; text-transform:uppercase; letter-spacing:1px; margin:0 0 10px; color:#8b96b3;}
+  .story-shift-col ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px;}
+  .story-shift-col li{font-size:13.5px; font-variant-numeric:tabular-nums; opacity:0; transform:translateX(-8px);}
+  .story-slide.active .story-shift-col li{ animation:storyLiEnter .4s ease forwards; }
+  .story-shift-col.in li{ color:#8ff0c4; }
+  .story-shift-col.out li{ color:#ff93a6; }
+  @keyframes storyLiEnter{ to{ opacity:1; transform:translateX(0); } }
+  .story-cta-row{display:flex; gap:12px; margin-top:4px;}
+  .story-btn{
+    font-family:inherit; font-size:13.5px; font-weight:600; padding:11px 22px; border-radius:10px; border:none;
+    cursor:pointer; color:#fff; background:linear-gradient(135deg,#7c5cf0,#5a3fd0);
+  }
+  .story-controls{ display:flex; align-items:center; justify-content:center; gap:14px; padding-top:14px; flex:none; position:relative; z-index:1; }
+  .story-ctl-btn{
+    width:42px; height:42px; border-radius:50%; border:1px solid #232c42; background:#111726;
+    color:#eef1f8; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:15px;
+    transition:background .2s ease, transform .15s ease;
+  }
+  .story-ctl-btn:hover{ background:#1b2338; }
+  .story-ctl-btn:active{ transform:scale(.92); }
+  .story-ctl-btn.play{ width:50px; height:50px; background:linear-gradient(135deg,#7c5cf0,#5a3fd0); border:none; font-size:17px; }
+  .story-dots{display:flex; gap:7px; margin:0 6px;}
+  .story-dot{width:7px; height:7px; border-radius:50%; background:#232c42; cursor:pointer; transition:background .2s ease, transform .2s ease;}
+  .story-dot.active{ background:#a98bff; transform:scale(1.3); }
+  @media (max-width:520px){
+    .story-donut-wrap{flex-direction:column; gap:18px;}
+    .story-shift-cols{gap:18px;}
+    .story-kpi-row{gap:10px;}
+    .story-kpi-tile{min-width:120px; padding:12px 14px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .story-slide{transition:opacity .25s ease;}
+    .story-seg.live i{animation:none; width:100%;}
+    .story-spotlight-card{animation:none;}
+    .story-shift-col li{animation:none; opacity:1; transform:none;}
+  }
+
+  /* ===== "Киноны горим" товчийн танилцуулга (NEW badge + intro popover) ===== */
+  #storyModeBtn{ position:relative; }
+  .story-new-badge{
+    position:absolute; top:-6px; right:-8px; background:linear-gradient(135deg,#e0456f,#c23059);
+    color:#fff; font-size:9px; font-weight:800; letter-spacing:.3px; padding:2px 6px; border-radius:10px;
+    pointer-events:none; line-height:1.3;
+  }
+  .story-new-badge::after{
+    content:''; position:absolute; inset:0; border-radius:10px; border:1px solid rgba(224,69,111,.7);
+    animation:sonarPulse 2.2s ease-out infinite;
+  }
+  .story-intro-pop{
+    position:absolute; top:calc(100% + 12px); right:0; width:252px; z-index:50;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px;
+    box-shadow:0 12px 32px rgba(0,0,0,.4);
+    opacity:0; transform:translateY(-8px) scale(.96); pointer-events:none;
+    transition:opacity .28s cubic-bezier(.22,1,.36,1), transform .28s cubic-bezier(.22,1,.36,1);
+  }
+  .story-intro-pop.show{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+  .story-intro-pop::before{
+    content:''; position:absolute; top:-6px; right:18px; width:11px; height:11px; background:var(--panel);
+    border-left:1px solid var(--line); border-top:1px solid var(--line); transform:rotate(45deg);
+  }
+  .story-intro-pop .ti-title{font-size:13px; font-weight:700; margin-bottom:5px; display:flex; align-items:center; gap:6px;}
+  .story-intro-pop .ti-body{font-size:12.5px; color:var(--sub); line-height:1.5; margin-bottom:10px;}
+  .story-intro-pop .ti-btn{
+    font-family:inherit; font-size:12px; font-weight:600; padding:7px 14px; border-radius:8px; border:none;
+    cursor:pointer; color:#fff; background:linear-gradient(135deg,#7c5cf0,#5a3fd0); width:100%;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .story-new-badge::after{ animation:none !important; }
+    .story-intro-pop{ transition:none !important; }
+  }
+  @media (max-width:520px){
+    .story-intro-pop{ right:-60px; width:min(260px, calc(100vw - 32px)); }
+  }
 </style>
 </head>
 <body>
@@ -840,6 +985,14 @@
   </div>
   <div class="topbar-right">
     <div class="logout-btn" id="pwaInstallBtn" style="cursor:pointer; display:none;">📲 <span data-i18n="btn-install">Апп суулгах</span></div>
+    <div class="logout-btn" id="storyModeBtn" style="cursor:pointer;">🎬 <span data-i18n="btn-story">Слайд тайлан</span>
+      <span class="story-new-badge" id="storyNewBadge">ШИНЭ</span>
+      <div class="story-intro-pop" id="storyIntroPop">
+        <div class="ti-title">🎬 Шинэ боломж!</div>
+        <div class="ti-body">Сарын тайланг автомат слайд хэлбэрээр, тайлбартайгаар нэг дор үзэх боломжтой боллоо.</div>
+        <button class="ti-btn" id="storyIntroDismiss">Ойлголоо</button>
+      </div>
+    </div>
     <div class="logout-btn" id="langToggleBtn" style="cursor:pointer;">EN</div>
     <div class="logout-btn" id="themeToggleBtn" style="cursor:pointer;">☀️ Цайвар горим</div>
     <div class="logout-btn" id="logoutBtn" style="cursor:pointer;" data-i18n="btn-logout">Гарах</div>
@@ -3012,6 +3165,7 @@ const I18N_DICT = {
   'nav-compare':   { mn:'Харьцуулалт', en:'Compare' },
   'btn-logout':    { mn:'Гарах', en:'Log out' },
   'btn-install':   { mn:'Апп суулгах', en:'Install app' },
+  'btn-story':     { mn:'Слайд тайлан', en:'Slide report' },
 };
 function applyLanguage(lang){
   document.querySelectorAll('[data-i18n]').forEach(el=>{
@@ -4121,6 +4275,74 @@ initScrollReveal();
     <div id="row-modal-body"></div>
   </div>
 </div>
+
+<div class="story-overlay" id="storyOverlay">
+  <div class="story-rail">
+    <div class="story-rail-brand"><b>ТОП ГАН ДРИЛЛИНГ</b> · Слайд тайлан</div>
+    <div class="story-segs" id="storySegs"></div>
+    <div class="story-rail-tag" id="storyRailTag">1 / 6</div>
+    <button class="story-close" id="storyCloseBtn" aria-label="Хаах">&times;</button>
+  </div>
+
+  <div class="story-screen" id="storyScreen">
+    <section class="story-slide" data-slide="0">
+      <div class="story-eyebrow">Автомат тойм</div>
+      <h1 class="story-headline" id="storyTitleSlide"></h1>
+      <p class="story-narration">6 слайд. Тоглуулах товч дарж эхлүүлнэ үү — эсвэл сум ашиглан өөрөө шилжүүлж болно.</p>
+    </section>
+    <section class="story-slide" data-slide="1">
+      <div class="story-eyebrow">Нийт зардал</div>
+      <div class="story-big-number" id="storyNTotal">0</div>
+      <div class="story-sub-number" id="storyNTotalSub">сая ₮</div>
+      <div class="story-kpi-row">
+        <div class="story-kpi-tile"><div class="l">Сэлбэг</div><div class="v" id="storyNSb">0</div></div>
+        <div class="story-kpi-tile"><div class="l">ШТМ (Тос)</div><div class="v" id="storyNTo">0</div></div>
+        <div class="story-kpi-tile"><div class="l">Түлш</div><div class="v" id="storyNTu">0</div></div>
+      </div>
+      <p class="story-narration" id="storyDeltaNarration"></p>
+    </section>
+    <section class="story-slide" data-slide="2">
+      <div class="story-eyebrow">Зардлын бүтэц</div>
+      <div class="story-donut-wrap">
+        <svg width="190" height="190" viewBox="0 0 190 190" id="storyDonutSvg"></svg>
+        <div class="story-donut-legend" id="storyDonutLegend"></div>
+      </div>
+      <p class="story-narration" id="storyStructureNarration"></p>
+    </section>
+    <section class="story-slide" data-slide="3">
+      <div class="story-eyebrow">Хамгийн өндөр зардалтай техник</div>
+      <div class="story-spotlight-card">
+        <div class="story-spotlight-fire">🔥</div>
+        <div class="story-spotlight-park" id="storyTopPark">—</div>
+        <div class="story-spotlight-amt" id="storyTopAmt"></div>
+      </div>
+      <p class="story-narration" id="storyTopNarration"></p>
+    </section>
+    <section class="story-slide" data-slide="4">
+      <div class="story-eyebrow" id="storyShiftEyebrow">ТОП-10 өөрчлөлт</div>
+      <div class="story-shift-cols" id="storyShiftCols">
+        <div class="story-shift-col in"><h4>▲ Шинээр орсон</h4><ul id="storyListIn"></ul></div>
+        <div class="story-shift-col out"><h4>▼ Гарсан</h4><ul id="storyListOut"></ul></div>
+      </div>
+      <p class="story-narration" id="storyShiftNarration"></p>
+    </section>
+    <section class="story-slide" data-slide="5">
+      <div class="story-eyebrow">Дүгнэлт</div>
+      <h1 class="story-headline">Тайлан бэлэн.<br>Дараагийн сарын мэдээлэл ирэхэд<br>энэ бүгд автоматаар шинэчлэгдэнэ.</h1>
+      <div class="story-cta-row">
+        <button class="story-btn" id="storyRestartBtn">Дахин үзэх</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="story-controls">
+    <button class="story-ctl-btn" id="storyPrevBtn" title="Өмнөх" aria-label="Өмнөх слайд">‹</button>
+    <button class="story-ctl-btn play" id="storyPlayBtn" title="Тоглуулах" aria-label="Тоглуулах/Зогсоох">▶</button>
+    <div class="story-dots" id="storyDots"></div>
+    <button class="story-ctl-btn" id="storyNextBtn" title="Дараах" aria-label="Дараах слайд">›</button>
+  </div>
+</div>
+
 <script>
 (function(){
   const overlay = document.getElementById('row-modal-overlay');
@@ -4237,6 +4459,262 @@ initScrollReveal();
     const btn = document.getElementById('pwaInstallBtn');
     if(btn) btn.style.display = 'none';
   });
+})();
+</script>
+
+<script>
+// ===== Киноны горим (Story Mode) — идэвхтэй сарын жинхэнэ датаг слайд болгон автоматаар үзүүлэх =====
+(function(){
+  const STORY_SLIDE_MS = 6000;
+  const overlay = document.getElementById('storyOverlay');
+  if(!overlay) return;
+  const slides = Array.from(overlay.querySelectorAll('.story-slide'));
+  const n = slides.length;
+  const segsEl = document.getElementById('storySegs');
+  const railTag = document.getElementById('storyRailTag');
+  const dotsEl = document.getElementById('storyDots');
+  const playBtn = document.getElementById('storyPlayBtn');
+  let idx = 0, playing = false, timer = null, built = false;
+
+  for(let i=0;i<n;i++){
+    const seg = document.createElement('div'); seg.className='story-seg'; seg.style.setProperty('--dur', STORY_SLIDE_MS+'ms');
+    seg.innerHTML = '<i></i>'; segsEl.appendChild(seg);
+    const dot = document.createElement('div'); dot.className='story-dot'; dot.addEventListener('click',()=>goTo(i));
+    dotsEl.appendChild(dot);
+  }
+  const segEls = Array.from(segsEl.children);
+  const dotEls = Array.from(dotsEl.children);
+
+  function renderSegs(){
+    segEls.forEach((seg,i)=>{
+      seg.classList.remove('done','live');
+      if(i<idx) seg.classList.add('done');
+      else if(i===idx) seg.classList.add('live');
+    });
+    dotEls.forEach((d,i)=>d.classList.toggle('active', i===idx));
+    railTag.textContent = (idx+1)+' / '+n;
+  }
+  function show(newIdx){
+    const old = slides[idx];
+    old.classList.remove('active'); old.classList.add('leaving');
+    setTimeout(()=>old.classList.remove('leaving'), 560);
+    idx = newIdx;
+    slides[idx].classList.add('active');
+    renderSegs();
+    runSlideEffects(idx);
+  }
+  function goTo(i){
+    i = ((i % n) + n) % n;
+    if(i === idx) return;
+    show(i);
+    restartTimerIfPlaying();
+  }
+  function next(){ goTo(idx+1); if(idx===0) stop(); }
+  function prev(){ goTo(idx-1); }
+  function restartTimerIfPlaying(){
+    if(timer) clearTimeout(timer);
+    if(playing) timer = setTimeout(()=>{ if(idx<n-1) next(); else stop(); }, STORY_SLIDE_MS);
+  }
+  function play(){
+    playing = true; playBtn.textContent = '❚❚'; playBtn.title='Зогсоох';
+    renderSegs(); segEls[idx].classList.add('live');
+    restartTimerIfPlaying();
+  }
+  function stop(){
+    playing = false; playBtn.textContent = '▶'; playBtn.title='Тоглуулах';
+    if(timer) clearTimeout(timer);
+    segEls.forEach(s=>s.classList.remove('live'));
+  }
+  function closeStory(){
+    stop();
+    overlay.classList.remove('open');
+  }
+
+  playBtn.addEventListener('click', ()=> playing ? stop() : play());
+  document.getElementById('storyNextBtn').addEventListener('click', ()=>{ stop(); next(); });
+  document.getElementById('storyPrevBtn').addEventListener('click', ()=>{ stop(); prev(); });
+  document.getElementById('storyRestartBtn').addEventListener('click', ()=>{ stop(); goTo(0); });
+  document.getElementById('storyCloseBtn').addEventListener('click', closeStory);
+  document.addEventListener('keydown', (e)=>{
+    if(!overlay.classList.contains('open')) return;
+    if(e.key==='ArrowRight'){ stop(); next(); }
+    if(e.key==='ArrowLeft'){ stop(); prev(); }
+    if(e.key===' '){ e.preventDefault(); playing ? stop() : play(); }
+    if(e.key==='Escape'){ closeStory(); }
+  });
+
+  function animateCount(el, target, duration){
+    const start = performance.now();
+    function step(now){
+      const t = Math.min((now-start)/duration, 1);
+      const eased = 1 - Math.pow(1-t,3);
+      el.textContent = fmtM(target*eased).replace(' сая₮','');
+      if(t<1) requestAnimationFrame(step);
+      else el.textContent = fmtM(target).replace(' сая₮','');
+    }
+    requestAnimationFrame(step);
+  }
+
+  // --- Тухайн үед сонгогдсон сарын PARK_TOTALS ашиглан ТОП-10, өмнөх сартай харьцуулсан өөрчлөлтийг бодно ---
+  function buildParkTotalsForMonth(monthData){
+    const m = {};
+    function ensure(p){ if(!m[p]) m[p] = {selbeg:0, tos:0, tuls:0}; return m[p]; }
+    monthData.SB.forEach(r=>{ if(!r.park) return; const e=ensure(r.park); e.selbeg+=r.amount; });
+    monthData.TO.forEach(r=>{ if(!r.park) return; const e=ensure(r.park); e.tos+=r.amount; });
+    monthData.TU.forEach(r=>{ if(!r.park) return; const e=ensure(r.park); e.tuls+=r.amount; });
+    return m;
+  }
+  function top10ParksForMonth(monthData){
+    const totals = buildParkTotalsForMonth(monthData);
+    return Object.entries(totals).map(([park,d])=>({park, total:d.selbeg+d.tos+d.tuls}))
+      .sort((a,b)=>b.total-a.total).slice(0,10).map(r=>r.park);
+  }
+
+  function buildStoryContent(){
+    const monthMeta = REPORT_MONTHS.find(m=>m.key===currentReportMonth);
+    const monthLabel = monthMeta ? monthMeta.label : currentReportMonth;
+    document.getElementById('storyTitleSlide').innerHTML = monthLabel.replace(/сар$/, 'сарын')+'<br>техникийн зардлын тайлан';
+
+    const total = DATA.selbeg + DATA.tos + DATA.tuls;
+    document.getElementById('storyNTotalSub').textContent = 'сая ₮ · ' + (SB.length+TO.length+TU.length) + ' бичлэг';
+
+    const mIdx = REPORT_MONTHS.findIndex(m=>m.key===currentReportMonth);
+    const prevMonth = mIdx > 0 ? REPORT_MONTHS[mIdx-1] : null;
+    const prevData = (prevMonth && REPORT_DATA[prevMonth.key]) ? REPORT_DATA[prevMonth.key] : null;
+    const deltaEl = document.getElementById('storyDeltaNarration');
+    if(prevData){
+      const prevTotal = prevData.selbeg + prevData.tos + prevData.tuls;
+      const pct = prevTotal ? ((total-prevTotal)/prevTotal*100) : 0;
+      const dir = pct >= 0 ? 'өссөн' : 'буурсан';
+      const color = pct >= 0 ? '#ff8a9a' : '#8ff0c4';
+      deltaEl.innerHTML = `Өмнөх сараас <b style="color:${color}">${pct>=0?'+':''}${pct.toFixed(1)}%</b> ${dir} байна.`;
+    } else {
+      deltaEl.textContent = 'Энэ бол харьцуулах өмнөх сарын мэдээлэлгүй анхны тайлан сар юм.';
+    }
+
+    const selPct = total ? DATA.selbeg/total*100 : 0, tosPct = total ? DATA.tos/total*100 : 0, tulPct = total ? DATA.tuls/total*100 : 0;
+    const structData = [
+      {label:'Сэлбэг', val:selPct, color:'#7c5cf0'},
+      {label:'Тос', val:tosPct, color:'#e0a530'},
+      {label:'Түлш', val:tulPct, color:'#22b8cf'}
+    ];
+    const biggest = structData.reduce((a,b)=> b.val>a.val ? b : a);
+    document.getElementById('storyStructureNarration').innerHTML =
+      `Зардлын хамгийн их хувийг <b style="color:${biggest.color}">${biggest.label} (${biggest.val.toFixed(1)}%)</b> эзэлж байна.`;
+    overlay.__structData = structData;
+
+    const top10 = Object.entries(PARK_TOTALS).map(([park,d])=>({park, total:d.selbeg+d.tos+d.tuls}))
+      .sort((a,b)=>b.total-a.total);
+    const topPark = top10[0];
+    if(topPark){
+      document.getElementById('storyTopPark').textContent = topPark.park;
+      document.getElementById('storyTopAmt').textContent = 'Нийт ' + fmtM(topPark.total) + ' · ТОП-10 дотор №1';
+      document.getElementById('storyTopNarration').textContent =
+        `Энэ техник ${monthLabel.replace('2026 оны ','')}-д хамгийн их зардал гаргасан байна.`;
+    }
+
+    const shiftNarrationEl = document.getElementById('storyShiftNarration');
+    const colsEl = document.getElementById('storyShiftCols');
+    const eyebrowEl = document.getElementById('storyShiftEyebrow');
+    if(prevMonth && REPORT_DATA[prevMonth.key]){
+      colsEl.style.display = '';
+      eyebrowEl.textContent = `ТОП-10 өөрчлөлт · ${prevMonth.label.replace('2026 оны ','')} → ${monthLabel.replace('2026 оны ','')}`;
+      const prevTop10 = top10ParksForMonth(REPORT_DATA[prevMonth.key]);
+      const lastTop10 = top10ParksForMonth(REPORT_DATA[currentReportMonth]);
+      const entered = lastTop10.filter(p=>!prevTop10.includes(p));
+      const left = prevTop10.filter(p=>!lastTop10.includes(p));
+      overlay.__shiftData = {entered, left};
+      shiftNarrationEl.textContent = `${entered.length} техник ТОП-10-д шинээр орж, ${left.length} техник гарсан байна.`;
+    } else {
+      colsEl.style.display = 'none';
+      eyebrowEl.textContent = 'ТОП-10 өөрчлөлт';
+      overlay.__shiftData = {entered:[], left:[]};
+      shiftNarrationEl.textContent = 'Харьцуулах өмнөх сарын мэдээлэл алга байна.';
+    }
+
+    overlay.__totals = { total, sb:DATA.selbeg, to:DATA.tos, tu:DATA.tuls };
+  }
+
+  function buildDonut(structData){
+    const legend = document.getElementById('storyDonutLegend');
+    legend.innerHTML = structData.map(d=>`<div class="story-dl-item"><span class="story-dl-dot" style="background:${d.color}"></span>${d.label}<span class="story-dl-val">${d.val.toFixed(1)}%</span></div>`).join('');
+    const svg = document.getElementById('storyDonutSvg');
+    const r = 70, cx=95, cy=95, circ = 2*Math.PI*r;
+    svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#232c42" stroke-width="22"/>`;
+    let offset = 0;
+    structData.forEach(d=>{
+      const len = (d.val/100)*circ;
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',r);
+      c.setAttribute('fill','none'); c.setAttribute('stroke',d.color); c.setAttribute('stroke-width','22');
+      c.setAttribute('stroke-dasharray', `0 ${circ}`);
+      c.setAttribute('stroke-dashoffset', -offset);
+      c.setAttribute('transform', `rotate(-90 ${cx} ${cy})`);
+      c.style.transition = 'stroke-dasharray 1.1s cubic-bezier(.22,1,.36,1)';
+      svg.appendChild(c);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        c.setAttribute('stroke-dasharray', `${len} ${circ-len}`);
+      }));
+      offset += len;
+    });
+  }
+
+  function runSlideEffects(i){
+    const t = overlay.__totals;
+    if(i===1 && t){
+      animateCount(document.getElementById('storyNTotal'), t.total, 900);
+      animateCount(document.getElementById('storyNSb'), t.sb, 900);
+      animateCount(document.getElementById('storyNTo'), t.to, 900);
+      animateCount(document.getElementById('storyNTu'), t.tu, 900);
+    }
+    if(i===2 && overlay.__structData){ buildDonut(overlay.__structData); }
+    if(i===4 && overlay.__shiftData){
+      const {entered, left} = overlay.__shiftData;
+      const inEl = document.getElementById('storyListIn'), outEl = document.getElementById('storyListOut');
+      inEl.innerHTML = entered.length ? entered.map((p,k)=>`<li style="animation-delay:${k*70}ms">▲ ${p}</li>`).join('') : '<li style="opacity:1;">—</li>';
+      outEl.innerHTML = left.length ? left.map((p,k)=>`<li style="animation-delay:${k*70}ms">▼ ${p}</li>`).join('') : '<li style="opacity:1;">—</li>';
+    }
+  }
+
+  function openStory(){
+    buildStoryContent();
+    idx = -1;
+    slides.forEach(s=>s.classList.remove('active','leaving'));
+    overlay.classList.add('open');
+    idx = 0;
+    slides[0].classList.add('active');
+    renderSegs();
+    runSlideEffects(0);
+  }
+
+  const storyBtn = document.getElementById('storyModeBtn');
+  if(storyBtn) storyBtn.addEventListener('click', openStory);
+
+  // --- "Киноны горим" товчийн нэг удаагийн танилцуулга (NEW badge + popover) ---
+  (function initStoryIntro(){
+    const badge = document.getElementById('storyNewBadge');
+    const pop = document.getElementById('storyIntroPop');
+    const dismissBtn = document.getElementById('storyIntroDismiss');
+    if(!badge || !pop || !dismissBtn || !storyBtn) return;
+    let seen = false;
+    try{ seen = localStorage.getItem('tgd_story_intro_seen') === '1'; }catch(e){}
+    function markSeen(){
+      seen = true;
+      try{ localStorage.setItem('tgd_story_intro_seen', '1'); }catch(e){}
+      pop.classList.remove('show');
+      badge.style.display = 'none';
+    }
+    if(seen){
+      badge.style.display = 'none';
+      return;
+    }
+    setTimeout(()=>{ if(!seen) pop.classList.add('show'); }, 1400);
+    dismissBtn.addEventListener('click', (e)=>{ e.stopPropagation(); markSeen(); });
+    storyBtn.addEventListener('click', markSeen);
+    document.addEventListener('click', (e)=>{
+      if(!seen && pop.classList.contains('show') && !storyBtn.contains(e.target)) markSeen();
+    });
+  })();
 })();
 </script>
 </body>
