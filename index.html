@@ -290,6 +290,13 @@
   .kpi-delta.up{background:rgba(224,56,74,.28); color:#ffb3bb;}
   .kpi-delta.down{background:rgba(34,211,138,.25); color:#8ff0c4;}
   .kpi-delta.flat{background:rgba(255,255,255,.18); color:rgba(255,255,255,.85);}
+  .kpi-spark{position:absolute; right:14px; bottom:12px; opacity:.85; pointer-events:none;}
+  .kpi-spark:empty{display:none;}
+  .kpi-spark svg{display:block; overflow:visible;}
+  .kpi-spark .spark-line{fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; stroke:#fff; opacity:.85;}
+  .kpi-spark .spark-dot{fill:#fff;}
+  .kpi-spark.spark-up .spark-line, .kpi-spark.spark-up .spark-dot{stroke:#ffb3bb; fill:#ffb3bb;}
+  .kpi-spark.spark-down .spark-line, .kpi-spark.spark-down .spark-dot{stroke:#8ff0c4; fill:#8ff0c4;}
   .kpi .value.skeleton{
     color:transparent !important; -webkit-text-fill-color:transparent;
     background:linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.16) 50%, rgba(255,255,255,.06) 75%);
@@ -1031,10 +1038,10 @@
     </div>
 
     <div class="kpis">
-      <div class="kpi c1"><div class="month-ring" id="ring-kpi-total"><div class="month-ring-inner"><span class="month-ring-pct"></span></div></div><div class="label">Нийт зардал</div><div class="value" id="kpi-total" data-explain="Сэлбэг + Тос (ШТМ) + Түлшний нийт зардлын нийлбэр">—</div><div class="sub" id="kpi-total-sub">—</div><div class="kpi-delta" id="kpi-total-delta"></div></div>
-      <div class="kpi c2"><div class="label">Сэлбэгийн зардал</div><div class="value" id="kpi-selbeg" data-explain="Тухайн сард худалдан авсан бүх сэлбэг хэрэгслийн үнийн дүнгийн нийлбэр">—</div><div class="sub" id="kpi-selbeg-sub">—</div><div class="kpi-delta" id="kpi-selbeg-delta"></div></div>
-      <div class="kpi c3"><div class="label">Тосны зарцуулалт</div><div class="value" id="kpi-tos" data-explain="Тухайн сард техник тус бүрт хийсэн техникийн үйлчилгээ (тос, шүүлтүүр гэх мэт)-ний нийт зардал">—</div><div class="sub" id="kpi-tos-sub">—</div><div class="kpi-delta" id="kpi-tos-delta"></div></div>
-      <div class="kpi c4"><div class="label">Түлшний зардал</div><div class="value" id="kpi-tuls" data-explain="Тухайн сард цэнэглэсэн бүх түлшний нийт үнийн дүн (литр × дундаж үнэ)">—</div><div class="sub" id="kpi-liters">—</div><div class="kpi-delta" id="kpi-tuls-delta"></div></div>
+      <div class="kpi c1"><div class="month-ring" id="ring-kpi-total"><div class="month-ring-inner"><span class="month-ring-pct"></span></div></div><div class="label">Нийт зардал</div><div class="value" id="kpi-total" data-explain="Сэлбэг + Тос (ШТМ) + Түлшний нийт зардлын нийлбэр">—</div><div class="sub" id="kpi-total-sub">—</div><div class="kpi-delta" id="kpi-total-delta"></div><div class="kpi-spark" id="kpi-total-spark" title="Сүүлийн саруудын чиг хандлага"></div></div>
+      <div class="kpi c2"><div class="label">Сэлбэгийн зардал</div><div class="value" id="kpi-selbeg" data-explain="Тухайн сард худалдан авсан бүх сэлбэг хэрэгслийн үнийн дүнгийн нийлбэр">—</div><div class="sub" id="kpi-selbeg-sub">—</div><div class="kpi-delta" id="kpi-selbeg-delta"></div><div class="kpi-spark" id="kpi-selbeg-spark" title="Сүүлийн саруудын чиг хандлага"></div></div>
+      <div class="kpi c3"><div class="label">Тосны зарцуулалт</div><div class="value" id="kpi-tos" data-explain="Тухайн сард техник тус бүрт хийсэн техникийн үйлчилгээ (тос, шүүлтүүр гэх мэт)-ний нийт зардал">—</div><div class="sub" id="kpi-tos-sub">—</div><div class="kpi-delta" id="kpi-tos-delta"></div><div class="kpi-spark" id="kpi-tos-spark" title="Сүүлийн саруудын чиг хандлага"></div></div>
+      <div class="kpi c4"><div class="label">Түлшний зардал</div><div class="value" id="kpi-tuls" data-explain="Тухайн сард цэнэглэсэн бүх түлшний нийт үнийн дүн (литр × дундаж үнэ)">—</div><div class="sub" id="kpi-liters">—</div><div class="kpi-delta" id="kpi-tuls-delta"></div><div class="kpi-spark" id="kpi-tuls-spark" title="Сүүлийн саруудын чиг хандлага"></div></div>
       <div class="kpi c5"><div class="label">Нийт бичлэг</div><div class="value" id="kpi-records" data-explain="Сэлбэг, Тос, Түлшний бүх гүйлгээний мөрийн нийт тоо">—</div></div>
     </div>
 
@@ -1530,6 +1537,12 @@
       <h3>Зардлын чиг хандлага (сар сараар)</h3>
       <div class="hint">Сар нэмэгдэх бүрд шинэ цэг автоматаар нэмэгдэнэ</div>
       <div class="chart-wrap" style="height:280px;"><canvas id="cmpTrendChart"></canvas></div>
+    </div>
+    <div class="card scene" style="margin-bottom:18px;">
+      <h3>Техник хоорондын зардлын чиг хандлага</h3>
+      <div class="hint">Техникүүдийг сонгож, сар сарын нийт зардлыг нь зэрэгцүүлэн харьцуулна (тогтмол өсөж буй техникийг олоход тус болно)</div>
+      <div id="cmpParkTrendChips" class="cat-filter" style="margin-bottom:12px;"></div>
+      <div class="chart-wrap" style="height:300px;"><canvas id="cmpParkTrendChart"></canvas></div>
     </div>
     <div class="card scene" style="margin-bottom:18px;">
       <h3>Ангиллын эзлэх хувийн шилжилт</h3>
@@ -2477,6 +2490,7 @@ function updateMainDashboard(sel, tos, tul, recordsLabel, titleSuffix){
   mainDonutChart.update();
   animateValue('donutCenterValue', sel+tos+tul, fmtM, 700);
   renderMainLegend(sel, tos, tul);
+  if(!titleSuffix) renderKpiSparklines();
   const barTitle = document.querySelector('#page-dashboard .grid2 .card h3');
   if(barTitle) barTitle.textContent = titleSuffix ? `Сэлбэг vs Тос vs Түлш — ${titleSuffix} (сая₮)` : 'Сэлбэг vs Тос vs Түлш (сая₮)';
 }
@@ -2519,6 +2533,27 @@ function renderSparklineSVG(values, w, h){
     <circle class="spark-dot" cx="${lastPt[0].toFixed(1)}" cy="${lastPt[1].toFixed(1)}" r="2.3"></circle>
   </svg>`;
   return { svg, trend };
+}
+
+// --- Бэлэн байгаа бүх сарын Сэлбэг/Тос/Түлш/Нийт зардлын цуврал (KPI sparkline болон 3+ сарын trend-д ашиглана) ---
+function getMetricSeries(metricKey){
+  const histMonths = REPORT_MONTHS.filter(m=>REPORT_DATA[m.key]);
+  return histMonths.map(m=>{
+    const d = REPORT_DATA[m.key];
+    if(metricKey==='total') return d.selbeg + d.tos + d.tuls;
+    return d[metricKey];
+  });
+}
+function renderKpiSparklines(){
+  const specs = [['kpi-total-spark','total'], ['kpi-selbeg-spark','selbeg'], ['kpi-tos-spark','tos'], ['kpi-tuls-spark','tuls']];
+  specs.forEach(([elId, metricKey])=>{
+    const el = document.getElementById(elId);
+    if(!el) return;
+    const values = getMetricSeries(metricKey);
+    const { svg, trend } = renderSparklineSVG(values, 56, 22);
+    el.innerHTML = values.length >= 2 ? svg : '';
+    el.className = 'kpi-spark' + (values.length >= 2 ? ' spark-'+trend : '');
+  });
 }
 
 function renderReport(monthKey){
@@ -3731,10 +3766,12 @@ function hideParkDetail(){
 }
 // Build the "Бүгд парк" dropdown from the UNION of every month's park codes,
 // so a park that only appears in one month's report is still selectable.
-SB = REPORT_DATA['2026-07'].SB.concat(REPORT_DATA['2026-08'].SB);
-TO = REPORT_DATA['2026-07'].TO.concat(REPORT_DATA['2026-08'].TO);
-TU = REPORT_DATA['2026-07'].TU.concat(REPORT_DATA['2026-08'].TU);
-DG = REPORT_DATA['2026-07'].DG.concat(REPORT_DATA['2026-08'].DG);
+// Шинэ сар REPORT_DATA-д нэмэгдэх бүрд энд автоматаар орж ирнэ (сар хатуу бичигдээгүй).
+const ALL_MONTH_KEYS_FOR_UNION = Object.keys(REPORT_DATA);
+SB = [].concat(...ALL_MONTH_KEYS_FOR_UNION.map(k=>REPORT_DATA[k].SB));
+TO = [].concat(...ALL_MONTH_KEYS_FOR_UNION.map(k=>REPORT_DATA[k].TO));
+TU = [].concat(...ALL_MONTH_KEYS_FOR_UNION.map(k=>REPORT_DATA[k].TU));
+DG = [].concat(...ALL_MONTH_KEYS_FOR_UNION.map(k=>REPORT_DATA[k].DG));
 ALL_PARK_GROUPS = buildParkGroups();
 ALL_PARK_LIST = Object.values(ALL_PARK_GROUPS).flat();
 initParkDropdown('dashParkDd', (selectedParks)=>{
@@ -4203,6 +4240,65 @@ function renderCompareTab(){
       scales:{y:{beginAtZero:true, grid:{color:gridColor()}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
     }
   });
+
+  // --- Техник хоорондын зардлын чиг хандлага (олон техникийг сонгож зэрэгцүүлэх) ---
+  const parkTrendChipsEl = document.getElementById('cmpParkTrendChips');
+  if(parkTrendChipsEl){
+    const lastMonthData = REPORT_DATA[months[months.length-1].key];
+    const lastMonthTotals = {};
+    function addParkAmt(arr){ arr.forEach(r=>{ if(!r.park) return; lastMonthTotals[r.park] = (lastMonthTotals[r.park]||0) + r.amount; }); }
+    addParkAmt(lastMonthData.SB); addParkAmt(lastMonthData.TO); addParkAmt(lastMonthData.TU);
+    const rankedParks = Object.entries(lastMonthTotals).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+    const parkTrendColors = ['#3b6fe0','#e0384a','#22d38a','#e0a530','#7c5cf0','#22b8cf','#e0456f','#a98bff'];
+
+    if(!window._cmpParkTrendSelected) window._cmpParkTrendSelected = rankedParks.slice(0,5);
+    window._cmpParkTrendSelected = window._cmpParkTrendSelected.filter(p=>rankedParks.includes(p));
+    if(window._cmpParkTrendSelected.length===0) window._cmpParkTrendSelected = rankedParks.slice(0,5);
+
+    function renderParkTrendChart(){
+      const selected = window._cmpParkTrendSelected;
+      const datasets = selected.map((park,i)=>({
+        label: park,
+        data: getParkTotalSeries(park).map(v=>v/1e6),
+        borderColor: parkTrendColors[i%parkTrendColors.length],
+        backgroundColor: parkTrendColors[i%parkTrendColors.length],
+        tension:0.3, borderWidth:2.5, pointRadius:4
+      }));
+      mkChart('cmpParkTrendChart', {
+        type:'line',
+        data:{ labels: monthLabels, datasets },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          animation: progressiveLineAnimation(monthLabels.length),
+          plugins:{legend:{position:'bottom', labels:{boxWidth:10}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}},
+          scales:{y:{beginAtZero:true, grid:{color:gridColor()}, title:{display:true, text:'сая₮'}}, x:{grid:{display:false}}}
+        }
+      });
+    }
+    function renderParkTrendChips(){
+      parkTrendChipsEl.innerHTML = '';
+      rankedParks.slice(0,12).forEach(park=>{
+        const chip = document.createElement('div');
+        chip.className = 'cat-chip' + (window._cmpParkTrendSelected.includes(park) ? ' active' : '');
+        chip.textContent = park;
+        chip.addEventListener('click', ()=>{
+          const sel = window._cmpParkTrendSelected;
+          const idx = sel.indexOf(park);
+          if(idx >= 0){
+            if(sel.length > 1) sel.splice(idx,1);
+          } else {
+            if(sel.length >= 8) sel.shift();
+            sel.push(park);
+          }
+          renderParkTrendChips();
+          renderParkTrendChart();
+        });
+        parkTrendChipsEl.appendChild(chip);
+      });
+    }
+    renderParkTrendChips();
+    renderParkTrendChart();
+  }
 }
 renderCompareTab();
 
