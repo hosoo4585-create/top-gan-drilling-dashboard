@@ -281,6 +281,50 @@
     animation:kpiGlowRotate 2.6s linear infinite; animation-play-state:paused;
   }
   .kpi:hover::before{ opacity:1; animation-play-state:running; }
+  /* Shine sweep: хулгана авчирахад гялалзсан туяа зүүнээс баруун тийш гүйнэ */
+  .kpi::after, .load-more-btn::after{
+    content:""; position:absolute; top:0; left:-60%; width:40%; height:100%;
+    background:linear-gradient(105deg, transparent 0%, rgba(255,255,255,.32) 50%, transparent 100%);
+    transform:skewX(-18deg); opacity:0; pointer-events:none;
+  }
+  .kpi:hover::after, .load-more-btn:hover::after{ animation:shineSweep .75s ease-out; }
+  .load-more-btn{ position:relative; overflow:hidden; }
+  @keyframes shineSweep{
+    0%{ left:-60%; opacity:0; }
+    20%{ opacity:1; }
+    100%{ left:130%; opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){ .kpi::after, .load-more-btn::after{ display:none; } }
+  /* Ripple: дарсан цэгээс долгион тарна */
+  .ripple-host{ position:relative; overflow:hidden; }
+  .ripple-wave{
+    position:absolute; border-radius:50%; background:currentColor; opacity:.28; pointer-events:none;
+    transform:scale(0); animation:rippleWave .6s ease-out forwards;
+  }
+  @keyframes rippleWave{ to{ transform:scale(1); opacity:0; } }
+  /* Scroll progress: гүйлгэх явцыг харуулах нимгэн зураас */
+  .scroll-progress{
+    position:fixed; top:3px; left:0; height:2px; width:0%; z-index:99998; pointer-events:none;
+    background:linear-gradient(90deg,#22d38a,#3b6fe0,#7c5cf0); opacity:0; transition:opacity .2s ease;
+  }
+  .scroll-progress.on{ opacity:.9; }
+  /* Donut: сонгосон хэсгийн нэр/дүн голд шилжих */
+  #donut-legend li{ cursor:pointer; transition:background .2s ease, transform .2s ease; border-radius:8px; }
+  #donut-legend li.seg-active{ background:rgba(124,92,240,.14); transform:translateX(3px); }
+  .donut-center-label{ transition:opacity .2s ease; }
+  /* Оргил цэг дээрх pulse */
+  .peak-pulse{ position:absolute; width:14px; height:14px; margin:-7px 0 0 -7px; pointer-events:none; }
+  .peak-pulse::before, .peak-pulse::after{
+    content:""; position:absolute; inset:0; border-radius:50%; border:2px solid #e0384a;
+    animation:peakPulse 1.8s ease-out infinite;
+  }
+  .peak-pulse::after{ animation-delay:.9s; }
+  @keyframes peakPulse{ 0%{ transform:scale(.5); opacity:.9; } 100%{ transform:scale(2.6); opacity:0; } }
+  .chart-wrap{ position:relative; }
+  @media (prefers-reduced-motion: reduce){
+    .ripple-wave, .peak-pulse, .scroll-progress{ display:none !important; }
+    .row-enter{ animation:none !important; }
+  }
   @keyframes kpiGlowRotate{ to{ transform:rotate(360deg); } }
   .kpi .label{font-size:12.5px; color:rgba(255,255,255,.75); margin-bottom:8px;}
   .kpi .value{font-size:25px; font-weight:700; line-height:1;}
@@ -958,10 +1002,56 @@
   @media (max-width:520px){
     .story-intro-pop{ right:-60px; width:min(260px, calc(100vw - 32px)); }
   }
+
+  /* ===== Утасны харагдац (<=720px) ===== */
+  @media (max-width:720px){
+    html,body{overflow-x:hidden;}
+    .topbar{flex-wrap:wrap; gap:8px; padding:10px 12px;}
+    .topbar .brand h1{font-size:13px; white-space:normal; line-height:1.25;}
+    .topbar .brand .mark{height:28px;}
+    .topbar-right{width:100%; gap:8px; overflow-x:auto; overflow-y:hidden; padding-bottom:2px; scrollbar-width:none; -webkit-overflow-scrolling:touch;}
+    .topbar-right::-webkit-scrollbar{display:none;}
+    .topbar .logout-btn{flex-shrink:0; white-space:nowrap; padding:7px 12px; font-size:12px;}
+    .story-intro-pop{position:fixed !important; left:12px !important; right:12px !important; top:auto !important; bottom:calc(14px + env(safe-area-inset-bottom,0px)) !important; width:auto !important; transform:none !important; z-index:60;}
+    .story-intro-pop{white-space:normal !important; text-align:left; cursor:default;}
+    .kpi.c1{grid-column:1 / -1;}
+    .layout{flex-direction:column;}
+    .sidebar{width:100% !important; height:auto !important; position:relative !important; top:0 !important; padding:10px 12px; border-right:none; border-bottom:1px solid var(--line); overflow:visible;}
+    .sidebar-collapse-btn{display:none !important;}
+    .sidebar .month-dd{margin-bottom:8px;}
+    .nav-list{display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; -webkit-overflow-scrolling:touch;}
+    .nav-list::-webkit-scrollbar{display:none;}
+    .nav-indicator{display:none !important;}
+    .nav-item{flex-shrink:0; white-space:nowrap; margin-bottom:0; padding:9px 13px; font-size:13px; background:var(--panel);}
+    main{padding:16px 12px 48px; width:100%; margin:0; box-sizing:border-box;}
+    .subtab-bar{overflow-x:auto; scrollbar-width:none; gap:8px; -webkit-overflow-scrolling:touch;}
+    .subtab-bar::-webkit-scrollbar{display:none;}
+    .subtab{flex-shrink:0; white-space:nowrap;}
+    .search-box{max-width:100%; box-sizing:border-box;}
+    .card:has(> table){overflow-x:auto !important; -webkit-overflow-scrolling:touch;}
+    .cmp-month-picker-field select{max-width:100%;}
+    h2.page-title{font-size:17px;}
+    .kpis{gap:10px; margin-bottom:18px;}
+    .kpi{padding:14px;}
+    .kpi .value{font-size:19px; white-space:nowrap;}
+    .kpi .label{font-size:12px; padding-right:34px;}
+    .kpi-spark{display:none;}
+    .month-ring{transform:scale(.8); transform-origin:top right;}
+    .grid2{gap:14px;}
+    .card{padding:14px;}
+    .chart-wrap{max-width:100%;}
+    .table-scroll{-webkit-overflow-scrolling:touch;}
+    table{font-size:12px;}
+    th,td{padding:8px 8px;}
+    .cat-filter{overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none;}
+    .cat-chip{flex-shrink:0; white-space:nowrap;}
+  }
+  @media (max-width:380px){ .kpis{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
 <div class="page-progress" id="pageProgress"></div>
+<div class="scroll-progress" id="scrollProgress"></div>
 
 <div id="loginGate">
   <div class="login-bg-mesh"></div>
@@ -1057,7 +1147,7 @@
         <div class="chart-wrap" style="height:200px;"><canvas id="donutChart"></canvas>
           <div class="donut-center">
             <div class="donut-center-value" id="donutCenterValue" data-explain="Сэлбэг, Тос, Түлшний зардлын нийлбэр дүн">—</div>
-            <div class="donut-center-label">нийт</div>
+            <div class="donut-center-label" id="donutCenterLabel">нийт</div>
           </div>
         </div>
         <ul class="legend-list" id="donut-legend"></ul>
@@ -2024,9 +2114,54 @@ function mkChart(id, cfg){
   const wantsLegend = !!(legendCfg && legendCfg.display !== false);
   if(wantsLegend) plugins.legend = Object.assign({}, legendCfg, { display:false });
   withDimOnHover(cfg);
+  const isLine = cfg.type === 'line';
+  let repositionPulse = null;
+  if(isLine){ const prevResize = opts.onResize; opts.onResize = function(c, size){ if(repositionPulse) repositionPulse(); if(typeof prevResize === 'function') prevResize(c, size); }; }
   const chart = new Chart(document.getElementById(id), cfg);
   if(wantsLegend) renderChartLegendHTML(id, chart);
+  if(isLine) repositionPulse = addPeakPulse(id, chart);
   return chart;
+}
+
+// --- Шугаман графикийн хамгийн өндөр цэг дээр цохилт (pulse) ---
+function addPeakPulse(canvasId, chart){
+  try{
+    const canvas = document.getElementById(canvasId);
+    const wrap = canvas && canvas.parentElement;
+    if(!wrap) return null;
+    wrap.querySelectorAll('.peak-pulse').forEach(e=>e.remove());
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+    if(!chart.data || !chart.data.datasets || chart.data.datasets.length > 6) return null;
+    let el = null;
+    const place = ()=>{
+      if(!chart.ctx || !chart.getDatasetMeta) return;
+      let best = null;
+      chart.data.datasets.forEach((ds,di)=>ds.data.forEach((v,i)=>{ if(typeof v === 'number' && (best === null || v > best.v)) best = {v,di,i}; }));
+      if(!best) return;
+      const pt = chart.getDatasetMeta(best.di).data[best.i];
+      if(!pt) return;
+      if(!el){ el = document.createElement('span'); el.className = 'peak-pulse'; wrap.appendChild(el); }
+      el.style.left = (canvas.offsetLeft + pt.x) + 'px';
+      el.style.top = (canvas.offsetTop + pt.y) + 'px';
+    };
+    setTimeout(place, 1100);
+    return place;
+  }catch(e){ return null; }
+}
+
+// --- Хүснэгтийн мөр доороос гулсан орж ирэх (сар солиход) ---
+function staggerRowsIn(tbodyIds){
+  tbodyIds.forEach(id=>{
+    const tb = document.getElementById(id);
+    if(!tb) return;
+    Array.from(tb.children).slice(0,14).forEach((tr,i)=>{
+      tr.classList.add('row-enter');
+      tr.style.animationDelay = (230 + i*32) + 'ms';
+      const done = ()=>{ tr.classList.remove('row-enter'); tr.style.animationDelay = ''; };
+      tr.addEventListener('animationend', done, {once:true});
+      setTimeout(done, 1400);
+    });
+  });
 }
 
 // Шугаман диаграм зүүнээс баруун тийш "зурагдаж" гарч ирэх анимаци (Chart.js progressive draw)
@@ -2453,10 +2588,52 @@ Chart.defaults.plugins.tooltip.animation = { duration: 160, easing: 'easeOutQuar
 
 const donutColors = ['#3b6fe0','#7c5cf0','#22b8cf'];
 
+// --- Bar график дээр дундаж шугам: хажуугаас зурагдан орж ирнэ ---
+const avgLinePlugin = {
+  id:'avgLine',
+  afterInit(chart){
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce){ chart.$avgP = 1; return; }
+    chart.$avgP = 0;
+    const t0 = performance.now();
+    const step = (t)=>{
+      if(!chart.ctx) return;
+      const p = Math.max(0, Math.min(1, (t - t0 - 450) / 700));
+      chart.$avgP = 1 - Math.pow(1-p, 3);
+      try{ chart.draw(); }catch(e){}
+      if(p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  },
+  afterDatasetsDraw(chart){
+    try{
+      const ds = chart.data.datasets[0];
+      if(!ds || !chart.scales || !chart.scales.y || (chart.options && chart.options.indexAxis === 'y')) return;
+      const vals = ds.data.filter(v=>typeof v === 'number');
+      if(vals.length < 2) return;
+      const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
+      const a = chart.chartArea, ctx = chart.ctx;
+      const y = chart.scales.y.getPixelForValue(avg);
+      const p = chart.$avgP == null ? 1 : chart.$avgP;
+      if(!(y >= a.top && y <= a.bottom) || p <= 0) return;
+      ctx.save();
+      ctx.strokeStyle = '#e0a530'; ctx.lineWidth = 1.6; ctx.setLineDash([6,4]);
+      ctx.beginPath(); ctx.moveTo(a.left, y); ctx.lineTo(a.left + (a.right - a.left) * p, y); ctx.stroke();
+      if(p >= 0.98){
+        ctx.setLineDash([]); ctx.fillStyle = '#e0a530'; ctx.font = '600 11px Segoe UI, sans-serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+        ctx.fillText('Дундаж ' + avg.toLocaleString('mn-MN',{maximumFractionDigits:1}), a.right - 4, y - 3);
+      }
+      ctx.restore();
+    }catch(e){}
+  }
+};
+
 let mainBarChart = new Chart(document.getElementById('barChart'), {
   type:'bar',
   data:{labels:['Сэлбэг','Тос','Түлш'], datasets:[{data:[0,0,0], backgroundColor:donutColors, borderRadius:6, maxBarThickness:80}]},
-  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{y:{beginAtZero:true, grid:{color:gridColor()}}, x:{grid:{display:false}}}}
+  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw.toLocaleString('mn-MN',{maximumFractionDigits:1})+" сая₮"}}}, scales:{y:{beginAtZero:true, grid:{color:gridColor()}}, x:{grid:{display:false}}}},
+  plugins:[avgLinePlugin]
 });
 
 let mainDonutChart = new Chart(document.getElementById('donutChart'), {
@@ -2473,8 +2650,29 @@ function renderMainLegend(sel, tos, tul){
       const li=document.createElement('li');
       li.style.animationDelay = (i*90)+'ms';
       li.innerHTML = `<span><span class="dot" style="background:${color}"></span>${name}</span><span>${((val/sum)*100).toFixed(1)}%</span>`;
+      li.addEventListener('mouseenter', ()=>focusDonutSegment(i));
+      li.addEventListener('mouseleave', ()=>focusDonutSegment(null));
+      li.addEventListener('click', ()=>focusDonutSegment(donutFocusIdx===i ? null : i));
       legend.appendChild(li);
     });
+  lastDonutVals = [sel, tos, tul];
+  donutFocusIdx = null;
+}
+// Donut: сонгосон хэсэг гадагш цухуйж, голд нь тухайн хэсгийн нэр/дүн шилжинэ
+let lastDonutVals = [0,0,0], donutFocusIdx = null;
+const DONUT_NAMES = ['Сэлбэг','Тос','Түлш'];
+function focusDonutSegment(idx){
+  if(idx === donutFocusIdx) return;
+  donutFocusIdx = idx;
+  const ds = mainDonutChart.data.datasets[0];
+  ds.offset = [0,1,2].map(i=> i===idx ? 14 : 0);
+  mainDonutChart.update();
+  const total = lastDonutVals.reduce((a,b)=>a+b,0);
+  const val = idx==null ? total : lastDonutVals[idx];
+  animateValue('donutCenterValue', val, fmtM, 380);
+  const lbl = document.getElementById('donutCenterLabel');
+  if(lbl) lbl.textContent = idx==null ? 'нийт' : DONUT_NAMES[idx];
+  Array.from(legend.children).forEach((li,i)=>li.classList.toggle('seg-active', i===idx));
 }
 
 function updateMainDashboard(sel, tos, tul, recordsLabel, titleSuffix){
@@ -3953,6 +4151,7 @@ function switchReportMonth(key){
   if(m && label) label.textContent = m.label;
   renderReport(key);
   hideParkDetail();
+  staggerRowsIn(['top10-body','sb-body','to-body','tu-body']);
   if(mainEl){
     setTimeout(() => { mainEl.classList.remove('month-fading'); }, 140);
   }
@@ -4201,6 +4400,7 @@ function renderCompareTab(){
   }
   function cmpChart(id, data, title){
     mkChart(id, {
+      plugins:[avgLinePlugin],
       type:'bar',
       data:{labels, datasets:[{data:data.map(v=>v/1e6), backgroundColor:cmpColors, borderRadius:8, maxBarThickness:90}]},
       options:{
@@ -4819,6 +5019,41 @@ initScrollReveal();
       if(!seen && pop.classList.contains('show') && !storyBtn.contains(e.target)) markSeen();
     });
   })();
+})();
+
+// ===== Ripple (товч/чип дарахад долгион) + Scroll progress =====
+(function(){
+  const RIPPLE_SEL = '.load-more-btn, .cat-chip, .subtab, .logout-btn, .story-ctl-btn, .story-btn:not(#storyModeBtn)';
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce){
+    document.addEventListener('pointerdown', (e)=>{
+      const host = e.target.closest && e.target.closest(RIPPLE_SEL);
+      if(!host) return;
+      const r = host.getBoundingClientRect();
+      const size = Math.max(r.width, r.height) * 2.2;
+      const wave = document.createElement('span');
+      wave.className = 'ripple-wave';
+      wave.style.width = wave.style.height = size + 'px';
+      wave.style.left = (e.clientX - r.left - size/2) + 'px';
+      wave.style.top = (e.clientY - r.top - size/2) + 'px';
+      const hadHost = host.classList.contains('ripple-host');
+      host.classList.add('ripple-host');
+      host.appendChild(wave);
+      setTimeout(()=>{ wave.remove(); if(!hadHost && !host.querySelector('.ripple-wave')) host.classList.remove('ripple-host'); }, 650);
+    }, true);
+  }
+  const bar = document.getElementById('scrollProgress');
+  if(bar){
+    const upd = ()=>{
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      bar.style.width = (h > 0 ? Math.min(100, y / h * 100) : 0) + '%';
+      bar.classList.toggle('on', y > 4);
+    };
+    window.addEventListener('scroll', upd, {passive:true});
+    window.addEventListener('resize', upd);
+    upd();
+  }
 })();
 </script>
 </body>
